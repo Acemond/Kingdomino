@@ -2,33 +2,33 @@
 local playerColors = {"Red", "Orange", "Purple", "White"}
 local playerPieces = {
   orange = {
-  	handZone = "96929a",
-  	castleTile = "9ab771",
-  	castle = "768b9c",
-  	kings = {"5ec087", "b28f70"}
+    handZone = "96929a",
+    castleTile = "9ab771",
+    castle = "768b9c",
+    kings = {"5ec087", "b28f70"}
   },
   purple = {
-  	handZone = "6ea086",
-  	castleTile = "7db35a",
-  	castle = "a1e204",
-  	kings = {"b95ebf", "8c2d1c"}
+    handZone = "6ea086",
+    castleTile = "7db35a",
+    castle = "a1e204",
+    kings = {"b95ebf", "8c2d1c"}
   },
   red = {
-  	handZone = "31279b",
-  	castleTile = "f6948c",
+    handZone = "31279b",
+    castleTile = "f6948c",
     castle = "ae130d",
-  	kings = {"fa1c74", "59fe79"}
+    kings = {"fa1c74", "59fe79"}
   },
   white = {
-  	handZone = "f85ea1",
-  	castleTile = "537260",
-  	castle = "fd4160",
-  	kings = {"d2cd4e", "177138"}
+    handZone = "f85ea1",
+    castleTile = "537260",
+    castle = "fd4160",
+    kings = {"d2cd4e", "177138"}
   }
 }
 local buildingZones = {"b6d71a", "3b40dd", "51e2bf", "58ae27", "091f68", "372846"}
 local bagsGuid = {
-	kings = "1403b9",
+  kings = "1403b9",
   coin1 = "16b5c1",
   coin3 = "b9a9dd",
   coin9 = "9dce24",
@@ -42,9 +42,9 @@ local currentyPlayingColors = {
   white = false,
 }
 local gameMode = {
-	kingdomino = false,
-	advanced2p = false,
-	queendomino = true
+  kingdomino = false,
+  advanced2p = false,
+  queendomino = true
 }
 
 local queendominoDeckGuid = "fadfa0"
@@ -80,8 +80,8 @@ function assignTilesValue(deck)
 end
 
 function addPlayer(playerColor)
-	print("Called addPlayer with")
-	print(playerColor)
+  print("Called addPlayer with")
+  print(playerColor)
   buildCastle(playerColor)
   takeCoins(playerColor)
 
@@ -143,7 +143,7 @@ end
 
 function quickSetup(playerCount)
   for i = 1, playerCount, 1 do
-  	addPlayer(playerColors[i]:lower())
+    addPlayer(playerColors[i]:lower())
   end
 
   getObjectFromGUID("af7bb2").call("startGame")
