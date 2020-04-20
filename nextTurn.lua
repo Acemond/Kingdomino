@@ -7,6 +7,8 @@ local rightPositions = {
 local rightZoneGuid = "358f4e"
 local leftZoneGuid = "38ed1c"
 local rightBoardGuid = "d3be34"
+local leftBuildingsBoardGuid = "a066dc"
+local rightBuildingsBoardGuid = "a77d62"
 
 function onLoad()
   self.createButton({
@@ -25,21 +27,116 @@ function onClick()
 end
 
 function nextTurn()
-  local deck = Global.getVar("deck")
+  local deck = Global.get("deck")
 
   if pcall(checkZones) then
+    sendDragonBack()
+    shiftBuildingsStack()
     moveZoneContents()
-    deck.shuffle()
-    takeTiles(deck, 4)
+
+    if deck ~= nil then
+      takeNextTurnTiles(deck)
+    end
+  end
+end
+
+function sendDragonBack()
+  getObjectFromGUID("447c40").setPositionSmooth({-8.28, 1.23, 4.10})
+  getObjectFromGUID("447c40").setRotationSmooth({0, 0, 0})
+end
+
+function shiftBuildingsStack()
+  local buildingZones = Global.get("buildingZones")
+  local zones = {}
+  for _, zoneGuid in pairs(buildingZones) do
+    table.insert(zones, getObjectFromGUID(zoneGuid))
+  end
+
+  for i = 1, #zones, 1 do
+    if not buildingPresent(zones[i]) then
+      local sourceIndex = getNextBuilding(zones, i, #zones)
+      if not sourceIndex then
+        drawBuilding(zones[i])
+      else
+        moveBuilding(zones[sourceIndex], zones[i])
+      end
+    end
+  end
+end
+
+function drawBuilding(zone)
+  local buildingsDeck = getObjectFromGUID(Global.get("buildingsDeckGuid"))
+  buildingsDeck.takeObject({position = zone.getPosition()})
+end
+
+function buildingPresent(zone)
+  local count = 0
+  for _, obj in pairs(zone.getObjects()) do
+    if not obj.isSmoothMoving() then
+      count = count + 1
+    end
+  end
+  return count > 1
+end
+
+function getNextBuilding(zones, cursor, max)
+  if buildingPresent(zones[cursor]) then
+    return cursor
+  elseif cursor == max then
+    return false
+  else
+    return getNextBuilding(zones, cursor + 1, max)
+  end
+end
+
+function moveBuilding(sourceZone, destinationZone)
+  for _,obj in ipairs(sourceZone.getObjects()) do
+    if obj.guid ~= leftBuildingsBoardGuid and obj.guid ~= rightBuildingsBoardGuid then
+      obj.setPositionSmooth(destinationZone.getPosition(), false)
+    end
   end
 end
 
 function checkZones()
-  if #getObjectFromGUID(rightZoneGuid).getObjects() <= 8 then
+  checkRightZone()
+  checkLeftZone()
+end
+
+function checkRightZone()
+  local gameMode = Global.get("gameMode")
+
+  local expectedObjectsCount = 0
+  if gameMode.kingdomino and not gameMode.queendomino then
+    if #getPlayingColors() == 2 and not gameMode.advanced2p then
+      expectedObjectsCount = 5
+    elseif #getPlayingColors() == 3 then
+      expectedObjectsCount = 7
+    else
+      expectedObjectsCount = 9
+    end
+  elseif #getPlayingColors() == 2 then
+    expectedObjectsCount = 7
+  elseif #getPlayingColors() == 3 then
+    expectedObjectsCount = 8
+  elseif #getPlayingColors() == 4 then
+    expectedObjectsCount = 9
+  end
+
+  if #getObjectFromGUID(rightZoneGuid).getObjects() < expectedObjectsCount then
     broadcastToAll("Pick dominos before clicking Next Turn", {r=1, g=0, b=0})
     error()
   end
-  if #getObjectFromGUID(leftZoneGuid).getObjects() > 1 then
+end
+
+function checkLeftZone()
+  local gameMode = Global.get("gameMode")
+
+  local expectedObjects = 1
+  if gameMode.queendomino and #getPlayingColors() == 3 then
+    expectedObjectsCount = 2
+  end
+
+  if #getObjectFromGUID(leftZoneGuid).getObjects() > expectedObjects then
     broadcastToAll("Clear left dominos before clicking Next Turn", {r=1, g=0, b=0})
     error()
   end
@@ -59,6 +156,33 @@ function moveZoneContents()
   end
 end
 
+function getPlayingColors()
+  local currentlyPlayingPlayers = Global.get("currentyPlayingColors")
+
+  local playingColors = {}
+  for color, playing in pairs(currentlyPlayingPlayers) do
+    if playing then table.insert(playingColors, color) end
+  end
+  return playingColors
+end
+
+function takeNextTurnTiles(deck)
+  deck.shuffle()
+
+  local gameMode = Global.get("gameMode")
+  if gameMode.kingdomino and not gameMode.queendomino then
+    if #getPlayingColors() == 2 and not gameMode.advanced2p then
+      takeTiles(deck, 2)
+    elseif #getPlayingColors() == 3 then
+      takeTiles(deck, 3)
+    else
+      takeTiles(deck, 4)
+    end
+  else
+    takeTiles(deck, 4)
+  end
+end
+
 function takeTiles(deck, count)
   local tiles = deck.getObjects()
   local guids = {}
@@ -67,21 +191,24 @@ function takeTiles(deck, count)
   end
 
   local positions = getTilesPosition(guids)
-
   for guid, position in pairs(positions) do
-    deck.takeObject({
-      guid = guid,
-      position = position,
-      rotation = {0, 180, 180},
-      callback_function = function(obj) obj.flip() end
-    })
+    if #deck.getObjects() ~= 0 then
+      deck.takeObject({
+        guid = guid,
+        position = position,
+        rotation = {0, 180, 0}
+      })
+    else
+      Wait.frames(function() 
+          getObjectFromGUID(guid).setPositionSmooth(position, false)
+          getObjectFromGUID(guid).setRotationSmooth({0, 180, 0}, false)
+        end, 1)
+    end
   end
-
-  return guids
 end
 
 function getTilesPosition(guids)
-  local values = Global.getVar('tileValues')
+  local values = Global.get('tileValues')
 
   local tilesByValue = {}
   local tileValues = {}
@@ -95,7 +222,7 @@ function getTilesPosition(guids)
   table.sort(tileValues)
 
   local result = {}
-  for i,obj in ipairs(tileValues) do
+  for i, obj in ipairs(tileValues) do
     result[tilesByValue[obj]] = rightPositions[i]
   end
   return result
