@@ -1,14 +1,71 @@
-local rightPositions = {
-  {5.02, 3, -0.73},
-  {5.02, 3, -0.73 - 2.18},
-  {5.02, 3, -0.73 - 2.18 * 2},
-  {5.02, 3, -0.73 - 2.18 * 3}
-}
 local kingTargetPositions = {
   {0.00, 1.92, -1.00},
   {0.00, 1.92, -3.00},
   {0.00, 1.92, -5.00},
   {0.00, 1.92, -7.00}
+}
+local queendominoDeckButtonGuid = "69cbda"
+local kingdominoDeckButtonGuid = "9f4a39"
+local queendominoDeckGuid = "fadfa0"
+local kingdominoDeckGuid = "bb9861"
+local laCourDeckGuid = "e0b7ee"
+local laCourBoardGuid = "d19b4c"
+local ageOfGiantsDeckGuid = "fa3eea"
+local questsDeckGuid = "13e2e1"
+
+local queenGuid = "401270"
+local buildingsBoardGuids = {"a77d62", "a066dc"}
+local buildingsDeckGuid = "04de04"
+local dragonGuid = "447c40"
+local bagsGuid = {
+  kings = "1403b9",
+  coin1 = "38e164",
+  coin3 = "8468e9",
+  coin9 = "4638c0",
+  knight = "fe4062",
+  tower = "45152b",
+
+  giants = "da9688",
+
+  wheat = "68a4e4",
+  sheep = "98f12a",
+  wood = "443d34",
+  fish = "3725a9"
+}
+local buttonsToRemove = {
+  removeRed = "dfeee5",
+  addRed = "a1ef12",
+  removeOrange = "fa1b7c",
+  addOrange = "8d17b0",
+  removeWhite = "74e8b0",
+  addWhite = "f60fe5",
+  removePurple = "1bbcb3",
+  addPurple = "1b4b1a",
+  startGame = "af7bb2",
+  quickGame2p = "46971b",
+  quickGame3p = "4f4db6",
+  quickGame4p = "8dfa00",
+  laCourEnable = "6ff70f",
+  laCourDisable = "2c22ed",
+  kingdominoEnable = "9f4a39",
+  kingdominoDisable = "697d5b",
+  queendominoEnable = "69cbda",
+  queendominoDisable = "d64709",
+  ageOfGiantsEnable = "df1760",
+  ageOfGiantsDisable = "6a25ff",
+}
+local objectsToLock = {
+  queendominoDeckGuid, kingdominoDeckGuid, laCourDeckGuid, buildingsDeckGuid,
+  buildingsBoardGuids[1], buildingsBoardGuids[2], laCourBoardGuid,
+  bagsGuid.coin1, bagsGuid.coin3, bagsGuid.coin9, bagsGuid.knight, bagsGuid.tower
+}
+
+local mainDeckPosition = {0.00, 1.24, -23.00}
+local buildingsDeckPosition = {-5.88, 1.25, 4.05}
+local laCourDeckPosition = {-3.67, 1.22, 8.04}
+local questPositions = {
+  {-3.00, 1.03, -14.00},
+  {3.00, 1.03, -14.00}
 }
 
 function onLoad()
@@ -26,24 +83,19 @@ end
 function onClick()
   if #getPlayingColors() < 2 then
     broadcastToAll("There should be at least two players to start a game", {r=1, g=0, b=0})
+  elseif not Global.get("gameMode").kingdomino and not Global.get("gameMode").queendomino then
+    broadcastToAll("You should pick at least a deck to play", {r=1, g=0, b=0})
+  elseif Global.get("gameMode").kingdomino and Global.get("gameMode").queendomino then
+    broadcastToAll("Royal Wedding not implemented yet!", {r=1, g=0, b=0})
   else
     startGame()
   end
 end
 
-function destroyPlayersButtons()
-  self.setState(2)
-  destroyObjectIfExists("dfeee5")
-  destroyObjectIfExists("a1ef12")
-  destroyObjectIfExists("8d17b0")
-  destroyObjectIfExists("fa1b7c")
-  destroyObjectIfExists("f60fe5")
-  destroyObjectIfExists("1b4b1a")
-  destroyObjectIfExists("74e8b0")
-  destroyObjectIfExists("1bbcb3")
-  destroyObjectIfExists("46971b")
-  destroyObjectIfExists("4f4db6")
-  destroyObjectIfExists("8dfa00")
+function destroyObjectsIfExists(guids)
+  for _, guid in pairs(guids) do
+    destroyObjectIfExists(guid)
+  end
 end
 
 function destroyObjectIfExists(guid)
@@ -64,19 +116,116 @@ function getPlayingColors()
 end
 
 function startGame()
-  destroyPlayersButtons()
-  local message = "Starting game with players: "
-  for color, playing in pairs(Global.get("currentyPlayingColors")) do
-    if playing then message = message .. color .. " " end
-  end
-  print(message)
-
+  self.setState(2)
+  destroyObjectsIfExists(buttonsToRemove)
+  destroyObjectsIfExists(Global.get("hiddenBoards"))
   placeKings()
-  placeTiles()
+  
+  local gameMode = Global.get("gameMode")
+  if gameMode.ageOfGiants then
+    setupAgeOfGiants()
+  end
+  if gameMode.laCour then
+    setupLaCour()
+  end
+
+  if gameMode.queendomino and gameMode.kingdomino then
+    setupRoyalWedding()
+  elseif gameMode.queendomino then
+    setupQueendomino()
+  elseif gameMode.kingdomino then
+    setupKingdomino()
+  end
+
+  for gameName, state in pairs(gameMode) do
+    if not state then
+      destroyGamePieces(gameName)
+    end
+  end
+
+  lockExistingObjects(objectsToLock)
+end
+
+function lockExistingObjects(objectGuids)
+  for _, guid in pairs(objectGuids) do
+    local obj = getObjectFromGUID(guid)
+    if obj ~= nil then
+      obj.lock()
+    end
+  end
+end
+
+function setupQueendomino()
+  for _, color in pairs(getPlayingColors()) do
+    takeCoins(color)
+  end
+
+  local deck = getObjectFromGUID(queendominoDeckGuid)
+  deck.setPositionSmooth(mainDeckPosition)
+  deck.shuffle()
+  deck.call("dealTiles")
+  Global.set("deck", deck)
+
+  local buildingsDeck = getObjectFromGUID(buildingsDeckGuid)
+  buildingsDeck.setPositionSmooth(buildingsDeckPosition)
+  buildingsDeck.shuffle()
+  buildingsDeck.call("dealBuildings")
+end
+
+function takeCoins(playerColor)
+  local handPosition = getObjectFromGUID(Global.get("playerPieces")[playerColor].handZone).getPosition()
+  local coin1Bag = getObjectFromGUID(bagsGuid.coin1)
+  local coin3Bag = getObjectFromGUID(bagsGuid.coin3)
+  local knightBag = getObjectFromGUID(bagsGuid.knight)
+  coin1Bag.takeObject({smooth = false, position = {handPosition.x + 2, handPosition.y, handPosition.z}})
+  coin3Bag.takeObject({smooth = false, position = {handPosition.x + 1, handPosition.y, handPosition.z}})
+  coin3Bag.takeObject({smooth = false, position = {handPosition.x, handPosition.y, handPosition.z}})
+  knightBag.takeObject({smooth = false, position = {handPosition.x - 2, handPosition.y, handPosition.z}})
+end
+
+function setupLaCour()
+  laCourDeck = getObjectFromGUID(laCourDeckGuid)
+  laCourDeck.setPositionSmooth(laCourDeckPosition)
+  laCourDeck.shuffle()
+  laCourDeck.call("dealBuildings")
+end
+
+function setupAgeOfGiants()
+  kingdominoDeck = getObjectFromGUID(kingdominoDeckGuid)
+  ageOfGiantsDeck = getObjectFromGUID(ageOfGiantsDeckGuid)
+  questsDeck = getObjectFromGUID(questsDeckGuid)
+  questsDeck.shuffle()
+  questsDeck.takeObject({position = questPositions[1]})
+  questsDeck.takeObject({position = questPositions[2]})
+  questsDeck.destroy()
+  ageOfGiantsDeck.call("mergeValuesTableWith", kingdominoDeck)
+  ageOfGiantsDeck.setInvisibleTo({"Black", "Red", "Orange", "Purple", "White"})
+  kingdominoDeck.putObject(ageOfGiantsDeck)
+end
+
+function setupKingdomino()
+  deck = getObjectFromGUID(kingdominoDeckGuid)
+  deck.setPositionSmooth(mainDeckPosition)
+  deck.shuffle()
+  deck.call("limitSize")
+  deck.call("dealTiles")
+  Global.set("deck", deck)
+end
+
+function destroyGamePieces(gameName)
+  local gameObjects = Global.get("gameObjects")
+
+  for _, guid in pairs(gameObjects[gameName]) do
+    destroyObject(getObjectFromGUID(guid))
+  end
+end
+
+function setupRoyalWedding()
+  error("Royal Wedding not implemented yet!")
 end
 
 function placeKings()
-  local kingsBag = getObjectFromGUID(Global.get("bagsGuid").kings)
+  local kingsBag = getObjectFromGUID(bagsGuid.kings)
 
   destroyNonPlayingKings(kingsBag)
   takeKings(kingsBag)
@@ -130,76 +279,4 @@ function destroyObjectInBag(bag, guid)
     smooth = false,
     callback_function = function(obj) destroyObject(obj) end
   })
-end
-
-function placeTiles()
-  local deck = Global.get("deck")
-  local buildingsDeck = getObjectFromGUID(Global.get("buildingsDeckGuid"))
-
-  deck.shuffle()
-
-  local gameMode = Global.get("gameMode")
-  if gameMode.kingdomino and not gameMode.queendomino then
-    if #getPlayingColors() == 2 and not gameMode.advanced2p then
-      takeTiles(deck, 2)
-    elseif #getPlayingColors() == 3 then
-      takeTiles(deck, 3)
-    else
-      takeTiles(deck, 4)
-    end
-  else
-    takeTiles(deck, 4)
-  end
-
-  buildingsDeck.shuffle()
-  placeBuildings(buildingsDeck)
-end
-
-function placeBuildings(buildingsDeck)
-  local buildingZones = Global.get("buildingZones")
-  for _, zoneGuid in pairs(buildingZones) do
-    buildingsDeck.takeObject({ position = getObjectFromGUID(zoneGuid).getPosition() })
-  end
-end
-
-function takeTiles(deck, count)
-  local tiles = deck.getObjects()
-  local guids = {}
-  for i = 1, count, 1 do
-    guids[i] = tiles[i].guid
-  end
-
-  local positions = getTilesPosition(guids)
-
-  for guid, position in pairs(positions) do
-    deck.takeObject({
-      guid = guid,
-      position = position,
-      rotation = {0, 180, 180},
-      callback_function = function(obj) obj.flip() end
-    })
-  end
-
-  return guids
-end
-
-function getTilesPosition(guids)
-  local values = Global.get('tileValues')
-
-  local tilesByValue = {}
-  local tileValues = {}
-  for _, guid in ipairs(guids) do
-    tileValue = values[guid]
-    if tileValue ~= nil then
-      tilesByValue[tileValue] = guid
-      table.insert(tileValues, tileValue)
-    end
-  end
-  table.sort(tileValues)
-
-  local result = {}
-  for i,obj in ipairs(tileValues) do
-    result[tilesByValue[obj]] = rightPositions[i]
-  end
-  return result
 end

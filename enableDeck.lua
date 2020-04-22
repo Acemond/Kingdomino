@@ -1,4 +1,4 @@
-color = "Red"
+deck = "queendomino"
 
 function onLoad()
   self.createButton({
@@ -13,6 +13,6 @@ function onLoad()
 end
 
 function onClick()
-  Global.call("addPlayer", color:lower())
+  Global.call("enableDeck", deck)
   self.setState(2)
 end
