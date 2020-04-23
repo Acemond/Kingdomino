@@ -41,7 +41,7 @@ function nextTurn()
     local decks = Global.getTable("decks")
     local deck = decks[1]
     if gameMode.kingdomino and gameMode.queendomino then
-      local deck = decks[turn % 2 + 1]
+      deck = decks[turn % 2 + 1]
     end
     if deck ~= nil then
       deck.shuffle()
@@ -55,7 +55,7 @@ end
 function removedUnpickedTiles()
   for _, zoneGuid in pairs(tileCheckZones) do
     local zone = getObjectFromGUID(zoneGuid)
-    if #zone.getObjects() == 2 then
+    if #zone.getObjects() == 3 then
       trashTile(zone)
     end
   end
@@ -64,7 +64,7 @@ end
 function trashTile(zone)
   for _, object in pairs(zone.getObjects()) do
     local unpickedTilesBag = getObjectFromGUID(unpickedTilesBagGuid)
-    if object.guid ~= "e5b23a" and object.guid ~= "7a72d1" and object.guid ~= "174390" then
+    if not isObjectTileBoard(object.guid) and object.guid ~= tableGuid then
       if unpickedTilesBag ~= nil then
         getObjectFromGUID(unpickedTilesBagGuid).putObject(object)
       else
