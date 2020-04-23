@@ -126,13 +126,16 @@ local notInteractableObjects = {
   "1403b9"  -- kings bag
 }
 
---[[ The Update function. This is called once per frame. --]]
-function update()
-end
-
 --[[ The OnLoad function. This is called after everything in the game save finishes loading.
 Most of your script code goes here. --]]
 function onLoad()
+  Player["White"].lookAt({
+      position = {x=0,y=0,z=-18},
+      pitch    = 55,
+      yaw      = 0,
+      distance = 30,
+  })
+
   Global.set('currentyPlayingColors', currentyPlayingColors)
   Global.set('gameMode', gameMode)
   Global.set('buildingsDeck', getObjectFromGUID(buildingsDeckGuid))
@@ -230,9 +233,9 @@ function quickSetup(targetPlayerCount)
 
   if playerCount ~= targetPlayerCount then
     if targetPlayerCount == 2 then
-      setPlayers({"red", "orange"}, {"purple", "white"})
+      setPlayers({"white", "orange"}, {"purple", "red"})
     elseif targetPlayerCount == 3 then
-      setPlayers({"red", "orange", "purple"}, {"white"})
+      setPlayers({"white", "orange", "purple"}, {"red"})
     else
       setPlayers({"red", "orange", "purple", "white"}, {})
     end
