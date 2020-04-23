@@ -5,6 +5,7 @@ local tileCheckZones = {
   "8fd451", "7e8397", "d0b593", "f25b1c", "234056"
 }
 local unpickedTilesBagGuid = "32278a"
+local turn = 1
 
 function onLoad()
   self.createButton({
@@ -24,9 +25,8 @@ end
 
 function nextTurn()
   if pcall(checkZones) then
-    print("Zones OK")
+    turn = turn + 1
     removedUnpickedTiles()
-    print("Removed tiles")
     local gameMode = Global.get("gameMode")
     if gameMode.queendomino then
       Global.get("buildingsDeck").call("dealBuildings")
@@ -37,17 +37,17 @@ function nextTurn()
 
     moveZoneContents()
 
-    local deck = Global.get("deck")
+    local decks = Global.getTable("decks")
+    local deck = decks[1]
+    if gameMode.kingdomino and gameMode.queendomino then
+      local deck = decks[turn % 2 + 1]
+    end
     if deck ~= nil then
       deck.shuffle()
       deck.call("dealTiles")
+    else
+      self.destroy()
     end
-
-    Wait.frames(function()
-      if Global.get("deck") == nil then
-        destroyObject(self)
-      end
-    end, 1)
   end
 end
 
@@ -78,17 +78,46 @@ function checkZones()
   checkLeftZone()
 end
 
-function checkRightZone()
+function getExpectedKings()
+  if Global.get("playerCount") == 3 then
+    return 3
+  else
+    return 4
+  end
+end
+
+function getExpectedTiles()
   local holderSize = Global.get("holderSize")
   local playerCount = Global.get("playerCount")
+  local gameMode = Global.get("gameMode")
 
-  local expectedKings = nil
-  if playerCount == 3 then
-    expectedKings = 3
-  else
-    expectedKings = 4
+  local expectedTiles = holderSize
+  if gameMode.ageOfGiants and not gameMode.queendomino then
+    if playerCount == 3 then
+      expectedTiles = expectedTiles - 2
+    elseif playerCount < 5 then
+      expectedTiles = expectedTiles - 1
+    end
   end
-  local expectedCount = holderSize + 1 + expectedKings
+  
+  local royalWedding = gameMode.kingdomino and gameMode.queendomino
+  if gameMode.ageOfGiants and (not royalWedding or royalWedding and turn % 2 + 1 == 2) then
+    local expectedTiles = holderSize
+    if playerCount == 3 then
+      expectedTiles = expectedTiles - 2
+    elseif playerCount < 5 then
+      expectedTiles = expectedTiles - 1
+    end
+    return expectedTiles
+  elseif playerCount == 3 then
+    return holderSize - 2
+  else
+    return holderSize - 1
+  end
+end
+
+function checkRightZone()
+  local expectedCount = getExpectedTiles() + getExpectedKings()
 
   if #getObjectFromGUID(rightZoneGuid).getObjects() < expectedCount then
     broadcastToAll("Pick dominos before clicking Next Turn", {r=1, g=0, b=0})
@@ -97,7 +126,7 @@ function checkRightZone()
 end
 
 function checkLeftZone()
-  if #getObjectFromGUID(leftZoneGuid).getObjects() > 1 then
+  if #getObjectFromGUID(leftZoneGuid).getObjects() > 0 then
     broadcastToAll("Clear left dominos before clicking Next Turn", {r=1, g=0, b=0})
     error()
   end

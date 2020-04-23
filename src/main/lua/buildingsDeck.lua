@@ -2,12 +2,6 @@ local buildingZones = {"b6d71a", "3b40dd", "51e2bf", "58ae27", "091f68", "372846
 local leftBuildingsBoardGuid = "a066dc"
 local rightBuildingsBoardGuid = "a77d62"
 
-function onLoad()
-  if not Global.get('gameMode').queendomino then
-    self.setPosition({self.getPosition().x, 0.5, self.getPosition().z})
-  end
-end
-
 function dealBuildings()
   sendDragonBack()
   local zones = {}

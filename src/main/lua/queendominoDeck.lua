@@ -10,10 +10,6 @@ local tilesDealtPerTurn = 4
 
 function onLoad()
   tileValues = assignTilesValue()
-
-  if not Global.get('gameMode').queendomino then
-    self.setPosition({self.position.x, 0.5, self.position.z})
-  end
 end
 
 function assignTilesValue()

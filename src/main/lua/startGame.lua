@@ -6,12 +6,12 @@ local kingTargetPositions = {
 }
 local queendominoDeckButtonGuid = "69cbda"
 local kingdominoDeckButtonGuid = "9f4a39"
-local queendominoDeckGuid = "fadfa0"
-local kingdominoDeckGuid = "bb9861"
+local queendominoDeckGuid = "b12f86"
+local kingdominoDeckGuid = "b972db"
 local laCourDeckGuid = "e0b7ee"
 local laCourBoardGuid = "d19b4c"
-local ageOfGiantsDeckGuid = "fa3eea"
-local questsDeckGuid = "13e2e1"
+local ageOfGiantsDeckGuid = "d36a20"
+local questsDeckGuid = "01da2c"
 
 local queenGuid = "401270"
 local buildingsBoardGuids = {"a77d62", "a066dc"}
@@ -41,7 +41,6 @@ local buttonsToRemove = {
   addWhite = "f60fe5",
   removePurple = "1bbcb3",
   addPurple = "1b4b1a",
-  startGame = "af7bb2",
   quickGame2p = "46971b",
   quickGame3p = "4f4db6",
   quickGame4p = "8dfa00",
@@ -53,20 +52,26 @@ local buttonsToRemove = {
   queendominoDisable = "d64709",
   ageOfGiantsEnable = "df1760",
   ageOfGiantsDisable = "6a25ff",
+  twoPlayersAdvancedEnable = "823bca",
+  twoPlayersAdvancedDisable = "02322f"
 }
+local trashbagGuid = "32278a"
 local objectsToLock = {
-  queendominoDeckGuid, kingdominoDeckGuid, laCourDeckGuid, buildingsDeckGuid,
+  queendominoDeckGuid, kingdominoDeckGuid, buildingsDeckGuid,
   buildingsBoardGuids[1], buildingsBoardGuids[2], laCourBoardGuid,
-  bagsGuid.coin1, bagsGuid.coin3, bagsGuid.coin9, bagsGuid.knight, bagsGuid.tower
+  bagsGuid.coin1, bagsGuid.coin3, bagsGuid.coin9, bagsGuid.knight, bagsGuid.tower,
+  bagsGuid.wheat, bagsGuid.sheep, bagsGuid.wood, bagsGuid.fish
 }
 
 local mainDeckPosition = {0.00, 1.24, -23.00}
+local twoDecksPositions = {{-3.00, 1.24, -23.00}, {3.00, 1.24, -23.00}}
 local buildingsDeckPosition = {-5.88, 1.25, 4.05}
 local laCourDeckPosition = {-3.67, 1.22, 8.04}
 local questPositions = {
-  {-3.00, 1.03, -14.00},
-  {3.00, 1.03, -14.00}
+  {-3.00, 1.03, -20.00},
+  {3.00, 1.03, -20.00}
 }
+local defaultQuests = {"e29f53", "e865f4"}
 
 function onLoad()
   self.createButton({
@@ -85,8 +90,6 @@ function onClick()
     broadcastToAll("There should be at least two players to start a game", {r=1, g=0, b=0})
   elseif not Global.get("gameMode").kingdomino and not Global.get("gameMode").queendomino then
     broadcastToAll("You should pick at least a deck to play", {r=1, g=0, b=0})
-  elseif Global.get("gameMode").kingdomino and Global.get("gameMode").queendomino then
-    broadcastToAll("Royal Wedding not implemented yet!", {r=1, g=0, b=0})
   else
     startGame()
   end
@@ -122,6 +125,7 @@ function startGame()
   placeKings()
   
   local gameMode = Global.get("gameMode")
+  dealQuests(gameMode)
   if gameMode.ageOfGiants then
     setupAgeOfGiants()
   end
@@ -130,11 +134,14 @@ function startGame()
   end
 
   if gameMode.queendomino and gameMode.kingdomino then
-    setupRoyalWedding()
+    setupRoyalWedding(twoDecksPositions)
+    getObjectFromGUID(queendominoDeckGuid).call("dealTiles")
   elseif gameMode.queendomino then
-    setupQueendomino()
+    setupQueendomino(mainDeckPosition)
+    getObjectFromGUID(queendominoDeckGuid).call("dealTiles")
   elseif gameMode.kingdomino then
-    setupKingdomino()
+    setupKingdomino(mainDeckPosition)
+    getObjectFromGUID(kingdominoDeckGuid).call("dealTiles")
   end
 
   for gameName, state in pairs(gameMode) do
@@ -146,6 +153,20 @@ function startGame()
   lockExistingObjects(objectsToLock)
 end
 
+function dealQuests(gameMode)
+  local questsDeck = getObjectFromGUID(questsDeckGuid)
+  if gameMode.ageOfGiants then
+    questsDeck.shuffle()
+    questsDeck.takeObject({position = questPositions[1], callback_function = function(obj) obj.lock() end})
+    questsDeck.takeObject({position = questPositions[2], callback_function = function(obj) obj.lock() end})
+  else
+    questsDeck.takeObject({guid = defaultQuests[1], position = questPositions[1], callback_function = function(obj) obj.lock() end})
+    questsDeck.takeObject({guid = defaultQuests[2], position = questPositions[2], callback_function = function(obj) obj.lock() end})
+  end
+  
+  questsDeck.destroy()
+end
+
 function lockExistingObjects(objectGuids)
   for _, guid in pairs(objectGuids) do
     local obj = getObjectFromGUID(guid)
@@ -155,16 +176,15 @@ function lockExistingObjects(objectGuids)
   end
 end
 
-function setupQueendomino()
+function setupQueendomino(deckPosition)
   for _, color in pairs(getPlayingColors()) do
     takeCoins(color)
   end
 
-  local deck = getObjectFromGUID(queendominoDeckGuid)
-  deck.setPositionSmooth(mainDeckPosition)
-  deck.shuffle()
-  deck.call("dealTiles")
-  Global.set("deck", deck)
+  local queendominoDeck = getObjectFromGUID(queendominoDeckGuid)
+  queendominoDeck.setPositionSmooth(deckPosition)
+  queendominoDeck.shuffle()
+  Global.setTable("decks", {queendominoDeck})
 
   local buildingsDeck = getObjectFromGUID(buildingsDeckGuid)
   buildingsDeck.setPositionSmooth(buildingsDeckPosition)
@@ -187,29 +207,25 @@ function setupLaCour()
   laCourDeck = getObjectFromGUID(laCourDeckGuid)
   laCourDeck.setPositionSmooth(laCourDeckPosition)
   laCourDeck.shuffle()
+  laCourDeck.interactable = true
+  laCourDeck.tooltip = true
   laCourDeck.call("dealBuildings")
 end
 
 function setupAgeOfGiants()
   kingdominoDeck = getObjectFromGUID(kingdominoDeckGuid)
   ageOfGiantsDeck = getObjectFromGUID(ageOfGiantsDeckGuid)
-  questsDeck = getObjectFromGUID(questsDeckGuid)
-  questsDeck.shuffle()
-  questsDeck.takeObject({position = questPositions[1]})
-  questsDeck.takeObject({position = questPositions[2]})
-  questsDeck.destroy()
   ageOfGiantsDeck.call("mergeValuesTableWith", kingdominoDeck)
   ageOfGiantsDeck.setInvisibleTo({"Black", "Red", "Orange", "Purple", "White"})
   kingdominoDeck.putObject(ageOfGiantsDeck)
 end
 
-function setupKingdomino()
-  deck = getObjectFromGUID(kingdominoDeckGuid)
-  deck.setPositionSmooth(mainDeckPosition)
-  deck.shuffle()
-  deck.call("limitSize")
-  deck.call("dealTiles")
-  Global.set("deck", deck)
+function setupKingdomino(deckPosition)
+  kingdominoDeck = getObjectFromGUID(kingdominoDeckGuid)
+  kingdominoDeck.setPositionSmooth(deckPosition)
+  kingdominoDeck.shuffle()
+  kingdominoDeck.call("limitSize")
+  Global.setTable("decks", {kingdominoDeck})
 end
 
 function destroyGamePieces(gameName)
@@ -220,8 +236,13 @@ function destroyGamePieces(gameName)
   end
 end
 
-function setupRoyalWedding()
-  error("Royal Wedding not implemented yet!")
+function setupRoyalWedding(decksPositions)
+  setupKingdomino(decksPositions[1])
+  setupQueendomino(decksPositions[2])
+  Global.setTable("decks", {
+    getObjectFromGUID(kingdominoDeckGuid),
+    getObjectFromGUID(queendominoDeckGuid)
+  })
 end
 
 function placeKings()

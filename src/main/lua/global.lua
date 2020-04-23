@@ -1,4 +1,5 @@
 --[[ Lua code. See documentation: http://berserk-games.com/knowledgebase/scripting/ --]]
+local fourTilesForThreePlayers = true
 local playerColors = {"Red", "Orange", "Purple", "White"}
 local playerPieces = {
   orange = {
@@ -35,15 +36,14 @@ local currentyPlayingColors = {
 local playerCount = 0
 local gameMode = {
   kingdomino = false,
+  twoPlayersAdvanced = false,
   queendomino = true,
   ageOfGiants = false,
   laCour = false
 }
-local kingdominoDeckGuid = "bb9861"
-local queendominoDeckGuid = "fadfa0"
-local ageOfGiantsDeckGuid = "fa3eea"
-local questsDeckGuid = "13e2e1"
-decks = {}
+local kingdominoDeckGuid = "b972db"
+local queendominoDeckGuid = "b12f86"
+local ageOfGiantsDeckGuid = "d36a20"
 
 local buildingsDeckGuid = "04de04"
 local startGameButtonGuid = "af7bb2"
@@ -93,20 +93,36 @@ local rightZoneGuid = "358f4e"
 
 local gameObjects = {
   kingdomino = {kingdominoDeckGuid},
+  twoPlayersAdvanced = {},
   queendomino = {
     queendominoDeckGuid,
     bagsGuid.coin1, bagsGuid.coin3, bagsGuid.coin9, bagsGuid.knight, bagsGuid.tower,
     buildingsDeckGuid, buildingsBoardGuids[1], buildingsBoardGuids[2],
     queenGuid, dragonGuid
   },
-  ageOfGiants = {ageOfGiantsDeckGuid, questsDeckGuid, bagsGuid.giants},
+  ageOfGiants = {ageOfGiantsDeckGuid, bagsGuid.giants},
   laCour = {laCourDeckGuid, laCourBoardGuid, bagsGuid.wheat, bagsGuid.sheep, bagsGuid.wood, bagsGuid.fish}
 }
 local gameDependency = {
-  kingdomino = "ageOfGiants"
+  kingdomino = {"twoPlayersAdvanced", "ageOfGiants"}
 }
 local gameButtons = {
-  ageOfGiants = {"df1760", "6a25ff"}
+  ageOfGiants = {"df1760", "6a25ff"},
+  twoPlayersAdvanced = {"823bca", "02322f"}
+}
+
+local enableFreeze = true
+local tableGuid = "0f8757"
+-- useless hidden objects used to keep button textures in memory
+local decoyButtons = {"9bb39a", "3416fc", "2a0d3f", "25ef05", "d78ce4", "25bfc4", "29ae89", "6ce2c6", "31bd66", "5740ca", "180cbc", "2c055b", "28fcc5"}
+local notInteractableObjects = {
+  "6a25ff", "df1760", "13e2e1", "fa3eea",  -- age of giants buttons and deck
+  "04de04", queendominoDeckGuid, "d64709", "69cbda", "a77d62", "a066dc",  -- queen
+  kingdominoDeckGuid, "697d5b", "9f4a39", "823bca", "02322f",  -- king
+  laCourDeckGuid, "2c22ed", "6ff70f", "d19b4c",  -- the court
+  "af7bb2", "4a6126", "46971b", "4f4db6", "8dfa00", -- game buttons
+  "7a72d1", "bd95f5", "174390", "8c018b", "e5b23a", "ae485e", -- tile boards
+  "1403b9"  -- kings bag
 }
 
 --[[ The Update function. This is called once per frame. --]]
@@ -126,8 +142,22 @@ function onLoad()
   Global.set('holderSize', holderSize)
   Global.set('hiddenBoards', hiddenBoards)
 
-  decks["queendomino"] = getObjectFromGUID(queendominoDeckGuid)
-  decks["kingdomino"] = getObjectFromGUID(kingdominoDeckGuid)
+  broadcastToAll("Please add players and press Start Game", {r=1, g=1, b=1})
+  broadcastToAll("Welcome to Kingdomino!", {r=1, g=1, b=1})
+
+  getObjectFromGUID(tableGuid).interactable = false
+  freezeNonInteractables(decoyButtons)
+  if enableFreeze then freezeNonInteractables(notInteractableObjects) end
+end
+
+function freezeNonInteractables(guids)
+  for _, guid in pairs(guids) do
+    obj = getObjectFromGUID(guid)
+    if obj ~= nil then
+       obj.interactable = false
+       obj.tooltip = false
+    end
+  end
 end
 
 function addPlayer(playerColor)
@@ -195,9 +225,6 @@ function quickSetup(targetPlayerCount)
   if not gameMode.kingdomino and not gameMode.queendomino then
     broadcastToAll("You should pick at least a deck to play", {r=1, g=0, b=0})
     return
-  elseif gameMode.kingdomino and gameMode.queendomino then
-    broadcastToAll("Royal Wedding not implemented yet!", {r=1, g=0, b=0})
-    return
   end
 
   if playerCount ~= targetPlayerCount then
@@ -217,14 +244,16 @@ function enableDeck(gameName)
   gameMode[gameName] = true
   Global.set("gameMode", gameMode)
   showObjects(gameObjects[gameName])
-  if gameDependency[gameName] then
-    local dependencyName = gameDependency[gameName]
-    showObjects(gameButtons[dependencyName])
-    for _, guid in pairs(gameButtons[dependencyName]) do
-      local button = getObjectFromGUID(guid)
-      if button ~= nil then
-        button.setPosition({button.getPosition().x, 1.06, button.getPosition().z})
-        button.lock()
+  if gameDependency[gameName] and #gameDependency[gameName] > 0 then
+    for _, dependencyName in pairs(gameDependency[gameName]) do
+      showObjects(gameButtons[dependencyName])
+      for _, guid in pairs(gameButtons[dependencyName]) do
+        local button = getObjectFromGUID(guid)
+        if button ~= nil then
+          button.setPosition({button.getPosition().x, 1.06, button.getPosition().z})
+          button.lock()
+          if button.getStateId() == 2 then button.setState(1) end
+        end
       end
     end
   end
@@ -243,9 +272,10 @@ function disableDeck(gameName)
   Global.set("gameMode", gameMode)
   hideObjects(gameObjects[gameName])
   if gameDependency[gameName] then
-    local dependencyName = gameDependency[gameName]
-    disableDeck(dependencyName)
-    hideObjects(gameButtons[dependencyName])
+    for _, dependencyName in pairs(gameDependency[gameName]) do
+      disableDeck(dependencyName)
+      hideObjects(gameButtons[dependencyName])
+    end
   end
   setTileBoards()
 end
@@ -311,20 +341,13 @@ function showTilesBoard(boardNumber)
 end
 
 function getBoardSize(gameMode, playerCount)
-  if playerCount == 2 and gameMode.ageOfGiants then
+  if gameMode.ageOfGiants then
     return 5
-  elseif playerCount == 2 then
-    return 4
-  elseif playerCount == 3 and not gameMode.queendomino and not gameMode.ageOfGiants then
+  elseif playerCount == 3 and not gameMode.queendomino and not fourTilesForThreePlayers then
     return 3
-  elseif playerCount == 3 and not gameMode.ageOfGiants then
+  else
     return 4
-  elseif playerCount == 3 then
-    return 5
-  elseif (playerCount == 4 or playerCount == 0) and not gameMode.ageOfGiants then
-    return 4
-  elseif (playerCount < 2 or allGameModesDisabled(gameMode)) then return 4
-  else return 5 end
+  end
 end
 
 function allGameModesDisabled(gameMode)
