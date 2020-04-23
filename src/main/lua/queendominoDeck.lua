@@ -27,7 +27,8 @@ function dealTiles()
       self.takeObject({
         guid = guid,
         position = position,
-        rotation = {0, 180, 0}
+        rotation = {0, 180, 0},
+        callback_function = function (obj) obj.lock() end
       })
     else
       Wait.frames(function() 

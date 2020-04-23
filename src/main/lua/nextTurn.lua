@@ -8,6 +8,10 @@ local unpickedTilesBagGuid = "32278a"
 local turn = 1
 local tableGuid = "0f8757"
 
+local kingsGuid = {
+  "4d2d92", "5e6289", "7dd59a", "e44a70", "24345c", "2837e9", "86f4c2", "61259d"
+}
+
 function onLoad()
   self.createButton({
     click_function = "onClick",
@@ -64,7 +68,7 @@ end
 function trashTile(zone)
   for _, object in pairs(zone.getObjects()) do
     local unpickedTilesBag = getObjectFromGUID(unpickedTilesBagGuid)
-    if not isObjectTileBoard(object.guid) and object.guid ~= tableGuid then
+    if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid then
       if unpickedTilesBag ~= nil then
         getObjectFromGUID(unpickedTilesBagGuid).putObject(object)
       else
@@ -87,43 +91,38 @@ function getExpectedKings()
   end
 end
 
-function getExpectedTiles()
-  local holderSize = Global.get("holderSize")
-  local playerCount = Global.get("playerCount")
-  local gameMode = Global.get("gameMode")
-
-  local expectedTiles = holderSize
-  if gameMode.ageOfGiants and not gameMode.queendomino then
-    if playerCount == 3 then
-      expectedTiles = expectedTiles - 2
-    elseif playerCount < 5 then
-      expectedTiles = expectedTiles - 1
-    end
-  end
-  
-  local royalWedding = gameMode.kingdomino and gameMode.queendomino
-  if gameMode.ageOfGiants and (not royalWedding or royalWedding and turn % 2 + 1 == 2) then
-    local expectedTiles = holderSize
-    if playerCount == 3 then
-      expectedTiles = expectedTiles - 2
-    elseif playerCount < 5 then
-      expectedTiles = expectedTiles - 1
-    end
-    return expectedTiles
-  elseif playerCount == 3 then
-    return holderSize - 2
-  else
-    return holderSize - 1
+function checkRightZone()
+  checkKingCount()
+  for _, zoneGuid in pairs(tileCheckZones) do
+    checkTileZone(getObjectFromGUID(zoneGuid))
   end
 end
 
-function checkRightZone()
-  local expectedCount = 2 + getExpectedTiles() + getExpectedKings()
-
-  if #getObjectFromGUID(rightZoneGuid).getObjects() < expectedCount then
+function checkKingCount()
+  local count = 0
+  for _, object in pairs(getObjectFromGUID(rightZoneGuid).getObjects()) do
+    if isObjectIn(object.guid, kingsGuid) then count = count + 1 end
+  end
+  if count ~= getExpectedKings() then
     broadcastToAll("Pick dominos before clicking Next Turn", {r=1, g=0, b=0})
     error()
   end
+end 
+
+function checkTileZone(zone)
+  local kingCount = 0
+  local tileCount = 0
+  for _, object in pairs(zone.getObjects()) do
+    if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid then
+      if isObjectIn(object.guid, kingsGuid) then kingCount = kingCount + 1 end
+      if not isObjectIn(object.guid, kingsGuid) then tileCount = tileCount + 1 end
+    end
+  end
+  if kingCount > 0 and tileCount == 0 then
+    broadcastToAll("Place your king on a domino", {r=1, g=0, b=0})
+    error()
+  end
+  return kingCount
 end
 
 function checkLeftZone()
@@ -136,7 +135,8 @@ end
 function moveZoneContents()
   local rightZone = getObjectFromGUID(rightZoneGuid)
   for _,obj in ipairs(rightZone.getObjects()) do
-    if not isObjectTileBoard(obj.guid) and obj.guid ~= tableGuid then
+    if not isObjectIn(obj.guid, rightBoardsGuids) and obj.guid ~= tableGuid then
+      obj.unlock()
       obj.setPositionSmooth({
         obj.getPosition().x - 11,
         obj.getPosition().y + 2,
@@ -146,8 +146,8 @@ function moveZoneContents()
   end
 end
 
-function isObjectTileBoard(objectGuid)
-  for _, guid in pairs(rightBoardsGuids) do
+function isObjectIn(objectGuid, list)
+  for _, guid in pairs(list) do
     if objectGuid == guid then return true end
   end
   return false

@@ -1,6 +1,7 @@
 local buildingZones = {"b6d71a", "3b40dd", "51e2bf", "58ae27", "091f68", "372846"}
 local leftBuildingsBoardGuid = "a066dc"
 local rightBuildingsBoardGuid = "a77d62"
+local tableGuid = "0f8757"
 
 function dealBuildings()
   sendDragonBack()
@@ -52,7 +53,7 @@ end
 
 function moveBuilding(sourceZone, destinationZone)
   for _,obj in ipairs(sourceZone.getObjects()) do
-    if obj.guid ~= leftBuildingsBoardGuid and obj.guid ~= rightBuildingsBoardGuid then
+    if obj.guid ~= leftBuildingsBoardGuid and obj.guid ~= rightBuildingsBoardGuid and obj.guid ~= tableGuid then
       obj.setPositionSmooth(destinationZone.getPosition(), false)
     end
   end

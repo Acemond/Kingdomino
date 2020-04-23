@@ -66,7 +66,8 @@ function dealTile(tileGuid, position)
     self.takeObject({
       guid = tileGuid,
       position = position,
-      rotation = {0, 180, 0}
+      rotation = {0, 180, 0},
+      callback_function = function (obj) obj.lock() end
     })
   else
     Wait.frames(function() 
