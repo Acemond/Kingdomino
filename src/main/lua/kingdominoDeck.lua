@@ -67,7 +67,7 @@ function dealTile(tileGuid, position)
       guid = tileGuid,
       position = position,
       rotation = {0, 180, 0},
-      callback_function = function (obj) obj.lock() end
+      callback_function = function (obj) Wait.frames(function () obj.lock() end, 20) end
     })
   else
     Wait.frames(function() 
