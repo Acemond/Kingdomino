@@ -6,6 +6,7 @@ local tileCheckZones = {
 }
 local unpickedTilesBagGuid = "32278a"
 local turn = 1
+local tableGuid = "0f8757"
 
 function onLoad()
   self.createButton({
@@ -117,7 +118,7 @@ function getExpectedTiles()
 end
 
 function checkRightZone()
-  local expectedCount = getExpectedTiles() + getExpectedKings()
+  local expectedCount = 2 + getExpectedTiles() + getExpectedKings()
 
   if #getObjectFromGUID(rightZoneGuid).getObjects() < expectedCount then
     broadcastToAll("Pick dominos before clicking Next Turn", {r=1, g=0, b=0})
@@ -126,7 +127,7 @@ function checkRightZone()
 end
 
 function checkLeftZone()
-  if #getObjectFromGUID(leftZoneGuid).getObjects() > 0 then
+  if #getObjectFromGUID(leftZoneGuid).getObjects() > 2 then
     broadcastToAll("Clear left dominos before clicking Next Turn", {r=1, g=0, b=0})
     error()
   end
@@ -135,7 +136,7 @@ end
 function moveZoneContents()
   local rightZone = getObjectFromGUID(rightZoneGuid)
   for _,obj in ipairs(rightZone.getObjects()) do
-    if not isObjectTileBoard(obj.guid) then
+    if not isObjectTileBoard(obj.guid) and obj.guid ~= tableGuid then
       obj.setPositionSmooth({
         obj.getPosition().x - 11,
         obj.getPosition().y + 2,

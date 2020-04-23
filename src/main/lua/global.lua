@@ -44,6 +44,7 @@ local gameMode = {
 local kingdominoDeckGuid = "b972db"
 local queendominoDeckGuid = "b12f86"
 local ageOfGiantsDeckGuid = "d36a20"
+local questsDeckGuid = "01da2c"
 
 local buildingsDeckGuid = "04de04"
 local startGameButtonGuid = "af7bb2"
@@ -111,12 +112,12 @@ local gameButtons = {
   twoPlayersAdvanced = {"823bca", "02322f"}
 }
 
-local enableFreeze = true
 local tableGuid = "0f8757"
 -- useless hidden objects used to keep button textures in memory
 local decoyButtons = {"9bb39a", "3416fc", "2a0d3f", "25ef05", "d78ce4", "25bfc4", "29ae89", "6ce2c6", "31bd66", "5740ca", "180cbc", "2c055b", "28fcc5"}
 local notInteractableObjects = {
-  "6a25ff", "df1760", "13e2e1", "fa3eea",  -- age of giants buttons and deck
+  questsDeckGuid,
+  "6a25ff", "df1760", ageOfGiantsDeckGuid,  -- age of giants buttons and deck
   "04de04", queendominoDeckGuid, "d64709", "69cbda", "a77d62", "a066dc",  -- queen
   kingdominoDeckGuid, "697d5b", "9f4a39", "823bca", "02322f",  -- king
   laCourDeckGuid, "2c22ed", "6ff70f", "d19b4c",  -- the court
@@ -147,7 +148,7 @@ function onLoad()
 
   getObjectFromGUID(tableGuid).interactable = false
   freezeNonInteractables(decoyButtons)
-  if enableFreeze then freezeNonInteractables(notInteractableObjects) end
+  freezeNonInteractables(notInteractableObjects)
 end
 
 function freezeNonInteractables(guids)
@@ -260,13 +261,6 @@ function enableDeck(gameName)
   setTileBoards()
 end
 
-function showGameButton(gameName)
-  for _, guid in pairs(gameButtons[gameName]) do
-    local button = getObjectFromGUID(guid)
-    obj.setPositionSmooth({obj.getPosition().x, -2.5, obj.getPosition().z})
-  end
-end
-
 function disableDeck(gameName)
   gameMode[gameName] = false
   Global.set("gameMode", gameMode)
@@ -280,32 +274,52 @@ function disableDeck(gameName)
   setTileBoards()
 end
 
-function showObject(object)
-  object.setPosition({object.getPosition().x, 3, object.getPosition().z})
-  object.unlock()
-end
-
 function showObjects(objectGuids)
   for _, guid in pairs(objectGuids) do
     local object = getObjectFromGUID(guid)
     if object ~= nil then
       showObject(getObjectFromGUID(guid))
+      showObjectsButton(object)
     end
   end
-end
-
-function hideObject(object)
-  object.setPositionSmooth({object.getPosition().x, -2.5, object.getPosition().z})
-  object.lock()
 end
 
 function hideObjects(objectGuids)
   for _, guid in pairs(objectGuids) do
     local object = getObjectFromGUID(guid)
     if object ~= nil then
-      hideObject(getObjectFromGUID(guid))
+      hideObject(object)
+      hideObjectsButton(object)
     end
   end
+end
+
+function hideObjectsButton(object)
+  local buttons = object.getButtons()
+  if buttons ~= nil then
+    for _, button in pairs(buttons) do
+      object.editButton({index = button.index, scale = {0, 0, 0}})
+    end
+  end
+end
+
+function showObjectsButton(object)
+  local buttons = object.getButtons()
+  if buttons ~= nil then
+    for _, button in pairs(buttons) do
+      object.editButton({index = button.index, scale = {1, 1, 1}})
+    end
+  end
+end
+
+function showObject(object)
+  object.setPosition({object.getPosition().x, 3, object.getPosition().z})
+  object.unlock()
+end
+
+function hideObject(object)
+  object.setPositionSmooth({object.getPosition().x, -2.5, object.getPosition().z})
+  object.lock()
 end
 
 function setTileBoards()

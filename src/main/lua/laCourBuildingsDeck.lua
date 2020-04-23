@@ -17,7 +17,7 @@ function buildingPresent(zone)
       count = count + 1
     end
   end
-  return count > 1
+  return count > 2
 end
 
 function dealBuilding(zone)
