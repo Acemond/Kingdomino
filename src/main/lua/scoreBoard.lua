@@ -2,23 +2,23 @@ local button_config = {
   counter = {
     width = 1200, height = 1000,
     font = 750,
-    scale = {0.1, 0.1, 0.1}
+    scale = {0.15, 0.15, 0.15}
   },
   plus_minus = {
     width = 375, height = 400,
     font = 600,
-    scale = {0.1, 0.1, 0.1}
+    scale = {0.2, 0.2, 0.2}
   }
 }
 local board_thickness = 0.1
-local plus_minus_spacing = 0.18
+local plus_minus_spacing = 0.25
 
 local total_counter_count = 0
 local counters = {}
 local counter_counts = {
   coins = 1,
   lands = 7,
-  objectives = 4
+  objectives = 5
 }
 
 local buttons_count = 0
@@ -30,10 +30,10 @@ function onLoad()
 end
 
 function initButtons()
-  local vertical_spacing = 0.28
-  local first_counter_z_pos = -1.41
-  local left_counter_x_pos = -0.87
-  local right_counter_x_pos = -0.31
+  local vertical_spacing = 0.39
+  local first_counter_z_pos = -2.3
+  local left_counter_x_pos = -0.01
+  local right_counter_x_pos = 0.79
 
   local v_index = 0
   -- Coins counter
@@ -191,7 +191,7 @@ end
 
 function sumSquareCounters(cursor, counter_count)
   local result = 0
-  for i = cursor, cursor + counter_counts.lands - 1, 2 do
+  for i = cursor, cursor + counter_count - 1, 2 do
     if counters[i + 1].value ~= nil and counters[i + 2].value ~= nil then
       result = result + (counters[i + 1].value * counters[i + 2].value)
     end
@@ -201,8 +201,8 @@ end
 
 function updateTotal()
   local total = sumSimpleCounters(0, counter_counts.coins)
-  total = total + sumSquareCounters(counter_counts.coins, counter_counts.lands)
-  total = total + sumSimpleCounters(counter_counts.coins + counter_counts.lands, counter_counts.objectives)
+  total = total + sumSquareCounters(counter_counts.coins, counter_counts.lands * 2)
+  total = total + sumSimpleCounters(counter_counts.coins + counter_counts.lands * 2, counter_counts.objectives)
 
   total_counter.label = tostring(total)
   self.editButton(total_counter)
