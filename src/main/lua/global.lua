@@ -150,8 +150,8 @@ function onLoad()
   broadcastToAll("Welcome to Kingdomino!", {r=1, g=1, b=1})
 
   getObjectFromGUID(tableGuid).interactable = false
-  --freezeNonInteractables(decoyButtons)
-  --freezeNonInteractables(notInteractableObjects)
+  freezeNonInteractables(decoyButtons)
+  freezeNonInteractables(notInteractableObjects)
   Wait.frames(function () hideObjectsButton(getObjectFromGUID(gameButtons.ageOfGiants[1])) end, 1)
   Wait.frames(function () hideObjectsButton(getObjectFromGUID(gameButtons.twoPlayersAdvanced[1])) end, 1)
 end
