@@ -189,6 +189,7 @@ function setupQueendomino(deckPosition)
   local buildingsDeck = getObjectFromGUID(buildingsDeckGuid)
   buildingsDeck.setPositionSmooth(buildingsDeckPosition)
   buildingsDeck.shuffle()
+  buildingsDeck.interactable = true
   buildingsDeck.call("dealBuildings")
 end
 
