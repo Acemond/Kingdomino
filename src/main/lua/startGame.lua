@@ -184,11 +184,14 @@ function setupQueendomino(deckPosition)
   local queendominoDeck = getObjectFromGUID(queendominoDeckGuid)
   queendominoDeck.setPositionSmooth(deckPosition)
   queendominoDeck.shuffle()
+  queendominoDeck.tooltip = true
+  queendominoDeck.interactable = true
   Global.setTable("decks", {queendominoDeck})
 
   local buildingsDeck = getObjectFromGUID(buildingsDeckGuid)
   buildingsDeck.setPositionSmooth(buildingsDeckPosition)
   buildingsDeck.shuffle()
+  buildingsDeck.tooltip = true
   buildingsDeck.interactable = true
   buildingsDeck.call("dealBuildings")
 end
@@ -208,8 +211,8 @@ function setupLaCour()
   laCourDeck = getObjectFromGUID(laCourDeckGuid)
   laCourDeck.setPositionSmooth(laCourDeckPosition)
   laCourDeck.shuffle()
-  laCourDeck.interactable = true
   laCourDeck.tooltip = true
+  laCourDeck.interactable = true
   laCourDeck.call("dealBuildings")
 end
 
@@ -225,6 +228,8 @@ function setupKingdomino(deckPosition)
   kingdominoDeck = getObjectFromGUID(kingdominoDeckGuid)
   kingdominoDeck.setPositionSmooth(deckPosition)
   kingdominoDeck.shuffle()
+  kingdominoDeck.tooltip = true
+  kingdominoDeck.interactable = true
   kingdominoDeck.call("limitSize")
   Global.setTable("decks", {kingdominoDeck})
 end
