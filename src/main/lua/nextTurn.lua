@@ -51,7 +51,7 @@ function nextTurn()
       deck.shuffle()
       deck.call("dealTiles")
     else
-      broadcastToAll("Game Over! Score sheets are on the East side of the table.", {r=1, g=1, b=1})
+      broadcastToAll("Last turn! Score sheets are on the East side of the table.", {r=1, g=1, b=1})
       self.destroy()
     end
   end

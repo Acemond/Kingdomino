@@ -22,20 +22,21 @@ function assignTilesValue()
 end
 
 function dealTiles()
+  local guid = tileGuid
+  if #self.getObjects() == 0 then
+    guid = nil
+  end
+
   for guid, position in pairs(getTilesTargetPosition()) do
-    if #self.getObjects() ~= 0 then
-      self.takeObject({
-        guid = guid,
-        position = position,
-        rotation = {0, 180, 0},
-      callback_function = function (obj) Wait.frames(function () obj.lock() end, 20) end
-      })
-    else
-      Wait.frames(function() 
-        getObjectFromGUID(guid).setPositionSmooth(position, false)
-        getObjectFromGUID(guid).setRotationSmooth({0, 180, 0}, false)
-      end, 1)
-    end
+    self.takeObject({
+      guid = guid,
+      position = position,
+      rotation = {0, 180, 180},
+      callback_function = function (obj)
+        obj.flip()
+        Wait.frames(function () obj.lock() end, 60)
+      end
+    })
   end
 end
 

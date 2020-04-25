@@ -35,9 +35,9 @@ local currentyPlayingColors = {
 }
 local playerCount = 0
 local gameMode = {
-  kingdomino = false,
+  kingdomino = true,
   twoPlayersAdvanced = false,
-  queendomino = true,
+  queendomino = false,
   ageOfGiants = false,
   laCour = false
 }
@@ -152,8 +152,6 @@ function onLoad()
   getObjectFromGUID(tableGuid).interactable = false
   freezeNonInteractables(decoyButtons)
   freezeNonInteractables(notInteractableObjects)
-  Wait.frames(function () hideObjectsButton(getObjectFromGUID(gameButtons.ageOfGiants[1])) end, 1)
-  Wait.frames(function () hideObjectsButton(getObjectFromGUID(gameButtons.twoPlayersAdvanced[1])) end, 1)
 end
 
 function freezeNonInteractables(guids)

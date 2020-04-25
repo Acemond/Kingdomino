@@ -51,7 +51,7 @@ function trashTile(tileGuid, position)
   self.takeObject({
     guid = tileGuid,
     position = position,
-    rotation = {0, 180, 0},
+    rotation = {0, 180, 180},
     callback_function = moveToTrash
   })
 end
@@ -62,19 +62,20 @@ function moveToTrash(tile)
 end
 
 function dealTile(tileGuid, position)
-  if #self.getObjects() ~= 0 then
-    self.takeObject({
-      guid = tileGuid,
-      position = position,
-      rotation = {0, 180, 0},
-      callback_function = function (obj) Wait.frames(function () obj.lock() end, 20) end
-    })
-  else
-    Wait.frames(function() 
-      getObjectFromGUID(tileGuid).setPositionSmooth(position, false)
-      getObjectFromGUID(tileGuid).setRotationSmooth({0, 180, 0}, false)
-    end, 1)
+  local guid = tileGuid
+  if #self.getObjects() == 0 then
+    guid = nil
   end
+
+  self.takeObject({
+    guid = guid,
+    position = position,
+    rotation = {0, 180, 180},
+    callback_function = function (obj)
+      obj.flip()
+      Wait.frames(function () obj.lock() end, 60)
+    end
+  })
 end
 
 function dealTiles()

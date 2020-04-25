@@ -21,5 +21,9 @@ function buildingPresent(zone)
 end
 
 function dealBuilding(zone)
-  self.takeObject({position = zone.getPosition(), rotation = {0, 180, 0}})
+  self.takeObject({
+    position = zone.getPosition(),
+    rotation = {0, 180, 180},
+    callback_function = function (tile) tile.flip() end
+  })
 end
