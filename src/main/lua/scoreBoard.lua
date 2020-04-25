@@ -1,67 +1,82 @@
 local button_config = {
   counter = {
-    width = 1200, height = 1000,
-    font = 750,
+    width = 600, height = 550,
+    font = 450,
     scale = {0.15, 0.15, 0.15}
   },
   plus_minus = {
-    width = 375, height = 400,
-    font = 600,
-    scale = {0.2, 0.2, 0.2}
+    width = 300, height = 300,
+    font = 400,
+    scale = {0.17, 0.17, 0.17}
   }
 }
-local board_thickness = 0.1
-local plus_minus_spacing = 0.25
+local plus_minus_spacing = 0.16
 
 local total_counter_count = 0
 local counters = {}
-local counter_counts = {
-  coins = 1,
-  lands = 7,
-  objectives = 5
-}
+
+local vertical_spacing = 0.245
+ui_x_first_pos = -1.03
+ui_x_spacing = 0.51
+function getUiXPos(sheet_col, subcolumn)
+  return ui_x_first_pos + ui_x_spacing * (2 * sheet_col + subcolumn - 3)
+end
+
+local ui_y_position = 0.1
+local ui_z_first_pos = -1.56
 
 local buttons_count = 0
 
 local total_counter = {}
 
+local counters_configuration = {
+  {amount = 7, sheet_col = 1, columns = 2, first_row = 1, default_values = {0, 0}},
+  {amount = 1, sheet_col = 1, columns = 1, first_row = 8, default_values = {0}},
+  {amount = 2, sheet_col = 1, columns = 2, first_row = 9, default_values = {0, 1}},
+  {amount = 4, sheet_col = 1, columns = 1, first_row = 11, default_values = {0}},
+
+  {amount = 7, sheet_col = 2, columns = 2, first_row = 1, default_values = {0, 0}},
+  {amount = 7, sheet_col = 3, columns = 2, first_row = 1, default_values = {0, 0}}
+}
+local total_position = {
+  sheet_col = 1,
+  row = 15
+}
+
 function onLoad()
   initButtons()
 end
 
-function initButtons()
-  local vertical_spacing = 0.39
-  local first_counter_z_pos = -2.3
-  local left_counter_x_pos = -0.01
-  local right_counter_x_pos = 0.79
-
-  local v_index = 0
-  -- Coins counter
-  for i = v_index, counter_counts.coins - 1, 1 do
-    setupCounter({x = left_counter_x_pos, y = board_thickness, z = first_counter_z_pos})
-  end
-  v_index = v_index + counter_counts.coins
-
-  -- Land counters
-  for i = v_index, v_index + counter_counts.lands - 1, 1 do
-    local z_pos = first_counter_z_pos + i * vertical_spacing
-    setupCounter({x = left_counter_x_pos, y = board_thickness, z = z_pos})
-    setupCounter({x = right_counter_x_pos, y = board_thickness, z = z_pos})
-  end
-  v_index = v_index + counter_counts.lands
-
-  -- Other objectives counters
-  for i = v_index, v_index + counter_counts.objectives - 1, 1 do
-    local z_pos = first_counter_z_pos + i * vertical_spacing
-    setupCounter({x = left_counter_x_pos, y = board_thickness, z = z_pos})
-  end
-  v_index = v_index + counter_counts.objectives
-
-  local z_pos = first_counter_z_pos + (counter_counts.coins + counter_counts.lands + counter_counts.objectives) * vertical_spacing - 0.03
-  setupTotal({x = left_counter_x_pos, y = board_thickness, z = z_pos})
+function getCounterCoordinates(sheet_column, subcolumn, row)
+  return {
+    x = getUiXPos(sheet_column, subcolumn),
+    y = ui_y_position,
+    z = ui_z_first_pos + vertical_spacing * (row - 1)
+  }
 end
 
-function setupCounter(position)
+function generateCounters(counters_table)
+  for _, counter_details in pairs(counters_table) do
+    for i = 1, counter_details.amount, 1 do
+      local current_row = counter_details.first_row + i - 1
+      generateSetOfCounters(counter_details, current_row)
+    end
+  end
+end
+
+-- A set is all contained on the same line
+function generateSetOfCounters(counter_details, current_row)
+  for col = 1, counter_details.columns, 1 do
+    setupCounter(getCounterCoordinates(counter_details.sheet_col, col, current_row), counter_details.default_values[col])
+  end
+end
+
+function initButtons()
+  generateCounters(counters_configuration)
+  setupTotal(getCounterCoordinates(total_position.sheet_col, 1.5, total_position.row))
+end
+
+function setupCounter(position, default_value)
   local counter_index = total_counter_count
   local input_function_name = "onInput_" .. tostring(total_counter_count)
 
@@ -69,13 +84,13 @@ function setupCounter(position)
     index = counter_index,
     input_function = input_function_name,
     function_owner = self,
-    label = "0",
+    label = tostring(default_value),
     position = position,
     scale = button_config["counter"].scale,
     width = button_config["counter"].width,
     height = button_config["counter"].height,
     font_size = button_config["counter"].font,
-    color = {1, 1, 1, 0},
+    color = {0.5, 0.5, 0.5, 0},
     font_color = {0, 0, 0, 100},
     alignment = 3,  -- Center
     validation = 2,  -- 1: None, 2: Integer
@@ -106,7 +121,7 @@ function createPlusButton(counter, position)
     click_function = click_function_name,
     function_owner = self,
     label = "+",
-    position = {position.x + plus_minus_spacing, position.y, position.z - 0.04},
+    position = {position.x + plus_minus_spacing, position.y, position.z - 0.03},
     scale = button_config["plus_minus"].scale,
     width = button_config["plus_minus"].width,
     height = button_config["plus_minus"].height,
@@ -127,7 +142,7 @@ function createMinusButton(counter, position)
     click_function = click_function_name,
     function_owner = self,
     label = "-",
-    position = {position.x - plus_minus_spacing, position.y, position.z - 0.04},
+    position = {position.x - plus_minus_spacing, position.y, position.z - 0.03},
     scale = button_config["plus_minus"].scale,
     width = button_config["plus_minus"].width,
     height = button_config["plus_minus"].height,
@@ -166,13 +181,13 @@ end
 
 function incrementCounter(counter, alt_click, amount)
   if alt_click then
-    amount = amount * 10
+    amount = amount * 5
   end
   if not counter.value then
-    counter.value = 0
+    counter.value = tonumber(counter.label)
   end
-  counter.value = tonumber(counter.value) + amount
-  if counter.value == 0 then
+  counter.value = counter.value + amount
+  if counter.value == tonumber(counter.label) then
     counter.value = nil
   end
   self.editInput(counter)
@@ -189,20 +204,31 @@ function sumSimpleCounters(cursor, counter_count)
   return result
 end
 
-function sumSquareCounters(cursor, counter_count)
-  local result = 0
-  for i = cursor, cursor + counter_count - 1, 2 do
-    if counters[i + 1].value ~= nil and counters[i + 2].value ~= nil then
-      result = result + (counters[i + 1].value * counters[i + 2].value)
-    end
+function getValueOrElse(value, else_value)
+  if value ~= nil then
+    return value
+  else
+    return else_value
+  end
+end
+
+function multiplyCells(start_index, size, else_values)
+  result = getValueOrElse(counters[start_index].value, else_values[1])
+  for i = 1, size - 1, 1 do
+    result = result * getValueOrElse(counters[start_index + i].value, else_values[i + 1])
   end
   return result
 end
 
 function updateTotal()
-  local total = sumSimpleCounters(0, counter_counts.coins)
-  total = total + sumSquareCounters(counter_counts.coins, counter_counts.lands * 2)
-  total = total + sumSimpleCounters(counter_counts.coins + counter_counts.lands * 2, counter_counts.objectives)
+  local counter_index = 1
+  local total = 0
+  for _, config in pairs(counters_configuration) do
+    for i = 1, config.amount, 1 do
+      total = total + multiplyCells(counter_index, config.columns, config.default_values)
+      counter_index = counter_index + config.columns
+    end
+  end
 
   total_counter.label = tostring(total)
   self.editButton(total_counter)
