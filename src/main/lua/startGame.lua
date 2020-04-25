@@ -57,7 +57,6 @@ local buttonsToRemove = {
 }
 local trashbagGuid = "32278a"
 local objectsToLock = {
-  queendominoDeckGuid, kingdominoDeckGuid, buildingsDeckGuid,
   buildingsBoardGuids[1], buildingsBoardGuids[2], laCourBoardGuid,
   bagsGuid.coin1, bagsGuid.coin3, bagsGuid.coin9, bagsGuid.knight, bagsGuid.tower,
   bagsGuid.wheat, bagsGuid.sheep, bagsGuid.wood, bagsGuid.fish
@@ -184,6 +183,7 @@ function setupQueendomino(deckPosition)
   local queendominoDeck = getObjectFromGUID(queendominoDeckGuid)
   queendominoDeck.setPositionSmooth(deckPosition)
   queendominoDeck.shuffle()
+  queendominoDeck.interactable = true
   Global.setTable("decks", {queendominoDeck})
 
   local buildingsDeck = getObjectFromGUID(buildingsDeckGuid)
@@ -225,6 +225,7 @@ function setupKingdomino(deckPosition)
   kingdominoDeck = getObjectFromGUID(kingdominoDeckGuid)
   kingdominoDeck.setPositionSmooth(deckPosition)
   kingdominoDeck.shuffle()
+  kingdominoDeck.interactable = true
   kingdominoDeck.call("limitSize")
   Global.setTable("decks", {kingdominoDeck})
 end
