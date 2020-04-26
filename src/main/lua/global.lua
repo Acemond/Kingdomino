@@ -44,7 +44,7 @@ local gameMode = {
 local kingdominoDeckGuid = "b972db"
 local queendominoDeckGuid = "b12f86"
 local ageOfGiantsDeckGuid = "d36a20"
-local questsDeckGuid = "01da2c"
+local questsDeckGuid = "fd8a62"
 
 local buildingsDeckGuid = "04de04"
 local startGameButtonGuid = "af7bb2"

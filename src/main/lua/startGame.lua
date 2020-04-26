@@ -11,7 +11,7 @@ local kingdominoDeckGuid = "b972db"
 local laCourDeckGuid = "e0b7ee"
 local laCourBoardGuid = "d19b4c"
 local ageOfGiantsDeckGuid = "d36a20"
-local questsDeckGuid = "01da2c"
+local questsDeckGuid = "fd8a62"
 
 local queenGuid = "401270"
 local buildingsBoardGuids = {"a77d62", "a066dc"}
