@@ -1,4 +1,3 @@
---[[ Lua code. See documentation: http://berserk-games.com/knowledgebase/scripting/ --]]
 local fourTilesForThreePlayers = true
 local playerColors = {"Red", "Orange", "Purple", "White"}
 local playerPieces = {
@@ -27,13 +26,12 @@ local playerPieces = {
     kings = {"86f4c2", "61259d"}
   }
 }
-local currentyPlayingColors = {
+local currently_playing_colors = {
   orange = false,
   purple = false,
   red = false,
   white = false,
 }
-local playerCount = 0
 local gameMode = {
   kingdomino = true,
   twoPlayersAdvanced = false,
@@ -136,7 +134,7 @@ function onLoad()
       distance = 30,
   })
 
-  Global.set('currentyPlayingColors', currentyPlayingColors)
+  Global.set('currentyPlayingColors', currently_playing_colors)
   Global.set('gameMode', gameMode)
   Global.set('buildingsDeck', getObjectFromGUID(buildingsDeckGuid))
   Global.set('laCourDeck', getObjectFromGUID(laCourDeckGuid))
@@ -167,17 +165,16 @@ end
 function addPlayer(playerColor)
   buildCastle(playerColor)
 
-  currentyPlayingColors[playerColor] = true
-  playerCount = getPlayerCount()
+  currently_playing_colors[playerColor] = true
 
-  Global.set("playerCount", playerCount)
-  Global.set("currentyPlayingColors", currentyPlayingColors)
+  Global.set("playerCount", getPlayerCount())
+  Global.set("currentyPlayingColors", currently_playing_colors)
   setTileBoards()
 end
 
 function getPlayerCount()
   count = 0
-  for color, value in pairs(currentyPlayingColors) do
+  for _, value in pairs(currently_playing_colors) do
     if value then count = count + 1 end
   end
   return count
@@ -191,30 +188,27 @@ function buildCastle(playerColor)
 end
 
 function removePlayer(playerColor)
-  local playerPieces = playerPieces[playerColor]
   destroyCastle(playerColor)
 
-  currentyPlayingColors[playerColor] = false
-  playerCount = getPlayerCount()
+  currently_playing_colors[playerColor] = false
 
-  Global.set("playerCount", playerCount)
-  Global.set("currentyPlayingColors", currentyPlayingColors)
+  Global.set("playerCount", getPlayerCount())
+  Global.set("currentyPlayingColors", currently_playing_colors)
   setTileBoards()
 end
 
-function setPlayers(playerTable, notPlaying)
-  for _, color in pairs(playerTable) do
+function setPlayers(playing, not_playing)
+  for _, color in pairs(playing) do
     buildCastle(color)
-    currentyPlayingColors[color] = true
+    currently_playing_colors[color] = true
   end
-  for _, color in pairs(notPlaying) do
+  for _, color in pairs(not_playing) do
     destroyCastle(color)
-    currentyPlayingColors[color] = false
+    currently_playing_colors[color] = false
   end
 
-  playerCount = getPlayerCount()
-  Global.set("playerCount", playerCount)
-  Global.set("currentyPlayingColors", currentyPlayingColors)
+  Global.set("playerCount", getPlayerCount())
+  Global.set("currentyPlayingColors", currently_playing_colors)
   setTileBoards()
 end
 
@@ -231,7 +225,7 @@ function quickSetup(targetPlayerCount)
     return
   end
 
-  if playerCount ~= targetPlayerCount then
+  if getPlayerCount() ~= targetPlayerCount then
     if targetPlayerCount == 2 then
       setPlayers({"white", "orange"}, {"purple", "red"})
     elseif targetPlayerCount == 3 then
@@ -327,7 +321,7 @@ function hideObject(object)
 end
 
 function setTileBoards()
-  local targetSize = getBoardSize(gameMode, playerCount)
+  local targetSize = getBoardSize()
   Global.set("holderSize", targetSize)
   showTilesBoard(targetSize)
   hiddenBoards = {}
@@ -358,21 +352,14 @@ function showTilesBoard(boardNumber)
   rightBoard.setPositionSmooth({rightBoard.getPosition().x, 1.06, rightBoard.getPosition().z}, false, true)
 end
 
-function getBoardSize(gameMode, playerCount)
+function getBoardSize()
   if gameMode.ageOfGiants then
     return 5
-  elseif playerCount == 3 and not gameMode.queendomino and not fourTilesForThreePlayers then
+  elseif getPlayerCount() == 3 and not gameMode.queendomino and not fourTilesForThreePlayers then
     return 3
   else
     return 4
   end
-end
-
-function allGameModesDisabled(gameMode)
-  for _, enabled in pairs(gameMode) do
-    if enabled then return false end
-  end
-  return true
 end
 
 function resizeControlZones(slots)

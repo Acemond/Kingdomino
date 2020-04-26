@@ -1,10 +1,10 @@
 local tileValues = {}
 local targetDealingPositions = {
-  {5.49, 1.83, -0.59},
-  {5.50, 1.83, -3.06},
-  {5.49, 1.83, -5.52},
-  {5.47, 1.83, -7.98},
-  {5.49, 1.83, -10.44}
+  { 5.49, 1.83, -0.59 },
+  { 5.50, 1.83, -3.06 },
+  { 5.49, 1.83, -5.52 },
+  { 5.47, 1.83, -7.98 },
+  { 5.49, 1.83, -10.44 }
 }
 local trashBagGuid = "32278a"
 
@@ -51,7 +51,7 @@ function trashTile(tileGuid, position)
   self.takeObject({
     guid = tileGuid,
     position = position,
-    rotation = {0, 180, 180},
+    rotation = { 0, 180, 180 },
     callback_function = moveToTrash
   })
 end
@@ -70,10 +70,12 @@ function dealTile(tileGuid, position)
   self.takeObject({
     guid = guid,
     position = position,
-    rotation = {0, 180, 180},
-    callback_function = function (obj)
+    rotation = { 0, 180, 180 },
+    callback_function = function(obj)
       obj.flip()
-      Wait.frames(function () obj.lock() end, 60)
+      Wait.frames(function()
+        obj.lock()
+      end, 60)
     end
   })
 end
@@ -99,7 +101,9 @@ end
 
 function getSortedTilesValue()
   local guids = getObjectsGuids()
-  table.sort(guids, function(a, b) return tileValues[a] < tileValues[b] end)
+  table.sort(guids, function(a, b)
+    return tileValues[a] < tileValues[b]
+  end)
   return guids
 end
 

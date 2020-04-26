@@ -111,7 +111,7 @@ function setupCounter(position, default_value)
   }
 
   self.setVar(input_function_name,
-    function (obj, player_clicker_color, input_value, selected)
+    function (_, _, input_value, _)
       changeCounterValue(parameters, tonumber(input_value))
     end)
   self.createInput(parameters)
@@ -125,7 +125,7 @@ end
 function createPlusButton(counter, position)
   local click_function_name = "plus_function_" .. tostring(counter)
   self.setVar(click_function_name,
-    function (obj, player_clicker_color, alt_click)
+    function (_, _, alt_click)
       incrementCounter(counter, alt_click, 1)
     end)
 
@@ -146,7 +146,7 @@ end
 function createMinusButton(counter, position)
   local click_function_name = "minus_function_" .. tostring(counter)
   self.setVar(click_function_name,
-    function (obj, player_clicker_color, alt_click)
+    function (_, _, alt_click)
       incrementCounter(counter, alt_click, -1)
     end)
 
@@ -237,7 +237,7 @@ function updateTotal()
   local counter_index = 1
   local total = 0
   for _, config in pairs(counters_configuration) do
-    for col = 1, config.columns, 1 do
+    for _ = 1, config.columns, 1 do
       total = total + multiplyCells(counter_index, config.subcolumns, config.default_values)
       counter_index = counter_index + config.subcolumns
     end

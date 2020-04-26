@@ -4,8 +4,6 @@ local kingTargetPositions = {
   {0.00, 1.92, -5.00},
   {0.00, 1.92, -7.00}
 }
-local queendominoDeckButtonGuid = "69cbda"
-local kingdominoDeckButtonGuid = "9f4a39"
 local queendominoDeckGuid = "b12f86"
 local kingdominoDeckGuid = "b972db"
 local laCourDeckGuid = "e0b7ee"
@@ -13,10 +11,8 @@ local laCourBoardGuid = "d19b4c"
 local ageOfGiantsDeckGuid = "d36a20"
 local questsDeckGuid = "fd8a62"
 
-local queenGuid = "401270"
 local buildingsBoardGuids = {"a77d62", "a066dc"}
 local buildingsDeckGuid = "04de04"
-local dragonGuid = "447c40"
 local bagsGuid = {
   kings = "1403b9",
   coin1 = "38e164",
@@ -55,7 +51,6 @@ local buttonsToRemove = {
   twoPlayersAdvancedEnable = "823bca",
   twoPlayersAdvancedDisable = "02322f"
 }
-local trashbagGuid = "32278a"
 local objectsToLock = {
   queendominoDeckGuid, kingdominoDeckGuid, buildingsDeckGuid,
   buildingsBoardGuids[1], buildingsBoardGuids[2], laCourBoardGuid,

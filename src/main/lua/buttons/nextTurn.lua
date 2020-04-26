@@ -1,6 +1,6 @@
 local leftZoneGuid = "38ed1c"
 local rightZoneGuid = "358f4e"
-local rightBoardsGuids = {"e5b23a", "7a72d1", "174390"}
+local rightBoardsGuids = { "e5b23a", "7a72d1", "174390" }
 local tileCheckZones = {
   "8fd451", "7e8397", "d0b593", "f25b1c", "234056"
 }
@@ -16,11 +16,11 @@ function onLoad()
   self.createButton({
     click_function = "onClick",
     function_owner = self,
-    label          = "",
-    position       = {0,0.05,0},
-    color          = {0, 0, 0, 0},
-    width          = 2400,
-    height         = 600
+    label = "",
+    position = { 0, 0.05, 0 },
+    color = { 0, 0, 0, 0 },
+    width = 2400,
+    height = 600
   })
 end
 
@@ -51,7 +51,7 @@ function nextTurn()
       deck.shuffle()
       deck.call("dealTiles")
     else
-      broadcastToAll("Last turn! Score sheets are on the East side of the table.", {r=1, g=1, b=1})
+      broadcastToAll("Last turn! Score sheets are on the East side of the table.", { r = 1, g = 1, b = 1 })
       self.destroy()
     end
   end
@@ -102,25 +102,31 @@ end
 function checkKingCount()
   local count = 0
   for _, object in pairs(getObjectFromGUID(rightZoneGuid).getObjects()) do
-    if isObjectIn(object.guid, kingsGuid) then count = count + 1 end
+    if isObjectIn(object.guid, kingsGuid) then
+      count = count + 1
+    end
   end
   if count ~= getExpectedKings() then
-    broadcastToAll("Pick dominos before clicking Next Turn", {r=1, g=0, b=0})
+    broadcastToAll("Pick dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
     error()
   end
-end 
+end
 
 function checkTileZone(zone)
   local kingCount = 0
   local tileCount = 0
   for _, object in pairs(zone.getObjects()) do
     if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid then
-      if isObjectIn(object.guid, kingsGuid) then kingCount = kingCount + 1 end
-      if not isObjectIn(object.guid, kingsGuid) then tileCount = tileCount + 1 end
+      if isObjectIn(object.guid, kingsGuid) then
+        kingCount = kingCount + 1
+      end
+      if not isObjectIn(object.guid, kingsGuid) then
+        tileCount = tileCount + 1
+      end
     end
   end
   if kingCount > 0 and tileCount == 0 then
-    broadcastToAll("Place your king on a domino", {r=1, g=0, b=0})
+    broadcastToAll("Place your king on a domino", { r = 1, g = 0, b = 0 })
     error()
   end
   return kingCount
@@ -128,14 +134,14 @@ end
 
 function checkLeftZone()
   if #getObjectFromGUID(leftZoneGuid).getObjects() > 2 then
-    broadcastToAll("Clear left dominos before clicking Next Turn", {r=1, g=0, b=0})
+    broadcastToAll("Clear left dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
     error()
   end
 end
 
 function moveZoneContents()
   local rightZone = getObjectFromGUID(rightZoneGuid)
-  for _,obj in ipairs(rightZone.getObjects()) do
+  for _, obj in ipairs(rightZone.getObjects()) do
     if not isObjectIn(obj.guid, rightBoardsGuids) and obj.guid ~= tableGuid then
       obj.unlock()
       obj.setPositionSmooth({
@@ -149,7 +155,9 @@ end
 
 function isObjectIn(objectGuid, list)
   for _, guid in pairs(list) do
-    if objectGuid == guid then return true end
+    if objectGuid == guid then
+      return true
+    end
   end
   return false
 end

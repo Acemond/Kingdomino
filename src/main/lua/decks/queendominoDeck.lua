@@ -1,10 +1,10 @@
 local tileValues = {}
 local targetDealingPositions = {
-  {5.49, 1.83, -0.59},
-  {5.50, 1.83, -3.06},
-  {5.49, 1.83, -5.52},
-  {5.47, 1.83, -7.98},
-  {5.49, 1.83, -10.44}
+  { 5.49, 1.83, -0.59 },
+  { 5.50, 1.83, -3.06 },
+  { 5.49, 1.83, -5.52 },
+  { 5.47, 1.83, -7.98 },
+  { 5.49, 1.83, -10.44 }
 }
 local tilesDealtPerTurn = 4
 
@@ -21,28 +21,36 @@ function assignTilesValue()
   return values
 end
 
-function dealTiles()
+function dealTile(tileGuid, position)
   local guid = tileGuid
   if #self.getObjects() == 0 then
     guid = nil
   end
 
+  self.takeObject({
+    guid = guid,
+    position = position,
+    rotation = { 0, 180, 180 },
+    callback_function = function(obj)
+      obj.flip()
+      Wait.frames(function()
+        obj.lock()
+      end, 60)
+    end
+  })
+end
+
+function dealTiles()
   for guid, position in pairs(getTilesTargetPosition()) do
-    self.takeObject({
-      guid = guid,
-      position = position,
-      rotation = {0, 180, 180},
-      callback_function = function (obj)
-        obj.flip()
-        Wait.frames(function () obj.lock() end, 60)
-      end
-    })
+    dealTile(guid, position)
   end
 end
 
 function getTilesTargetPosition()
   local guids = getObjectsGuids()
-  table.sort(guids, function(a, b) return tileValues[a] < tileValues[b] end)
+  table.sort(guids, function(a, b)
+    return tileValues[a] < tileValues[b]
+  end)
 
   result = {}
   for i, guid in ipairs(guids) do
