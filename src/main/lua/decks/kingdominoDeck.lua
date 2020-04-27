@@ -12,32 +12,6 @@ function onLoad()
   tileValues = assignTilesValue()
 end
 
-function addTilesValues(tileValuesToAdd)
-  for guid, value in pairs(tileValuesToAdd) do
-    tileValues[guid] = value
-  end
-end
-
-function limitSize()
-  local playerCount = Global.get("playerCount")
-  local gameMode = Global.get("gameMode")
-
-  local deckSize = 48
-  if gameMode.ageOfGiants then
-    deckSize = deckSize + 12
-  end
-
-  if playerCount == 2 and not gameMode.twoPlayersAdvanced then
-    cutDeck(deckSize / 2)
-  end
-end
-
-function cutDeck(size)
-  if size < #self.getObjects() then
-    self.cut(#self.getObjects() - size)[2].destroy()
-  end
-end
-
 function assignTilesValue()
   local values = {}
   local tiles = self.getObjects()
@@ -45,6 +19,12 @@ function assignTilesValue()
     values[tiles[i].guid] = i
   end
   return values
+end
+
+function cutDeck(size)
+  if size < #self.getObjects() then
+    self.cut(#self.getObjects() - size)[2].destroy()
+  end
 end
 
 function trashTile(tileGuid, position)
@@ -81,14 +61,13 @@ function dealTile(tileGuid, position)
 end
 
 function dealTiles()
-  local gameMode = Global.get("gameMode")
-  local playerCount = Global.get("playerCount")
+  local game = Global.get("game")
 
   for index, guid in pairs(getSortedTilesValue()) do
-    if gameMode.ageOfGiants then
-      if playerCount == 3 and (index == 2 or index == 4) then
+    if game.settings.modes.ageOfGiants then
+      if game.player_count == 3 and (index == 2 or index == 4) then
         trashTile(guid, targetDealingPositions[index])
-      elseif gameMode.ageOfGiants and (playerCount == 2 or playerCount > 3) and index == 3 then
+      elseif game.settings.modes.ageOfGiants and (game.player_count == 2 or game.player_count > 3) and index == 3 then
         trashTile(guid, targetDealingPositions[index])
       else
         dealTile(guid, targetDealingPositions[index])
@@ -110,7 +89,7 @@ end
 function getObjectsGuids()
   local tiles = self.getObjects()
   local guids = {}
-  for i = 1, Global.get("holderSize"), 1 do
+  for i = 1, Global.get("game").board_size, 1 do
     guids[i] = tiles[i].guid
   end
   return guids
@@ -120,4 +99,10 @@ function mergeDeck(deck)
   addTilesValues(deck.getTable("tiles_values"))
   deck.setInvisibleTo({ "Black", "Red", "Orange", "Purple", "White" })
   self.putObject(deck)
+end
+
+function addTilesValues(tileValuesToAdd)
+  for guid, value in pairs(tileValuesToAdd) do
+    tileValues[guid] = value
+  end
 end

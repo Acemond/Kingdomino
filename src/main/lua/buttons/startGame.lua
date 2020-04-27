@@ -54,11 +54,11 @@ local right_boards_infos = {
 }
 
 local left_boards_infos = {
-  nil,
-  nil,
-  { guid = "ae485e", position = { -5.50, 1.06, -3.01 } },
-  { guid = "bd95f5", position = { -5.50, 1.06, -3.01 } },
-  { guid = "8c018b", position = { -5.50, 1.06, -5.50 } }
+  nil,  -- size 1
+  nil,  -- size 2
+  { guid = "ae485e", position = { -5.50, 1.06, -3.01 } },  -- size 3
+  { guid = "bd95f5", position = { -5.50, 1.06, -3.01 } },  -- size 4
+  { guid = "8c018b", position = { -5.50, 1.06, -5.50 } }  -- size 5
 }
 
 local zone_coordinates_modifiers = {
@@ -124,9 +124,12 @@ local buttons_to_remove = {
   addGreen = "fbeaba",
   removePink = "668a0a",
   addPink = "6987e6",
-  quickGame2p = "46971b",
-  quickGame3p = "4f4db6",
-  quickGame4p = "8dfa00",
+  quickSetup = "31971b",
+  quickSetup2p = "46971b",
+  quickSetup3p = "4f4db6",
+  quickSetup4p = "8dfa00",
+  quickSetup5p = "1765aa",
+  quickSetup6p = "6c37eb",
   laCourEnable = "6ff70f",
   laCourDisable = "2c22ed",
   kingdominoEnable = "9f4a39",
@@ -136,7 +139,13 @@ local buttons_to_remove = {
   age_of_giantsEnable = "df1760",
   age_of_giantsDisable = "6a25ff",
   two_players_advancedEnable = "823bca",
-  two_players_advancedDisable = "02322f"
+  two_players_advancedDisable = "02322f",
+  randomn_quests_enable = "75dcb1",
+  randomn_quests_disable = "edb838",
+  kingdomino_xl_enable = "42f5a4",
+  kingdomino_xl_disable = "92f52d",
+  teamdomino_enable = "83af19",
+  teamdomino_disable = "355eca",
 }
 local objects_to_lock = {
   game_objects_guid.kingdomino.deck,
@@ -311,6 +320,8 @@ function getBoardSize()
       and not game_settings.modes.queendomino
       and not game_settings.variants.three_players_variant then
     return 3
+  elseif getPlayerCount() == 5 then
+    return 5
   else
     return 4
   end
@@ -374,7 +385,7 @@ end
 function destroyObjectIfExists(guid)
   local object = getObjectFromGUID(guid)
   if object ~= nil then
-    destroyObject(object)
+    object.destroy()
   end
 end
 
@@ -421,10 +432,12 @@ function startGame()
 
   local new_game = {
     decks = decks,
+    board_size = getBoardSize(),
     buildings = buildings,
     settings = game_settings,
     player_count = getPlayerCount()
   }
+  Global.setTable("game", new_game)
   getObjectFromGUID(next_turn_button_guid).call("firstTurn", new_game)
 end
 
@@ -474,7 +487,7 @@ function destroyUnusedPieces()
   for mode, enabled in pairs(game_settings.modes) do
     if not enabled then
       for _, guid in pairs(game_objects_guid[mode]) do
-        destroyObjectIfExists(getObjectFromGUID(guid))
+        destroyObjectIfExists(guid)
       end
     end
   end
@@ -635,7 +648,8 @@ function getMainDecks()
       local kingdomino_deck = getObjectFromGUID(game_objects_guid["kingdomino"].deck)
       kingdomino_deck.call("mergeDeck", age_of_giants_deck)
     elseif enabled and game_objects_guid[mode].deck then
-      decks[mode] = getObjectFromGUID(game_objects_guid[mode].deck)
+      local deck = getObjectFromGUID(game_objects_guid[mode].deck)
+      decks[mode] = deck
     end
   end
   return decks

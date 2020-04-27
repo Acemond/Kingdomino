@@ -9,7 +9,9 @@ local turn = 0
 local tableGuid = "0f8757"
 
 local kingsGuid = {
-  "4d2d92", "5e6289", "7dd59a", "e44a70", "24345c", "2837e9", "86f4c2", "61259d"
+  "4d2d92", "5e6289", "7dd59a", "e44a70", "24345c", "2837e9", "86f4c2", "61259d",
+  "526c31", "f2cd83",  -- Green
+  "9dc643", "0dba70",  -- Pink
 }
 local game = {}
 
@@ -48,11 +50,7 @@ function nextTurn()
 
   moveZoneContents()
 
-  print(turn)
-  print((turn - 1) % 2 + 1)
-  local deck = game.decks[(turn - 1) % 2 + 1]
-  print(game.decks)
-  print(deck)
+  local deck = game.decks[(turn - 1) % #game.decks + 1]
   if deck ~= nil then
     deck.shuffle()
     deck.call("dealTiles")
@@ -86,14 +84,15 @@ function trashTile(zone)
 end
 
 function checkZones()
+  if turn == 0 then
+    return
+  end
   checkRightZone()
   checkLeftZone()
 end
 
 function getExpectedKings()
-  if turn == 0 then
-    return 0
-  elseif game.player_count == 3 then
+  if game.player_count == 3 then
     return 3
   else
     return 4
@@ -121,11 +120,16 @@ function getKingCount()
 end
 
 function checkTileZone(zone)
-  local kingCount = getKingCount()
+  local kingCount = 0
   local tileCount = 0
   for _, object in pairs(zone.getObjects()) do
-    if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid and not isObjectIn(object.guid, kingsGuid) then
-      tileCount = tileCount + 1
+    if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid then
+      if isObjectIn(object.guid, kingsGuid) then
+        kingCount = kingCount + 1
+      end
+      if not isObjectIn(object.guid, kingsGuid) then
+        tileCount = tileCount + 1
+      end
     end
   end
   if kingCount > 0 and tileCount == 0 then
