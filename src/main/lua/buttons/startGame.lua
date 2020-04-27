@@ -142,20 +142,17 @@ local game_buttons_guid = {
   kingdomino_xl = { buttons_to_remove.kingdomino_xl_enable, buttons_to_remove.kingdomino_xl_disable },
   teamdomino = { buttons_to_remove.teamdomino_enable, buttons_to_remove.teamdomino_disable }
 }
-local game_dependencies = {
-  kingdomino = { variants = { "two_players_advanced", "kingdomino_xl", "teamdomino" }, decks = { "age_of_giants" } },
-  queendomino = { variants = {}, decks = {} },
-  age_of_giants = { variants = {}, decks = {} },
-  the_court = { variants = {}, decks = {} }
+
+local deck_interaction = {
+  age_of_giants = { dependency = "kingdomino", incompatibilities = nil },
 }
-local game_incompatibilities = {
-  kingdomino = { variants = {}, decks = {} },
-  queendomino = { variants = { "kingdomino_xl", "teamdomino", "two_players_advanced" }, decks = {} },
-  age_of_giants = { variants = {}, decks = {} },
-  the_court = { variants = {}, decks = {} },
-  kingdomino_xl = { variants = {}, decks = { "queendomino" } },
-  teamdomino = { variants = {}, decks = { "queendomino" } }
+
+local variant_interaction = {
+  kingdomino_xl = { dependency = "kingdomino", incompatibilities = "queendomino" },
+  teamdomino = { dependency = "kingdomino", incompatibilities = "queendomino" },
+  two_players_advanced = { dependency = "kingdomino", incompatibilities = "queendomino" }
 }
+
 local quests_deck_guid = "fd8a62"
 local game_objects_guid = {
   kingdomino = {
@@ -261,6 +258,17 @@ local game_settings = {
     teamdomino = false
   }
 }
+local object_visible = {
+  kingdomino = true,
+  queendomino = true,
+  age_of_giants = true,
+  the_court = true,
+  two_players_advanced = true,
+  three_players_variant = true,
+  random_quests = true,
+  kingdomino_xl = true,
+  teamdomino = true,
+}
 local next_turn_button_guid = "4a6126"
 
 function onLoad()
@@ -349,75 +357,75 @@ function enableDeck(gameName)
   game_settings.modes[gameName] = true
   showObjects(game_objects_guid[gameName])
 
-  enableDependenciesButtons(game_dependencies[gameName].variants)
-  enableDependenciesButtons(game_dependencies[gameName].decks)
-
-  for _, variant_name in pairs(game_incompatibilities[gameName].variants) do
-    setVariant({ variant_name = variant_name, value = false })
-    hideObjects(game_buttons_guid[variant_name])
-  end
-  for _, deck_name in pairs(game_incompatibilities[gameName].decks) do
-    disableDeck(deck_name)
-  end
-
+  checkInteractions()
   updateTileBoards()
-end
-
-function showButtons(guids)
-  for _, guid in pairs(guids) do
-    local button = getObjectFromGUID(guid)
-    if button then
-      button.setPosition({ button.getPosition().x, 1.06, button.getPosition().z })
-      button.lock()
-      if button.getStateId() == 2 then
-        button.setState(1)
-      end
-    end
-  end
-end
-
-function enableDependenciesButtons(dependencies_name)
-  for _, dependencyName in pairs(dependencies_name) do
-    showObjects(game_buttons_guid[dependencyName])
-    showButtons(game_buttons_guid[dependencyName])
-  end
-end
-
-function setVariant(parameters)
-  game_settings.variants[parameters.variant_name] = parameters.value
 end
 
 function disableDeck(gameName)
   game_settings.modes[gameName] = false
   hideObjects(game_objects_guid[gameName])
 
-  for _, deck_name in pairs(game_dependencies[gameName].decks) do
-    disableDeck(deck_name)
-    hideObjects(game_buttons_guid[deck_name])
-  end
-  for _, deck_name in pairs(game_dependencies[gameName].variants) do
-    hideObjects(game_buttons_guid[deck_name])
-  end
-  reenableIncompatibilities(gameName)
+  checkInteractions()
   updateTileBoards()
 end
 
-function reenableIncompatibilities(incompatibleGame)
-  for _, variant_name in pairs(game_incompatibilities[incompatibleGame].variants) do
-    for dependency_name, values in pairs(game_dependencies) do
-      for _, children in pairs(values.variants) do
-        if children == variant_name and game_settings.modes[dependency_name] then
-          showButtons(game_buttons_guid[variant_name])
-        end
-      end
-      for _, children in pairs(values.decks) do
-        if children == variant_name and game_settings.modes[dependency_name] then
-          showButtons(game_buttons_guid[variant_name])
+function showVariant(variant_name)
+  showObjects(game_buttons_guid[variant_name], true)
+end
+
+function setVariant(parameters)
+  game_settings.variants[parameters.variant_name] = parameters.value
+end
+
+function checkInteractions()
+  local decks_to_hide = shouldHide(deck_interaction)
+  local variants_to_hide = shouldHide(variant_interaction)
+  local variants_to_show = shouldShow(variant_interaction)
+
+  for _, deck_name in pairs(decks_to_hide) do
+    object_visible[deck_name] = false
+    disableDeck(deck_name)
+  end
+  for _, variant_name in pairs(variants_to_show) do
+    object_visible[variant_name] = true
+    showObjects(game_buttons_guid[variant_name], true)
+  end
+  for _, variant_name in pairs(variants_to_hide) do
+    object_visible[variant_name] = false
+    hideObjects(game_buttons_guid[variant_name])
+  end
+end
+
+function shouldHide(interaction_table)
+  local to_hide = {}
+  for game_name, interactions in pairs(interaction_table) do
+    if object_visible[game_name] then
+      for mode, enabled in pairs(game_settings.modes) do
+        if mode == interactions.incompatibilities and enabled or
+            mode == interactions.dependency and not enabled then
+          table.insert(to_hide, game_name)
         end
       end
     end
   end
 
+  return to_hide
+end
+
+function shouldShow(interaction_table)
+  local to_show = {}
+  for game_name, interactions in pairs(interaction_table) do
+    if not object_visible[game_name] then
+      for mode, enabled in pairs(game_settings.modes) do
+        if mode == interactions.dependency and enabled
+            or mode == interactions.dependency and not enabled then
+          table.insert(to_show, game_name)
+        end
+      end
+    end
+  end
+
+  return to_show
 end
 
 function getBoardSize()
@@ -710,12 +718,14 @@ function destroyObjectInBag(bag, guid)
   })
 end
 
-function showObjects(object_guids)
+function showObjects(object_guids, is_button)
   for _, guid in pairs(object_guids) do
     local object = getObjectFromGUID(guid)
-    if object then
-      showObject(object)
+    if object and is_button then
+      showButton(object)
       showObjectsButton(object)
+    elseif object then
+      showObject(object)
     end
   end
 end
@@ -751,6 +761,13 @@ end
 function showObject(object)
   object.setPosition({ object.getPosition().x, 3, object.getPosition().z })
   object.unlock()
+end
+
+function showButton(object)
+  object.setPosition({ object.getPosition().x, 1.06, object.getPosition().z })
+  if object.getStateId() == 2 then
+    object.setState(1)
+  end
 end
 
 function hideObject(object)
