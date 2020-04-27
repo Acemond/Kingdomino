@@ -210,7 +210,7 @@ end
 function sumSimpleCounters(cursor, counter_count)
   local result = 0
   for i = cursor, cursor + counter_count - 1, 1 do
-    if counters[i + 1].value ~= nil then
+    if counters[i + 1].value then
       result = result + counters[i + 1].value
     end
   end
@@ -218,7 +218,7 @@ function sumSimpleCounters(cursor, counter_count)
 end
 
 function getValueOrElse(value, else_value)
-  if value ~= nil then
+  if value then
     return value
   else
     return else_value

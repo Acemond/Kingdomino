@@ -32,7 +32,7 @@ end
 function freezeNonInteractables(guids)
   for _, guid in pairs(guids) do
     obj = getObjectFromGUID(guid)
-    if obj ~= nil then
+    if obj then
       obj.interactable = false
     end
   end

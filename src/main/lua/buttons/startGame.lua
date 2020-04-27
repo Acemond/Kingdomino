@@ -63,35 +63,51 @@ local left_boards_infos = {
   nil, -- size 2
   { guid = "ae485e", position = { -5.50, 1.06, -3.01 } }, -- size 3
   { guid = "bd95f5", position = { -5.50, 1.06, -3.01 } }, -- size 4
-  { guid = "8c018b", position = { -5.50, 1.06, -5.50 } },  -- size 5
-  nil,  -- size 6
-  nil,  -- size 7
-  { guid = "a391ea", position = { -5.50, 1.06, -9.07 } },  -- size 8
+  { guid = "8c018b", position = { -5.50, 1.06, -5.50 } }, -- size 5
+  nil, -- size 6
+  nil, -- size 7
+  { guid = "a391ea", position = { -5.50, 1.06, -9.07 } }, -- size 8
 }
 
 local zone_coordinates_modifiers = {
-  nil,  -- size 1
-  nil,  -- size 2
-  { zPos = -3, zScale = 8.25 },  -- size 3
-  { zPos = -4.25, zScale = 10.5 },  -- size 4
-  { zPos = -5.5, zScale = 13.5 },  -- size 5
+  nil, -- size 1
+  nil, -- size 2
+  { zPos = -3, zScale = 8.25 }, -- size 3
+  { zPos = -4.25, zScale = 10.5 }, -- size 4
+  { zPos = -5.5, zScale = 13.5 }, -- size 5
   nil,
   nil,
   { zPos = -9, zScale = 20 },
 }
+local player_add_buttons = {
+  red = "a1ef12",
+  orange = "8d17b0",
+  white = "f60fe5",
+  purple = "1b4b1a",
+  green = "fbeaba",
+  pink = "6987e6"
+}
+local player_remove_buttons = {
+  red = "dfeee5",
+  orange = "fa1b7c",
+  white = "74e8b0",
+  purple = "1bbcb3",
+  green = "8fedd0",
+  pink = "668a0a"
+}
 local buttons_to_remove = {
-  removeRed = "dfeee5",
-  addRed = "a1ef12",
-  removeOrange = "fa1b7c",
-  addOrange = "8d17b0",
-  removeWhite = "74e8b0",
-  addWhite = "f60fe5",
-  removePurple = "1bbcb3",
-  addPurple = "1b4b1a",
-  removeGreen = "8fedd0",
-  addGreen = "fbeaba",
-  removePink = "668a0a",
-  addPink = "6987e6",
+  player_remove_buttons.red,
+  player_add_buttons.red,
+  player_remove_buttons.orange,
+  player_add_buttons.orange,
+  player_remove_buttons.white,
+  player_add_buttons.white,
+  player_remove_buttons.purple,
+  player_add_buttons.purple,
+  player_remove_buttons.green,
+  player_add_buttons.green,
+  player_remove_buttons.pink,
+  player_add_buttons.pink,
   quickSetup = "31971b",
   quickSetup2p = "46971b",
   quickSetup3p = "4f4db6",
@@ -277,6 +293,8 @@ function isGameReady()
     return false, "You need to enable Age of Giants or both Kingdomino and Queendomino to play with 5 players"
   elseif getPlayerCount() > 5 and not (game_settings.variants.teamdomino or (game_settings.modes.queendomino and game_settings.modes.kingdomino)) then
     return false, "You need to enable either Teamdomino or both Kingdomino and Queendomino to play with " .. tostring(getPlayerCount()) .. " players"
+  elseif getPlayerCount() > 5 and game_settings.modes.age_of_giants then
+    return false, "Age of Giants is for 5 players or less"
   end
   return true
 end
@@ -328,7 +346,7 @@ function enableDependenciesButtons(dependencies_name)
     showObjects(game_buttons_guid[dependencyName])
     for _, guid in pairs(game_buttons_guid[dependencyName]) do
       local button = getObjectFromGUID(guid)
-      if button ~= nil then
+      if button then
         button.setPosition({ button.getPosition().x, 1.06, button.getPosition().z })
         button.lock()
         if button.getStateId() == 2 then
@@ -358,20 +376,28 @@ function disableDeck(gameName)
 end
 
 function getBoardSize()
-  if game_settings.modes.age_of_giants then
-    return 5
-  elseif getPlayerCount() == 3
+  local size = 4
+  if getPlayerCount() == 3
       and not game_settings.modes.queendomino
       and not game_settings.variants.three_players_variant then
-    return 3
+    size = 3
   elseif game_settings.modes.queendomino and game_settings.modes.kingdomino
       and (getPlayerCount() == 5 or getPlayerCount() == 6) then
-    return 8
-  elseif game_settings.modes.age_of_giants and getPlayerCount() == 5 then
-    return 5
+    size = 8
   else
+    size = 4
+  end
+
+  if game_settings.modes.age_of_giants then
+    size = size + 1
+  end
+
+  -- FIXME: Quickfix until other board sizes gets added
+  if size ~= 3 or size ~= 4 or size ~= 5 or size ~= 8 then
     return 4
   end
+
+  return size
 end
 
 function hideTileBoards(board_size)
@@ -385,6 +411,7 @@ function hideTileBoards(board_size)
 end
 
 function showTilesBoard(board_size)
+  print(board_size)
   local leftBoard = getObjectFromGUID(left_boards_infos[board_size].guid)
   local rightBoard = getObjectFromGUID(right_boards_infos[board_size].guid)
 
@@ -417,9 +444,17 @@ end
 function setPlayers(playing, not_playing)
   for _, color in pairs(playing) do
     addPlayer(color)
+    local player_button = getObjectFromGUID(player_add_buttons[color])
+    if player_button then
+      player_button.setState(2)
+    end
   end
   for _, color in pairs(not_playing) do
     removePlayer(color)
+    local player_button = getObjectFromGUID(player_add_buttons[color])
+    if player_button then
+      player_button.setState(1)
+    end
   end
 end
 
@@ -441,7 +476,7 @@ end
 
 function destroyObjectIfExists(guid)
   local object = getObjectFromGUID(guid)
-  if object ~= nil then
+  if object then
     object.destroy()
   end
 end
@@ -524,7 +559,7 @@ end
 function lockExistingObjects()
   for _, guid in pairs(objects_to_lock) do
     local obj = getObjectFromGUID(guid)
-    if obj ~= nil then
+    if obj then
       obj.lock()
     end
   end
@@ -615,7 +650,7 @@ end
 function showObjects(object_guids)
   for _, guid in pairs(object_guids) do
     local object = getObjectFromGUID(guid)
-    if object ~= nil then
+    if object then
       showObject(object)
       showObjectsButton(object)
     end
@@ -625,7 +660,7 @@ end
 function hideObjects(object_guids)
   for _, guid in pairs(object_guids) do
     local object = getObjectFromGUID(guid)
-    if object ~= nil then
+    if object then
       hideObject(object)
       hideObjectsButton(object)
     end
@@ -634,7 +669,7 @@ end
 
 function hideObjectsButton(object)
   local buttons = object.getButtons()
-  if buttons ~= nil then
+  if buttons then
     for _, button in pairs(buttons) do
       object.editButton({ index = button.index, scale = { 0, 0, 0 } })
     end
@@ -643,7 +678,7 @@ end
 
 function showObjectsButton(object)
   local buttons = object.getButtons()
-  if buttons ~= nil then
+  if buttons then
     for _, button in pairs(buttons) do
       object.editButton({ index = button.index, scale = { 1, 1, 1 } })
     end

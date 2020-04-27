@@ -53,7 +53,7 @@ function nextTurn()
   end
 
   local deck = game.decks[(turn - 1) % #game.decks + 1]
-  if deck ~= nil then
+  if deck then
     deck.shuffle()
     deck.call("dealTiles")
   else
@@ -76,7 +76,7 @@ function trashTile(zone)
   for _, object in pairs(zone.getObjects()) do
     local unpickedTilesBag = getObjectFromGUID(unpickedTilesBagGuid)
     if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid then
-      if unpickedTilesBag ~= nil then
+      if unpickedTilesBag then
         getObjectFromGUID(unpickedTilesBagGuid).putObject(object)
       else
         destroyObject(object)
