@@ -2,7 +2,8 @@ local kingTargetPositions = {
   { 0.00, 1.92, -1.00 },
   { 0.00, 1.92, -3.00 },
   { 0.00, 1.92, -5.00 },
-  { 0.00, 1.92, -7.00 }
+  { 0.00, 1.92, -7.00 },
+  { 0.00, 1.92, -9.00 }
 }
 
 local hidden_boards = {}
@@ -227,8 +228,10 @@ function quickSetup(target_player_count)
       setPlayers({ "white", "orange" }, { "purple", "red", "green", "pink" })
     elseif target_player_count == 3 then
       setPlayers({ "white", "orange", "purple" }, { "red", "green", "pink" })
-    else
+    elseif target_player_count == 4 then
       setPlayers({ "red", "orange", "purple", "white" }, { "green", "pink" })
+    else
+      setPlayers({ "red", "orange", "purple", "white", "green" }, { "pink" })
     end
   end
 
@@ -236,10 +239,17 @@ function quickSetup(target_player_count)
 end
 
 function isGameReady()
-  if #getPlayingColors() < 2 then
+  if getPlayerCount() < 2 then
     return false, "There should be at least two players to start a game"
   elseif not game_settings.modes.kingdomino and not game_settings.modes.queendomino then
     return false, "You should pick at least a deck to play"
+  elseif getPlayerCount() == 5 and not (
+      game_settings.modes.age_of_giants
+      or (game_settings.modes.queendomino and game_settings.modes.kingdomino)
+  ) then
+    return false, "You need to enable Age of Giants or both Kingdomino and Queendomino to play with 5 players"
+  elseif getPlayerCount() > 5 and not (game_settings.variants.teamdomino or (game_settings.modes.queendomino and game_settings.modes.kingdomino)) then
+    return false, "You need to enable either Teamdomino or both Kingdomino and Queendomino to play with " .. tostring(getPlayerCount()) .. " players"
   end
   return true
 end

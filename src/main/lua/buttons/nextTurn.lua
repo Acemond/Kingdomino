@@ -10,8 +10,8 @@ local tableGuid = "0f8757"
 
 local kingsGuid = {
   "4d2d92", "5e6289", "7dd59a", "e44a70", "24345c", "2837e9", "86f4c2", "61259d",
-  "526c31", "f2cd83",  -- Green
-  "9dc643", "0dba70",  -- Pink
+  "526c31", "f2cd83", -- Green
+  "9dc643", "0dba70", -- Pink
 }
 local game = {}
 
@@ -44,7 +44,7 @@ function nextTurn()
   turn = turn + 1
   removedUnpickedTiles()
 
-  for _, deck in pairs (game.buildings) do
+  for _, deck in pairs(game.buildings) do
     deck.call("dealBuildings")
   end
 
@@ -92,10 +92,10 @@ function checkZones()
 end
 
 function getExpectedKings()
-  if game.player_count == 3 then
-    return 3
-  else
+  if game.player_count == 2 then
     return 4
+  else
+    return game.player_count
   end
 end
 
