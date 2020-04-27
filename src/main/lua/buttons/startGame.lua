@@ -4,8 +4,10 @@ local kingTargetPositions = {
   { 0.00, 1.92, -5.00 },
   { 0.00, 1.92, -7.00 },
   { 0.00, 1.92, -9.00 },
-  { 0.00, 1.92, 1.00 }
+  { 0.00, 1.92, -11.00 }
 }
+local next_turn_position = { 0.00, 1.05, -13.00 }
+local table_guid = "0f8757"
 
 local hidden_boards = {}
 local player_pieces_guids = {
@@ -62,7 +64,7 @@ local left_boards_infos = {
   nil, -- size 1
   nil, -- size 2
   { guid = "ae485e", position = { -5.50, 1.06, -3.01 } }, -- size 3
-  { guid = "bd95f5", position = { -5.50, 1.06, -3.01 } }, -- size 4
+  { guid = "bd95f5", position = { -5.50, 1.06, -4.21 } }, -- size 4
   { guid = "8c018b", position = { -5.50, 1.06, -5.50 } }, -- size 5
   nil, -- size 6
   nil, -- size 7
@@ -148,7 +150,7 @@ local game_dependencies = {
 }
 local game_incompatibilities = {
   kingdomino = { variants = {}, decks = {} },
-  queendomino = { variants = { "kingdomino_xl", "teamdomino" }, decks = {} },
+  queendomino = { variants = { "kingdomino_xl", "teamdomino", "two_players_advanced" }, decks = {} },
   age_of_giants = { variants = {}, decks = {} },
   the_court = { variants = {}, decks = {} },
   kingdomino_xl = { variants = {}, decks = { "queendomino" } },
@@ -273,6 +275,12 @@ function quickSetup(target_player_count)
     elseif target_player_count == 5 then
       setPlayers({ "red", "orange", "purple", "white", "green" }, { "pink" })
     elseif target_player_count == 6 then
+      if not game_settings.modes.queendomino then
+        enableDeck("queendomino")
+      end
+      if not game_settings.modes.kingdomino then
+        enableDeck("kingdomino")
+      end
       setPlayers({ "red", "orange", "purple", "white", "green", "pink" }, {})
     end
   end
@@ -291,8 +299,12 @@ function isGameReady()
       game_settings.modes.age_of_giants
           or (game_settings.modes.queendomino and game_settings.modes.kingdomino)) then
     return false, "You need to enable Age of Giants or both Kingdomino and Queendomino to play with 5 players"
+  elseif getPlayerCount() == 5 and game_settings.modes.age_of_giants
+      and game_settings.modes.queendomino
+      and game_settings.modes.kingdomino then
+    return false, "Royal Wedding not yet implemented for Age of Giants with 5 players"
   elseif getPlayerCount() > 5 and not (game_settings.variants.teamdomino or (game_settings.modes.queendomino and game_settings.modes.kingdomino)) then
-    return false, "You need to enable either Teamdomino or both Kingdomino and Queendomino to play with " .. tostring(getPlayerCount()) .. " players"
+    return false, "You need to enable both Kingdomino and Queendomino to play with " .. tostring(getPlayerCount()) .. " players"
   elseif getPlayerCount() > 5 and game_settings.modes.age_of_giants then
     return false, "Age of Giants is for 5 players or less"
   end
@@ -333,6 +345,7 @@ function enableDeck(gameName)
 
   for _, variant_name in pairs(game_incompatibilities[gameName].variants) do
     setVariant({ variant_name = variant_name, value = false })
+    hideObjects(game_buttons_guid[variant_name])
   end
   for _, deck_name in pairs(game_incompatibilities[gameName].decks) do
     disableDeck(deck_name)
@@ -341,19 +354,23 @@ function enableDeck(gameName)
   updateTileBoards()
 end
 
+function showButtons(guids)
+  for _, guid in pairs(guids) do
+    local button = getObjectFromGUID(guid)
+    if button then
+      button.setPosition({ button.getPosition().x, 1.06, button.getPosition().z })
+      button.lock()
+      if button.getStateId() == 2 then
+        button.setState(1)
+      end
+    end
+  end
+end
+
 function enableDependenciesButtons(dependencies_name)
   for _, dependencyName in pairs(dependencies_name) do
     showObjects(game_buttons_guid[dependencyName])
-    for _, guid in pairs(game_buttons_guid[dependencyName]) do
-      local button = getObjectFromGUID(guid)
-      if button then
-        button.setPosition({ button.getPosition().x, 1.06, button.getPosition().z })
-        button.lock()
-        if button.getStateId() == 2 then
-          button.setState(1)
-        end
-      end
-    end
+    showButtons(game_buttons_guid[dependencyName])
   end
 end
 
@@ -372,7 +389,26 @@ function disableDeck(gameName)
   for _, deck_name in pairs(game_dependencies[gameName].variants) do
     hideObjects(game_buttons_guid[deck_name])
   end
+  reenableIncompatibilities(gameName)
   updateTileBoards()
+end
+
+function reenableIncompatibilities(incompatibleGame)
+  for _, variant_name in pairs(game_incompatibilities[incompatibleGame].variants) do
+    for dependency_name, values in pairs(game_dependencies) do
+      for _, children in pairs(values.variants) do
+        if children == variant_name and game_settings.modes[dependency_name] then
+          showButtons(game_buttons_guid[variant_name])
+        end
+      end
+      for _, children in pairs(values.decks) do
+        if children == variant_name and game_settings.modes[dependency_name] then
+          showButtons(game_buttons_guid[variant_name])
+        end
+      end
+    end
+  end
+
 end
 
 function getBoardSize()
@@ -384,8 +420,6 @@ function getBoardSize()
   elseif game_settings.modes.queendomino and game_settings.modes.kingdomino
       and (getPlayerCount() == 5 or getPlayerCount() == 6) then
     size = 8
-  else
-    size = 4
   end
 
   if game_settings.modes.age_of_giants then
@@ -393,7 +427,7 @@ function getBoardSize()
   end
 
   -- FIXME: Quickfix until other board sizes gets added
-  if size ~= 3 or size ~= 4 or size ~= 5 or size ~= 8 then
+  if size ~= 3 and size ~= 4 and size ~= 5 and size ~= 8 then
     return 4
   end
 
@@ -411,7 +445,6 @@ function hideTileBoards(board_size)
 end
 
 function showTilesBoard(board_size)
-  print(board_size)
   local leftBoard = getObjectFromGUID(left_boards_infos[board_size].guid)
   local rightBoard = getObjectFromGUID(right_boards_infos[board_size].guid)
 
@@ -451,7 +484,7 @@ function setPlayers(playing, not_playing)
   end
   for _, color in pairs(not_playing) do
     removePlayer(color)
-    local player_button = getObjectFromGUID(player_add_buttons[color])
+    local player_button = getObjectFromGUID(player_remove_buttons[color])
     if player_button then
       player_button.setState(1)
     end
@@ -515,13 +548,17 @@ function startGame()
     end
   end
 
-  self.setState(2)
-  destroyObjectsIfExists(buttons_to_remove)
+  Wait.frames(function()
+    destroyObjectsIfExists(buttons_to_remove)
+  end, 1)
   destroyObjectsIfExists(hidden_boards)
   destroyUnusedPieces()
   placeTileBoards()
 
-  lockExistingObjects()
+  getObjectFromGUID(table_guid).call("unfreezeTemp")
+  Wait.frames(function()
+    lockExistingObjects()
+  end, 60)
 
   local new_game = {
     decks = decks,
@@ -531,7 +568,11 @@ function startGame()
     player_count = getPlayerCount()
   }
   Global.setTable("game", new_game)
-  getObjectFromGUID(next_turn_button_guid).call("firstTurn", new_game)
+  local next_turn_button = getObjectFromGUID(next_turn_button_guid)
+  next_turn_button.setPosition(next_turn_position)
+  next_turn_button.setRotation({ 0, 180, 0 })
+  next_turn_button.call("firstTurn", new_game)
+  self.destroy()
 end
 
 function dealDefaultQuests()
@@ -707,6 +748,7 @@ end
 
 function prepareMainDecks()
   local decks = getMainDecks()
+  resizeDecks(decks)
   local positions = getMainDecksPosition(decks)
   readyDecks(decks, positions)
 
@@ -744,7 +786,7 @@ function mergeAgeOfGiants(decks)
       end
       decks["kingdomino"].call("mergeDeck", deck)
     else
-      table.insert(merged_decks, deck)
+      merged_decks[name] = deck
     end
   end
 
@@ -767,13 +809,13 @@ function getMainDecks()
 end
 
 function getBuildingsDecks()
-  local buildings_deck = {}
+  local buildings_decks = {}
   for mode, enabled in pairs(game_settings.modes) do
     if enabled and game_objects_guid[mode].buildings then
-      buildings_deck[mode] = getObjectFromGUID(game_objects_guid[mode].buildings)
+      buildings_decks[mode] = getObjectFromGUID(game_objects_guid[mode].buildings)
     end
   end
-  return buildings_deck
+  return buildings_decks
 end
 
 function getBuildingsDecksPosition(buildings)
@@ -796,24 +838,15 @@ function getMainDecksPosition(decks)
 end
 
 function resizeDecks(decks)
-  if isOnlyKingdomino(game_settings.modes) then
-    if not game_settings.variants.two_players_advanced then
+  decks.kingdomino.shuffle()
+  if not game_settings.modes.queendomino then
+    if getPlayerCount() == 2 and not game_settings.variants.two_players_advanced then
       cutDeck(decks.kingdomino, deck_size_modifiers.two_players_basic)
     end
-    if not game_settings.variants.three_players_variant then
+    if getPlayerCount() == 3 and not game_settings.variants.three_players_variant then
       cutDeck(decks.kingdomino, deck_size_modifiers.three_players_classic)
     end
   end
-  return decks
-end
-
-function isOnlyKingdomino(selected_modes)
-  for mode, activated in pairs(selected_modes) do
-    if activated and mode ~= "kingdomino" then
-      return false
-    end
-  end
-  return true
 end
 
 function cutDeck(deck, size_modifier)

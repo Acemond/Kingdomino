@@ -8,7 +8,7 @@ function onLoad()
     label = "",
     position = { 0, 0.05, 0 },
     color = { 0, 0, 0, 0 },
-    width = 2400,
+    width = 800,
     height = 600
   })
 end
