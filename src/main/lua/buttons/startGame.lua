@@ -38,7 +38,7 @@ local player_pieces_guids = {
     kings = { "526c31", "f2cd83" }
   },
   pink = {
-    hand_zone = "",
+    hand_zone = "49989f",
     castle_tile = "a5aad1",
     castle = "a407fb",
     kings = { "9dc643", "0dba70" }
@@ -198,6 +198,7 @@ local game_settings = {
     random_quests = false
   }
 }
+local next_turn_button_guid = "4a6126"
 
 function onLoad()
   self.createButton({
@@ -306,7 +307,9 @@ end
 function getBoardSize()
   if game_settings.modes.age_of_giants then
     return 5
-  elseif getPlayerCount() == 3 and not game_settings.modes.queendomino and not game_settings.variants.three_players_variant then
+  elseif getPlayerCount() == 3
+      and not game_settings.modes.queendomino
+      and not game_settings.variants.three_players_variant then
     return 3
   else
     return 4
@@ -332,15 +335,15 @@ function showTilesBoard(board_size)
 end
 
 function updateTileBoards()
-  local targetSize = getBoardSize()
-  showTilesBoard(targetSize)
+  local target_size = getBoardSize()
+  showTilesBoard(target_size)
   hidden_boards = {}
   for size, _ in pairs(right_boards_infos) do
-    if size ~= targetSize then
+    if size ~= target_size then
       hideTileBoards(size)
     end
   end
-  resizeControlZones(targetSize)
+  resizeControlZones(target_size)
 end
 
 function setPlayers(playing, not_playing)
@@ -400,7 +403,8 @@ function startGame()
     dealDefaultQuests()
   end
 
-  prepareDecks()
+  local decks = prepareMainDecks()
+  local buildings = prepareBuildingsDecks()
 
   if game_settings.modes.queendomino then
     for _, color in pairs(getPlayingColors()) do
@@ -415,7 +419,13 @@ function startGame()
 
   lockExistingObjects()
 
-  -- TODO Call next turn (first turn)
+  local new_game = {
+    decks = decks,
+    buildings = buildings,
+    settings = game_settings,
+    player_count = getPlayerCount()
+  }
+  getObjectFromGUID(next_turn_button_guid).call("firstTurn", new_game)
 end
 
 function dealDefaultQuests()
@@ -590,14 +600,24 @@ function resizeControlZone(zone, slots)
   zone.setPosition({ zone.getPosition().x, zone.getPosition().y, zone_coordinates_modifiers[slots].zPos })
 end
 
-function prepareDecks()
-  local main_decks = getMainDecks()
-  local main_positions = getMainDecksPosition(main_decks)
-  local buildings_decks = getBuildingsDecks()
-  local buildings_decks_position = getBuildingsDecksPosition(buildings_decks)
+function prepareMainDecks()
+  local decks = getMainDecks()
+  local positions = getMainDecksPosition(decks)
+  readyDecks(decks, positions)
 
-  readyDecks(main_decks, main_positions)
-  readyDecks(buildings_decks, buildings_decks_position)
+  local indexedDeck = {}
+  for _, deck in pairs(decks) do
+    table.insert(indexedDeck, deck)
+  end
+  return indexedDeck
+end
+
+function prepareBuildingsDecks()
+  local decks = getBuildingsDecks()
+  local positions = getBuildingsDecksPosition(decks)
+  readyDecks(decks, positions)
+
+  return decks
 end
 
 function readyDecks(decks, positions)

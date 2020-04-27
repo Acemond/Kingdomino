@@ -5,12 +5,13 @@ local tileCheckZones = {
   "8fd451", "7e8397", "d0b593", "f25b1c", "234056"
 }
 local unpickedTilesBagGuid = "32278a"
-local turn = 1
+local turn = 0
 local tableGuid = "0f8757"
 
 local kingsGuid = {
   "4d2d92", "5e6289", "7dd59a", "e44a70", "24345c", "2837e9", "86f4c2", "61259d"
 }
+local game = {}
 
 function onLoad()
   self.createButton({
@@ -28,32 +29,37 @@ function onClick()
   nextTurn()
 end
 
+function firstTurn(new_game)
+  game = new_game
+  nextTurn()
+end
+
 function nextTurn()
-  if pcall(checkZones) then
-    turn = turn + 1
-    removedUnpickedTiles()
-    local gameMode = Global.get("gameMode")
-    if gameMode.queendomino then
-      Global.get("buildingsDeck").call("dealBuildings")
-    end
-    if gameMode.laCour then
-      Global.get("laCourDeck").call("dealBuildings")
-    end
+  if not pcall(checkZones) then
+    return
+  end
 
-    moveZoneContents()
+  turn = turn + 1
+  removedUnpickedTiles()
 
-    local decks = Global.getTable("decks")
-    local deck = decks[1]
-    if gameMode.kingdomino and gameMode.queendomino then
-      deck = decks[turn % 2 + 1]
-    end
-    if deck ~= nil then
-      deck.shuffle()
-      deck.call("dealTiles")
-    else
-      broadcastToAll("Last turn! Score sheets are on the East side of the table.", { r = 1, g = 1, b = 1 })
-      self.destroy()
-    end
+  for _, deck in pairs (game.buildings) do
+    deck.call("dealBuildings")
+  end
+
+  moveZoneContents()
+
+  print(turn)
+  print((turn - 1) % 2 + 1)
+  local deck = game.decks[(turn - 1) % 2 + 1]
+  print(game.decks)
+  print(deck)
+  if deck ~= nil then
+    deck.shuffle()
+    deck.call("dealTiles")
+  else
+    broadcastToAll("Last turn! Score sheets are on the compass.", { r = 1, g = 1, b = 1 })
+    Player.getPlayers()[1].pingTable({ 36.99, 3, -28.38 })
+    self.destroy()
   end
 end
 
@@ -85,7 +91,9 @@ function checkZones()
 end
 
 function getExpectedKings()
-  if Global.get("playerCount") == 3 then
+  if turn == 0 then
+    return 0
+  elseif game.player_count == 3 then
     return 3
   else
     return 4
@@ -93,36 +101,31 @@ function getExpectedKings()
 end
 
 function checkRightZone()
-  checkKingCount()
+  if getKingCount() ~= getExpectedKings() then
+    broadcastToAll("Pick dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
+    error()
+  end
   for _, zoneGuid in pairs(tileCheckZones) do
     checkTileZone(getObjectFromGUID(zoneGuid))
   end
 end
 
-function checkKingCount()
+function getKingCount()
   local count = 0
   for _, object in pairs(getObjectFromGUID(rightZoneGuid).getObjects()) do
     if isObjectIn(object.guid, kingsGuid) then
       count = count + 1
     end
   end
-  if count ~= getExpectedKings() then
-    broadcastToAll("Pick dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
-    error()
-  end
+  return count
 end
 
 function checkTileZone(zone)
-  local kingCount = 0
+  local kingCount = getKingCount()
   local tileCount = 0
   for _, object in pairs(zone.getObjects()) do
-    if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid then
-      if isObjectIn(object.guid, kingsGuid) then
-        kingCount = kingCount + 1
-      end
-      if not isObjectIn(object.guid, kingsGuid) then
-        tileCount = tileCount + 1
-      end
+    if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid and not isObjectIn(object.guid, kingsGuid) then
+      tileCount = tileCount + 1
     end
   end
   if kingCount > 0 and tileCount == 0 then
