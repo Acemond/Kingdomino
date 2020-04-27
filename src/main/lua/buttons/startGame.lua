@@ -210,6 +210,17 @@ local deck_size_modifiers = {
   three_players_classic = 0.75
 }
 
+local castle_tile_positions = {
+  white = { x = -21.00, z = -11.00 },
+  orange = { x = 21.00, z = -11.00 },
+  purple = { x = -21.00, z = 11.00 },
+  red = { x = 21.00, z = 11.00 },
+  green = { x = -31.00, z = 1.00 },
+  pink = { x = 31.00, z = -1.00 },
+}
+local castle_tile_y = 0.95
+local castle_y = 1.16
+
 local decks_positions = {
   main_deck = {
     { { 0.00, 1.24, -24.00 } },
@@ -325,15 +336,13 @@ end
 
 function hideCastle(playerColor)
   local castle = getObjectFromGUID(player_pieces_guids[playerColor].castle)
-  local castle_tile = getObjectFromGUID(player_pieces_guids[playerColor].castle_tile)
-  castle.setPositionSmooth({ castle_tile.getPosition().x, -1.5, castle_tile.getPosition().z }, false)
+  castle.setPositionSmooth({ castle_tile_positions[playerColor].x, -1.5, castle_tile_positions[playerColor].z })
   castle.lock()
 end
 
 function showCastle(playerColor)
   local castle = getObjectFromGUID(player_pieces_guids[playerColor].castle)
-  local castle_tile = getObjectFromGUID(player_pieces_guids[playerColor].castle_tile)
-  castle.setPositionSmooth({ castle_tile.getPosition().x, 1.16, castle_tile.getPosition().z }, false)
+  castle.setPositionSmooth({ castle_tile_positions[playerColor].x, castle_y, castle_tile_positions[playerColor].z })
 end
 
 function enableDeck(gameName)
@@ -544,7 +553,9 @@ function startGame()
 
   if game_settings.modes.queendomino then
     for _, color in pairs(getPlayingColors()) do
-      takeCoins(color)
+      Wait.frames(function()
+        takeCoins(color)
+      end, 1)
     end
   end
 
@@ -559,6 +570,10 @@ function startGame()
   Wait.frames(function()
     lockExistingObjects()
   end, 60)
+
+  if getPlayerCount() > 4 then
+    spaceOutPlayers()
+  end
 
   local new_game = {
     decks = decks,
@@ -611,10 +626,17 @@ function takeCoins(playerColor)
   local coin1Bag = getObjectFromGUID(game_objects_guid.queendomino.coin1_bag)
   local coin3Bag = getObjectFromGUID(game_objects_guid.queendomino.coin3_bag)
   local knightBag = getObjectFromGUID(game_objects_guid.queendomino.knight_bag)
-  coin1Bag.takeObject({ smooth = false, position = { handPosition.x + 2, handPosition.y, handPosition.z } })
-  coin3Bag.takeObject({ smooth = false, position = { handPosition.x + 1, handPosition.y, handPosition.z } })
-  coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z } })
-  knightBag.takeObject({ smooth = false, position = { handPosition.x - 2, handPosition.y, handPosition.z } })
+  if playerColor == "green" or playerColor == "pink" then
+    coin1Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z + 2 } })
+    coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z + 1 } })
+    coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z } })
+    knightBag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z - 2 } })
+  else
+    coin1Bag.takeObject({ smooth = false, position = { handPosition.x + 2, handPosition.y, handPosition.z } })
+    coin3Bag.takeObject({ smooth = false, position = { handPosition.x + 1, handPosition.y, handPosition.z } })
+    coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z } })
+    knightBag.takeObject({ smooth = false, position = { handPosition.x - 2, handPosition.y, handPosition.z } })
+  end
 end
 
 function destroyUnusedPieces()
@@ -859,4 +881,33 @@ function getSize(t)
     size = size + 1
   end
   return size
+end
+
+function movePlayerPieces(color, offset_vector)
+  local castle = getObjectFromGUID(player_pieces_guids[color].castle)
+  local castle_tile = getObjectFromGUID(player_pieces_guids[color].castle_tile)
+  local hand_zone = getObjectFromGUID(player_pieces_guids[color].hand_zone)
+
+  hand_zone.setPosition({
+    hand_zone.getPosition().x + offset_vector[1],
+    hand_zone.getPosition().y + offset_vector[2],
+    hand_zone.getPosition().z + offset_vector[3],
+  })
+  castle.setPositionSmooth({
+    castle_tile_positions[color].x + offset_vector[1],
+    castle_y + offset_vector[2],
+    castle_tile_positions[color].z + offset_vector[3]
+  })
+  castle_tile.setPositionSmooth({
+    castle_tile_positions[color].x + offset_vector[1],
+    castle_tile_y + offset_vector[2],
+    castle_tile_positions[color].z + offset_vector[3]
+  })
+end
+
+function spaceOutPlayers()
+  movePlayerPieces("white", { 0, 0, -8 })
+  movePlayerPieces("orange", { 0, 0, -8 })
+  movePlayerPieces("purple", { 0, 0, 8 })
+  movePlayerPieces("red", { 0, 0, 8 })
 end
