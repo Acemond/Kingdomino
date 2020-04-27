@@ -4,9 +4,11 @@ local targetDealingPositions = {
   { 5.50, 1.83, -3.06 },
   { 5.49, 1.83, -5.52 },
   { 5.47, 1.83, -7.98 },
-  { 5.49, 1.83, -10.44 }
+  { 5.49, 1.83, -10.31 },
+  { 5.49, 1.83, -12.72 },
+  { 5.49, 1.83, -15.13 },
+  { 5.49, 1.83, -17.55 }
 }
-local tilesDealtPerTurn = 4
 
 function onLoad()
   tileValues = assignTilesValue()
@@ -62,6 +64,10 @@ end
 function getObjectsGuids()
   local tiles = self.getObjects()
   local guids = {}
+  local tilesDealtPerTurn = 4
+  if Global.get("game").board_size == 8 then
+    tilesDealtPerTurn = 8
+  end
   for i = 1, tilesDealtPerTurn, 1 do
     guids[i] = tiles[i].guid
   end

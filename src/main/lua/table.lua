@@ -19,7 +19,7 @@ local non_interactable_guids = {
   kingdomino_deck_guid, "697d5b", "9f4a39", "823bca", "02322f", -- king
   the_court_deck_guid, "2c22ed", "6ff70f", "d19b4c", -- the court
   start_button_guid, "4a6126", "46971b", "4f4db6", "8dfa00", -- game buttons
-  "7a72d1", "bd95f5", "174390", "8c018b", "e5b23a", "ae485e", -- tile boards
+  "7a72d1", "bd95f5", "174390", "8c018b", "e5b23a", "ae485e", "a391ea", "722967", -- tile boards
   "1403b9"  -- kings bag
 }
 

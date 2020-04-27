@@ -3,7 +3,8 @@ local kingTargetPositions = {
   { 0.00, 1.92, -3.00 },
   { 0.00, 1.92, -5.00 },
   { 0.00, 1.92, -7.00 },
-  { 0.00, 1.92, -9.00 }
+  { 0.00, 1.92, -9.00 },
+  { 0.00, 1.92, 1.00 }
 }
 
 local hidden_boards = {}
@@ -47,44 +48,101 @@ local player_pieces_guids = {
 }
 
 local right_boards_infos = {
-  nil,
-  nil,
-  { guid = "e5b23a", position = { 5.50, 1.06, -3.01 } },
-  { guid = "7a72d1", position = { 5.50, 1.06, -4.21 } },
-  { guid = "174390", position = { 5.50, 1.06, -5.50 } }
+  nil, -- size 1
+  nil, -- size 2
+  { guid = "e5b23a", position = { 5.50, 1.06, -3.01 } }, -- size 3
+  { guid = "7a72d1", position = { 5.50, 1.06, -4.21 } }, -- size 4
+  { guid = "174390", position = { 5.50, 1.06, -5.50 } }, -- size 5
+  nil, -- size 6
+  nil, -- size 7
+  { guid = "722967", position = { 5.50, 1.06, -9.07 } } -- size 8
 }
 
 local left_boards_infos = {
-  nil,  -- size 1
-  nil,  -- size 2
-  { guid = "ae485e", position = { -5.50, 1.06, -3.01 } },  -- size 3
-  { guid = "bd95f5", position = { -5.50, 1.06, -3.01 } },  -- size 4
-  { guid = "8c018b", position = { -5.50, 1.06, -5.50 } }  -- size 5
+  nil, -- size 1
+  nil, -- size 2
+  { guid = "ae485e", position = { -5.50, 1.06, -3.01 } }, -- size 3
+  { guid = "bd95f5", position = { -5.50, 1.06, -3.01 } }, -- size 4
+  { guid = "8c018b", position = { -5.50, 1.06, -5.50 } },  -- size 5
+  nil,  -- size 6
+  nil,  -- size 7
+  { guid = "a391ea", position = { -5.50, 1.06, -9.07 } },  -- size 8
 }
 
 local zone_coordinates_modifiers = {
+  nil,  -- size 1
+  nil,  -- size 2
+  { zPos = -3, zScale = 8.25 },  -- size 3
+  { zPos = -4.25, zScale = 10.5 },  -- size 4
+  { zPos = -5.5, zScale = 13.5 },  -- size 5
   nil,
   nil,
-  { zPos = -3, zScale = 8.25 },
-  { zPos = -4.25, zScale = 10.5 },
-  { zPos = -5.5, zScale = 13.5 },
+  { zPos = -9, zScale = 20 },
+}
+local buttons_to_remove = {
+  removeRed = "dfeee5",
+  addRed = "a1ef12",
+  removeOrange = "fa1b7c",
+  addOrange = "8d17b0",
+  removeWhite = "74e8b0",
+  addWhite = "f60fe5",
+  removePurple = "1bbcb3",
+  addPurple = "1b4b1a",
+  removeGreen = "8fedd0",
+  addGreen = "fbeaba",
+  removePink = "668a0a",
+  addPink = "6987e6",
+  quickSetup = "31971b",
+  quickSetup2p = "46971b",
+  quickSetup3p = "4f4db6",
+  quickSetup4p = "8dfa00",
+  quickSetup5p = "1765aa",
+  quickSetup6p = "6c37eb",
+  laCourEnable = "6ff70f",
+  laCourDisable = "2c22ed",
+  kingdominoEnable = "9f4a39",
+  kingdominoDisable = "697d5b",
+  queendominoEnable = "69cbda",
+  queendominoDisable = "d64709",
+  age_of_giants_enable = "df1760",
+  age_of_giants_disable = "6a25ff",
+  two_players_advanced_enable = "823bca",
+  two_players_advanced_disable = "02322f",
+  randomn_quests_enable = "75dcb1",
+  randomn_quests_disable = "edb838",
+  kingdomino_xl_enable = "42f5a4",
+  kingdomino_xl_disable = "92f52d",
+  teamdomino_enable = "83af19",
+  teamdomino_disable = "355eca",
 }
 
 local left_control_zone_guid = "38ed1c"
 local right_control_zone_guid = "358f4e"
 local game_buttons_guid = {
-  age_of_giants = { "df1760", "6a25ff" },
-  two_players_advanced = { "823bca", "02322f" }
+  age_of_giants = { buttons_to_remove.age_of_giants_enable, buttons_to_remove.age_of_giants_disable },
+  two_players_advanced = { buttons_to_remove.two_players_advanced_enable, buttons_to_remove.two_players_advanced_disable },
+  kingdomino_xl = { buttons_to_remove.kingdomino_xl_enable, buttons_to_remove.kingdomino_xl_disable },
+  teamdomino = { buttons_to_remove.teamdomino_enable, buttons_to_remove.teamdomino_disable }
 }
 local game_dependencies = {
-  kingdomino = { "two_players_advanced", "age_of_giants" }
+  kingdomino = { variants = { "two_players_advanced", "kingdomino_xl", "teamdomino" }, decks = { "age_of_giants" } },
+  queendomino = { variants = {}, decks = {} },
+  age_of_giants = { variants = {}, decks = {} },
+  the_court = { variants = {}, decks = {} }
+}
+local game_incompatibilities = {
+  kingdomino = { variants = {}, decks = {} },
+  queendomino = { variants = { "kingdomino_xl", "teamdomino" }, decks = {} },
+  age_of_giants = { variants = {}, decks = {} },
+  the_court = { variants = {}, decks = {} },
+  kingdomino_xl = { variants = {}, decks = { "queendomino" } },
+  teamdomino = { variants = {}, decks = { "queendomino" } }
 }
 local quests_deck_guid = "fd8a62"
 local game_objects_guid = {
   kingdomino = {
     deck = "b972db"
   },
-  two_players_advanced = {},
   queendomino = {
     deck = "b12f86",
     buildings = "04de04",
@@ -112,42 +170,6 @@ local game_objects_guid = {
   }
 }
 local kings_bag_guid = "1403b9"
-local buttons_to_remove = {
-  removeRed = "dfeee5",
-  addRed = "a1ef12",
-  removeOrange = "fa1b7c",
-  addOrange = "8d17b0",
-  removeWhite = "74e8b0",
-  addWhite = "f60fe5",
-  removePurple = "1bbcb3",
-  addPurple = "1b4b1a",
-  removeGreen = "8fedd0",
-  addGreen = "fbeaba",
-  removePink = "668a0a",
-  addPink = "6987e6",
-  quickSetup = "31971b",
-  quickSetup2p = "46971b",
-  quickSetup3p = "4f4db6",
-  quickSetup4p = "8dfa00",
-  quickSetup5p = "1765aa",
-  quickSetup6p = "6c37eb",
-  laCourEnable = "6ff70f",
-  laCourDisable = "2c22ed",
-  kingdominoEnable = "9f4a39",
-  kingdominoDisable = "697d5b",
-  queendominoEnable = "69cbda",
-  queendominoDisable = "d64709",
-  age_of_giantsEnable = "df1760",
-  age_of_giantsDisable = "6a25ff",
-  two_players_advancedEnable = "823bca",
-  two_players_advancedDisable = "02322f",
-  randomn_quests_enable = "75dcb1",
-  randomn_quests_disable = "edb838",
-  kingdomino_xl_enable = "42f5a4",
-  kingdomino_xl_disable = "92f52d",
-  teamdomino_enable = "83af19",
-  teamdomino_disable = "355eca",
-}
 local objects_to_lock = {
   game_objects_guid.kingdomino.deck,
   game_objects_guid.queendomino.deck,
@@ -172,8 +194,8 @@ local deck_size_modifiers = {
 
 local decks_positions = {
   main_deck = {
-    { { 0.00, 1.24, -23.00 } },
-    { { -3.00, 1.24, -23.00 }, { 3.00, 1.24, -23.00 } }
+    { { 0.00, 1.24, -24.00 } },
+    { { -3.00, 1.24, -24.00 }, { 3.00, 1.24, -24.00 } }
   },
   buildings = {
     queendomino = { -5.88, 1.25, 4.05 },
@@ -182,8 +204,8 @@ local decks_positions = {
 }
 
 local questPositions = {
-  { -3.00, 1.03, -20.00 },
-  { 3.00, 1.03, -20.00 }
+  { -3.00, 1.03, -21.00 },
+  { 3.00, 1.03, -21.00 }
 }
 local default_quests_guid = { "e29f53", "e865f4" }
 
@@ -205,7 +227,9 @@ local game_settings = {
   variants = {
     two_players_advanced = false,
     three_players_variant = true,
-    random_quests = false
+    random_quests = false,
+    kingdomino_xl = false,
+    teamdomino = false
   }
 }
 local next_turn_button_guid = "4a6126"
@@ -230,8 +254,10 @@ function quickSetup(target_player_count)
       setPlayers({ "white", "orange", "purple" }, { "red", "green", "pink" })
     elseif target_player_count == 4 then
       setPlayers({ "red", "orange", "purple", "white" }, { "green", "pink" })
-    else
+    elseif target_player_count == 5 then
       setPlayers({ "red", "orange", "purple", "white", "green" }, { "pink" })
+    elseif target_player_count == 6 then
+      setPlayers({ "red", "orange", "purple", "white", "green", "pink" }, {})
     end
   end
 
@@ -241,12 +267,13 @@ end
 function isGameReady()
   if getPlayerCount() < 2 then
     return false, "There should be at least two players to start a game"
+  elseif game_settings.variants.kingdomino_xl and (getPlayerCount() == 2 or getPlayerCount() > 4) then
+    return false, "Kingdomino XL is for 3 to 4 players only"
   elseif not game_settings.modes.kingdomino and not game_settings.modes.queendomino then
     return false, "You should pick at least a deck to play"
   elseif getPlayerCount() == 5 and not (
       game_settings.modes.age_of_giants
-      or (game_settings.modes.queendomino and game_settings.modes.kingdomino)
-  ) then
+          or (game_settings.modes.queendomino and game_settings.modes.kingdomino)) then
     return false, "You need to enable Age of Giants or both Kingdomino and Queendomino to play with 5 players"
   elseif getPlayerCount() > 5 and not (game_settings.variants.teamdomino or (game_settings.modes.queendomino and game_settings.modes.kingdomino)) then
     return false, "You need to enable either Teamdomino or both Kingdomino and Queendomino to play with " .. tostring(getPlayerCount()) .. " players"
@@ -283,8 +310,14 @@ function enableDeck(gameName)
   game_settings.modes[gameName] = true
   showObjects(game_objects_guid[gameName])
 
-  if game_dependencies[gameName] then
-    enableDependenciesButtons(game_dependencies[gameName])
+  enableDependenciesButtons(game_dependencies[gameName].variants)
+  enableDependenciesButtons(game_dependencies[gameName].decks)
+
+  for _, variant_name in pairs(game_incompatibilities[gameName].variants) do
+    setVariant({ variant_name = variant_name, value = false })
+  end
+  for _, deck_name in pairs(game_incompatibilities[gameName].decks) do
+    disableDeck(deck_name)
   end
 
   updateTileBoards()
@@ -314,11 +347,12 @@ function disableDeck(gameName)
   game_settings.modes[gameName] = false
   hideObjects(game_objects_guid[gameName])
 
-  if game_dependencies[gameName] then
-    for _, dependencyName in pairs(game_dependencies[gameName]) do
-      disableDeck(dependencyName)
-      hideObjects(game_buttons_guid[dependencyName])
-    end
+  for _, deck_name in pairs(game_dependencies[gameName].decks) do
+    disableDeck(deck_name)
+    hideObjects(game_buttons_guid[deck_name])
+  end
+  for _, deck_name in pairs(game_dependencies[gameName].variants) do
+    hideObjects(game_buttons_guid[deck_name])
   end
   updateTileBoards()
 end
@@ -330,7 +364,10 @@ function getBoardSize()
       and not game_settings.modes.queendomino
       and not game_settings.variants.three_players_variant then
     return 3
-  elseif getPlayerCount() == 5 then
+  elseif game_settings.modes.queendomino and game_settings.modes.kingdomino
+      and (getPlayerCount() == 5 or getPlayerCount() == 6) then
+    return 8
+  elseif game_settings.modes.age_of_giants and getPlayerCount() == 5 then
     return 5
   else
     return 4
@@ -353,6 +390,16 @@ function showTilesBoard(board_size)
 
   leftBoard.setPositionSmooth({ leftBoard.getPosition().x, 1.06, leftBoard.getPosition().z }, false, true)
   rightBoard.setPositionSmooth({ rightBoard.getPosition().x, 1.06, rightBoard.getPosition().z }, false, true)
+end
+
+function placeTileBoards()
+  local size = getBoardSize()
+
+  local leftBoard = getObjectFromGUID(left_boards_infos[size].guid)
+  local rightBoard = getObjectFromGUID(right_boards_infos[size].guid)
+
+  leftBoard.setPositionSmooth(left_boards_infos[size].position, false, true)
+  rightBoard.setPositionSmooth(right_boards_infos[size].position, false, true)
 end
 
 function updateTileBoards()
@@ -437,6 +484,7 @@ function startGame()
   destroyObjectsIfExists(buttons_to_remove)
   destroyObjectsIfExists(hidden_boards)
   destroyUnusedPieces()
+  placeTileBoards()
 
   lockExistingObjects()
 
@@ -521,20 +569,19 @@ end
 
 function takeKings(kingsBag)
   kingsBag.shuffle()
-  local playingColors = getPlayingColors()
 
-  if #playingColors == 2 then
+  if getPlayerCount() == 2 then
     math.randomseed(os.time())
     local firstPlayerIndex = math.random(2)
-    local firstPlayer = player_pieces_guids[playingColors[firstPlayerIndex]]
-    local otherPlayer = player_pieces_guids[playingColors[3 - firstPlayerIndex]]
+    local firstPlayer = player_pieces_guids[getPlayingColors()[firstPlayerIndex]]
+    local otherPlayer = player_pieces_guids[getPlayingColors()[3 - firstPlayerIndex]]
 
     kingsBag.takeObject({ guid = firstPlayer.kings[1], position = kingTargetPositions[1], rotation = { 0, 180, 0 } })
     kingsBag.takeObject({ guid = otherPlayer.kings[1], position = kingTargetPositions[2], rotation = { 0, 180, 0 } })
     kingsBag.takeObject({ guid = otherPlayer.kings[2], position = kingTargetPositions[3], rotation = { 0, 180, 0 } })
     kingsBag.takeObject({ guid = firstPlayer.kings[2], position = kingTargetPositions[4], rotation = { 0, 180, 0 } })
   else
-    for i = 1, #playingColors, 1 do
+    for i = 1, getPlayerCount(), 1 do
       kingsBag.takeObject({ position = kingTargetPositions[i], rotation = { 0, 180, 0 } })
     end
   end
@@ -650,19 +697,38 @@ function readyDecks(decks, positions)
   end
 end
 
+function mergeAgeOfGiants(decks)
+  local merged_decks = {}
+  for name, deck in pairs(decks) do
+    if name == "age_of_giants" then
+      if game_settings.variants.kingdomino_xl then
+        local age_of_giants_clone = deck.clone({ position = { deck.getPosition().x, -2.5, deck.getPosition().z } })
+        Wait.frames(function()
+          decks["kingdomino_xl"].call("mergeDeck", age_of_giants_clone)
+        end, 1)
+      end
+      decks["kingdomino"].call("mergeDeck", deck)
+    else
+      table.insert(merged_decks, deck)
+    end
+  end
+
+  return merged_decks
+end
+
 function getMainDecks()
   local decks = {}
   for mode, enabled in pairs(game_settings.modes) do
-    if enabled and mode == "age_of_giants" then
-      local age_of_giants_deck = getObjectFromGUID(game_objects_guid[mode].deck)
-      local kingdomino_deck = getObjectFromGUID(game_objects_guid["kingdomino"].deck)
-      kingdomino_deck.call("mergeDeck", age_of_giants_deck)
-    elseif enabled and game_objects_guid[mode].deck then
+    if enabled and game_objects_guid[mode].deck then
       local deck = getObjectFromGUID(game_objects_guid[mode].deck)
       decks[mode] = deck
+      if game_settings.variants.kingdomino_xl and mode == "kingdomino" then
+        local kingdomino_xl_deck = deck.clone({ position = { deck.getPosition().x, -2.5, deck.getPosition().z } })
+        decks["kingdomino_xl"] = kingdomino_xl_deck
+      end
     end
   end
-  return decks
+  return mergeAgeOfGiants(decks)
 end
 
 function getBuildingsDecks()

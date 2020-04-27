@@ -1,8 +1,8 @@
 local leftZoneGuid = "38ed1c"
 local rightZoneGuid = "358f4e"
-local rightBoardsGuids = { "e5b23a", "7a72d1", "174390" }
+local rightBoardsGuids = { "e5b23a", "7a72d1", "174390", "722967" }
 local tileCheckZones = {
-  "8fd451", "7e8397", "d0b593", "f25b1c", "234056"
+  "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
 }
 local unpickedTilesBagGuid = "32278a"
 local turn = 0
@@ -48,7 +48,9 @@ function nextTurn()
     deck.call("dealBuildings")
   end
 
-  moveZoneContents()
+  if turn ~= 1 then
+    moveZoneContents()
+  end
 
   local deck = game.decks[(turn - 1) % #game.decks + 1]
   if deck ~= nil then
