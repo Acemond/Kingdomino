@@ -1,4 +1,5 @@
-deck = "queendomino"
+local deck = "queendomino"
+local start_button_guid = "af7bb2"
 
 function onLoad()
   self.createButton({
@@ -13,6 +14,6 @@ function onLoad()
 end
 
 function onClick()
-  Global.call("disableDeck", deck)
+  getObjectFromGUID(start_button_guid).call("disableDeck", deck)
   self.setState(1)
 end

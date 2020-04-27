@@ -115,3 +115,9 @@ function getObjectsGuids()
   end
   return guids
 end
+
+function mergeDeck(deck)
+  addTilesValues(deck.getTable("tiles_values"))
+  deck.setInvisibleTo({ "Black", "Red", "Orange", "Purple", "White" })
+  self.putObject(deck)
+end

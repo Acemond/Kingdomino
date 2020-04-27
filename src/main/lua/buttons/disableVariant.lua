@@ -1,4 +1,4 @@
-local deck = "queendomino"
+local variant_name = "two_players_advanced"
 local start_button_guid = "af7bb2"
 
 function onLoad()
@@ -14,6 +14,6 @@ function onLoad()
 end
 
 function onClick()
-  getObjectFromGUID(start_button_guid).call("enableDeck", deck)
-  self.setState(2)
+  getObjectFromGUID(start_button_guid).call("setVariant", {variant_name = variant_name, value = false})
+  self.setState(1)
 end

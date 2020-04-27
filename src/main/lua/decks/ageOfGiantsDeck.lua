@@ -1,7 +1,5 @@
-local tileValues = {}
-
 function onLoad()
-  tileValues = assignTilesValue()
+  self.setTable("tiles_values", assignTilesValue())
 end
 
 function assignTilesValue()
@@ -19,8 +17,4 @@ function assignTilesValue()
     startValue = startValue + 1
   end
   return values
-end
-
-function mergeValuesTableWith(deck)
-  deck.call("addTilesValues", tileValues)
 end

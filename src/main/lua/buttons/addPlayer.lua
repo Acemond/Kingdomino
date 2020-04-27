@@ -1,4 +1,5 @@
-color = "Red"
+local color = "red"
+local start_button_guid = "af7bb2"
 
 function onLoad()
   self.createButton({
@@ -13,6 +14,6 @@ function onLoad()
 end
 
 function onClick()
-  Global.call("addPlayer", color:lower())
+  getObjectFromGUID(start_button_guid).call("addPlayer", color)
   self.setState(2)
 end

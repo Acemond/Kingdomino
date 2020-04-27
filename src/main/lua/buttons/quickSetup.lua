@@ -1,4 +1,5 @@
-playerCount = 2
+local playerCount = 2
+local start_button_guid = "af7bb2"
 
 function onLoad()
   self.createButton({
@@ -13,5 +14,5 @@ function onLoad()
 end
 
 function onClick()
-  Global.call("quickSetup", playerCount)
+  getObjectFromGUID(start_button_guid).call("quickSetup", playerCount)
 end
