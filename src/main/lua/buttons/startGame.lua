@@ -4,9 +4,8 @@ local kingTargetPositions = {
   { 0.00, 1.92, -5.00 },
   { 0.00, 1.92, -7.00 }
 }
-local hidden_boards = {}
 
-local fourTilesForThreePlayers = true
+local hidden_boards = {}
 local player_pieces_guids = {
   orange = {
     hand_zone = "96929a",
@@ -31,26 +30,47 @@ local player_pieces_guids = {
     castle_tile = "537260",
     castle = "fd4160",
     kings = { "86f4c2", "61259d" }
+  },
+  green = {
+    hand_zone = "352048",
+    castle_tile = "8c9612",
+    castle = "b5c1bc",
+    kings = { "526c31", "f2cd83" }
+  },
+  pink = {
+    hand_zone = "",
+    castle_tile = "a5aad1",
+    castle = "a407fb",
+    kings = { "9dc643", "0dba70" }
   }
 }
 
-local right_boards_infos = {}
-right_boards_infos[3] = { guid = "e5b23a", position = { 5.50, 1.06, -3.01 } }
-right_boards_infos[4] = { guid = "7a72d1", position = { 5.50, 1.06, -4.21 } }
-right_boards_infos[5] = { guid = "174390", position = { 5.50, 1.06, -5.50 } }
+local right_boards_infos = {
+  nil,
+  nil,
+  { guid = "e5b23a", position = { 5.50, 1.06, -3.01 } },
+  { guid = "7a72d1", position = { 5.50, 1.06, -4.21 } },
+  { guid = "174390", position = { 5.50, 1.06, -5.50 } }
+}
 
-local left_boards_infos = {}
-left_boards_infos[3] = { guid = "ae485e", position = { -5.50, 1.06, -3.01 } }
-left_boards_infos[4] = { guid = "bd95f5", position = { -5.50, 1.06, -3.01 } }
-left_boards_infos[5] = { guid = "8c018b", position = { -5.50, 1.06, -5.50 } }
+local left_boards_infos = {
+  nil,
+  nil,
+  { guid = "ae485e", position = { -5.50, 1.06, -3.01 } },
+  { guid = "bd95f5", position = { -5.50, 1.06, -3.01 } },
+  { guid = "8c018b", position = { -5.50, 1.06, -5.50 } }
+}
 
-local zoneCoordinatesModifiers = {}
-zoneCoordinatesModifiers[3] = { zPos = -3, zScale = 8.25 }
-zoneCoordinatesModifiers[4] = { zPos = -4.25, zScale = 10.5 }
-zoneCoordinatesModifiers[5] = { zPos = -5.5, zScale = 13.5 }
+local zone_coordinates_modifiers = {
+  nil,
+  nil,
+  { zPos = -3, zScale = 8.25 },
+  { zPos = -4.25, zScale = 10.5 },
+  { zPos = -5.5, zScale = 13.5 },
+}
 
-local leftZoneGuid = "38ed1c"
-local rightZoneGuid = "358f4e"
+local left_control_zone_guid = "38ed1c"
+local right_control_zone_guid = "358f4e"
 local game_buttons_guid = {
   age_of_giants = { "df1760", "6a25ff" },
   two_players_advanced = { "823bca", "02322f" }
@@ -91,7 +111,7 @@ local game_objects_guid = {
   }
 }
 local kings_bag_guid = "1403b9"
-local buttonsToRemove = {
+local buttons_to_remove = {
   removeRed = "dfeee5",
   addRed = "a1ef12",
   removeOrange = "fa1b7c",
@@ -100,6 +120,10 @@ local buttonsToRemove = {
   addWhite = "f60fe5",
   removePurple = "1bbcb3",
   addPurple = "1b4b1a",
+  removeGreen = "8fedd0",
+  addGreen = "fbeaba",
+  removePink = "668a0a",
+  addPink = "6987e6",
   quickGame2p = "46971b",
   quickGame3p = "4f4db6",
   quickGame4p = "8dfa00",
@@ -114,7 +138,7 @@ local buttonsToRemove = {
   two_players_advancedEnable = "823bca",
   two_players_advancedDisable = "02322f"
 }
-local objectsToLock = {
+local objects_to_lock = {
   game_objects_guid.kingdomino.deck,
   game_objects_guid.queendomino.deck,
   game_objects_guid.queendomino.buildings,
@@ -158,7 +182,9 @@ local game_settings = {
     white = false,
     orange = false,
     purple = false,
-    red = false
+    red = false,
+    green = false,
+    pink = false
   },
   modes = {
     kingdomino = true,
@@ -169,7 +195,7 @@ local game_settings = {
   variants = {
     two_players_advanced = false,
     three_players_variant = true,
-    default_quests = true
+    random_quests = false
   }
 }
 
@@ -188,11 +214,11 @@ end
 function quickSetup(target_player_count)
   if getPlayerCount() ~= target_player_count then
     if target_player_count == 2 then
-      setPlayers({ "white", "orange" }, { "purple", "red" })
+      setPlayers({ "white", "orange" }, { "purple", "red", "green", "pink" })
     elseif target_player_count == 3 then
-      setPlayers({ "white", "orange", "purple" }, { "red" })
+      setPlayers({ "white", "orange", "purple" }, { "red", "green", "pink" })
     else
-      setPlayers({ "red", "orange", "purple", "white" }, {})
+      setPlayers({ "red", "orange", "purple", "white" }, { "green", "pink" })
     end
   end
 
@@ -224,6 +250,7 @@ function hideCastle(playerColor)
   local castle = getObjectFromGUID(player_pieces_guids[playerColor].castle)
   local castle_tile = getObjectFromGUID(player_pieces_guids[playerColor].castle_tile)
   castle.setPositionSmooth({ castle_tile.getPosition().x, -1.5, castle_tile.getPosition().z }, false)
+  castle.lock()
 end
 
 function showCastle(playerColor)
@@ -279,7 +306,7 @@ end
 function getBoardSize()
   if game_settings.modes.age_of_giants then
     return 5
-  elseif getPlayerCount() == 3 and not game_settings.modes.queendomino and not fourTilesForThreePlayers then
+  elseif getPlayerCount() == 3 and not game_settings.modes.queendomino and not game_settings.variants.three_players_variant then
     return 3
   else
     return 4
@@ -367,10 +394,10 @@ function startGame()
 
   placeKings()
 
-  if game_settings.variants.default_quests then
-    dealDefaultQuests()
-  else
+  if game_settings.variants.random_quests then
     dealRandomQuests()
+  else
+    dealDefaultQuests()
   end
 
   prepareDecks()
@@ -382,7 +409,7 @@ function startGame()
   end
 
   self.setState(2)
-  destroyObjectsIfExists(buttonsToRemove)
+  destroyObjectsIfExists(buttons_to_remove)
   destroyObjectsIfExists(hidden_boards)
   destroyUnusedPieces()
 
@@ -402,16 +429,19 @@ end
 function dealQuests(quest_guids)
   local quest_deck = getObjectFromGUID(quests_deck_guid)
   quest_deck.shuffle()
-  for i, guid in pairs(quest_guids) do
-    quest_deck.takeObject({ guid = guid, position = questPositions[i], callback_function = function(obj)
-      obj.lock()
-    end })
+  for i = 1, 2, 1 do
+    quest_deck.takeObject({
+      guid = quest_guids[i],
+      position = questPositions[i],
+      callback_function = function(obj)
+        obj.lock()
+      end })
   end
   quest_deck.destroy()
 end
 
 function lockExistingObjects()
-  for _, guid in pairs(objectsToLock) do
+  for _, guid in pairs(objects_to_lock) do
     local obj = getObjectFromGUID(guid)
     if obj ~= nil then
       obj.lock()
@@ -551,13 +581,13 @@ function hideObject(object)
 end
 
 function resizeControlZones(slots)
-  resizeControlZone(getObjectFromGUID(rightZoneGuid), slots)
-  resizeControlZone(getObjectFromGUID(leftZoneGuid), slots)
+  resizeControlZone(getObjectFromGUID(right_control_zone_guid), slots)
+  resizeControlZone(getObjectFromGUID(left_control_zone_guid), slots)
 end
 
 function resizeControlZone(zone, slots)
-  zone.setScale({ zone.getScale().x, zone.getScale().y, zoneCoordinatesModifiers[slots].zScale })
-  zone.setPosition({ zone.getPosition().x, zone.getPosition().y, zoneCoordinatesModifiers[slots].zPos })
+  zone.setScale({ zone.getScale().x, zone.getScale().y, zone_coordinates_modifiers[slots].zScale })
+  zone.setPosition({ zone.getPosition().x, zone.getPosition().y, zone_coordinates_modifiers[slots].zPos })
 end
 
 function prepareDecks()
@@ -580,7 +610,7 @@ end
 function getMainDecks()
   local decks = {}
   for mode, enabled in pairs(game_settings.modes) do
-    if enabled and mode == "age_of_giants"  then
+    if enabled and mode == "age_of_giants" then
       local age_of_giants_deck = getObjectFromGUID(game_objects_guid[mode].deck)
       local kingdomino_deck = getObjectFromGUID(game_objects_guid["kingdomino"].deck)
       kingdomino_deck.call("mergeDeck", age_of_giants_deck)
@@ -612,7 +642,6 @@ end
 function getMainDecksPosition(decks)
   local decks_target_position = {}
   local size = getSize(decks)
-  print(size)
   local i = 1
   for mode, _ in pairs(decks) do
     decks_target_position[mode] = decks_positions.main_deck[size][i]
