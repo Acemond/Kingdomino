@@ -387,8 +387,10 @@ function checkInteractions()
     disableDeck(deck_name)
   end
   for _, variant_name in pairs(variants_to_show) do
-    object_visible[variant_name] = true
-    showObjects(game_buttons_guid[variant_name], true)
+    if not isObjectIn(variant_name, variants_to_hide) then
+      object_visible[variant_name] = true
+      showObjects(game_buttons_guid[variant_name], true)
+    end
   end
   for _, variant_name in pairs(variants_to_hide) do
     object_visible[variant_name] = false
@@ -399,12 +401,10 @@ end
 function shouldHide(interaction_table)
   local to_hide = {}
   for game_name, interactions in pairs(interaction_table) do
-    if object_visible[game_name] then
-      for mode, enabled in pairs(game_settings.modes) do
-        if mode == interactions.incompatibilities and enabled or
-            mode == interactions.dependency and not enabled then
-          table.insert(to_hide, game_name)
-        end
+    for mode, enabled in pairs(game_settings.modes) do
+      if mode == interactions.incompatibilities and enabled
+          or mode == interactions.dependency and not enabled then
+        table.insert(to_hide, game_name)
       end
     end
   end
@@ -927,4 +927,20 @@ function spaceOutPlayers()
   movePlayerPieces("orange", { 0, 0, -8 })
   movePlayerPieces("purple", { 0, 0, 8 })
   movePlayerPieces("red", { 0, 0, 8 })
+end
+
+-- Utility functions
+function isObjectIn(objectGuid, list)
+  for _, guid in pairs(list) do
+    if objectGuid == guid then
+      return true
+    end
+  end
+  return false
+end
+
+function printTable(table_to_print)
+  for key, value in pairs(table_to_print) do
+    print("[" .. tostring(key) .. " -> " .. tostring(value) .. "]")
+  end
 end
