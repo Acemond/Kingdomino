@@ -57,7 +57,7 @@ local right_boards_infos = {
   { guid = "174390", position = { 5.50, 1.06, -5.50 } }, -- size 5
   nil, -- size 6
   nil, -- size 7
-  { guid = "722967", position = { 5.50, 1.06, -9.07 } } -- size 8
+  { guid = "722967", position = { 5.50, 1.06, -9 } } -- size 8
 }
 
 local left_boards_infos = {
@@ -68,7 +68,7 @@ local left_boards_infos = {
   { guid = "8c018b", position = { -5.50, 1.06, -5.50 } }, -- size 5
   nil, -- size 6
   nil, -- size 7
-  { guid = "a391ea", position = { -5.50, 1.06, -9.07 } }, -- size 8
+  { guid = "a391ea", position = { -5.50, 1.06, -9 } }, -- size 8
 }
 
 local zone_coordinates_modifiers = {
@@ -379,20 +379,31 @@ end
 
 function checkInteractions()
   local decks_to_hide = shouldHide(deck_interaction)
+  local decks_to_show = shouldShow(deck_interaction)
   local variants_to_hide = shouldHide(variant_interaction)
   local variants_to_show = shouldShow(variant_interaction)
 
-  for _, deck_name in pairs(decks_to_hide) do
-    object_visible[deck_name] = false
-    disableDeck(deck_name)
+  for deck_name, _ in pairs(decks_to_hide) do
+    if object_visible[deck_name] then
+      object_visible[deck_name] = false
+      disableDeck(deck_name)
+      hideObjects(game_buttons_guid[deck_name])
+    end
   end
-  for _, variant_name in pairs(variants_to_show) do
-    if not isObjectIn(variant_name, variants_to_hide) then
+
+  for deck_name, _ in pairs(decks_to_show) do
+    if not object_visible[deck_name] then
+      object_visible[deck_name] = true
+      showObjects(game_buttons_guid[deck_name], true)
+    end
+  end
+  for variant_name, _ in pairs(variants_to_show) do
+    if not isInKeys(variant_name, variants_to_hide) then
       object_visible[variant_name] = true
       showObjects(game_buttons_guid[variant_name], true)
     end
   end
-  for _, variant_name in pairs(variants_to_hide) do
+  for variant_name, _ in pairs(variants_to_hide) do
     object_visible[variant_name] = false
     hideObjects(game_buttons_guid[variant_name])
   end
@@ -404,7 +415,7 @@ function shouldHide(interaction_table)
     for mode, enabled in pairs(game_settings.modes) do
       if mode == interactions.incompatibilities and enabled
           or mode == interactions.dependency and not enabled then
-        table.insert(to_hide, game_name)
+        to_hide[game_name] = true
       end
     end
   end
@@ -418,8 +429,8 @@ function shouldShow(interaction_table)
     if not object_visible[game_name] then
       for mode, enabled in pairs(game_settings.modes) do
         if mode == interactions.dependency and enabled
-            or mode == interactions.dependency and not enabled then
-          table.insert(to_show, game_name)
+            or mode == interactions.incompatibilities and not enabled then
+          to_show[game_name] = true
         end
       end
     end
@@ -467,16 +478,6 @@ function showTilesBoard(board_size)
 
   leftBoard.setPositionSmooth({ leftBoard.getPosition().x, 1.06, leftBoard.getPosition().z }, false, true)
   rightBoard.setPositionSmooth({ rightBoard.getPosition().x, 1.06, rightBoard.getPosition().z }, false, true)
-end
-
-function placeTileBoards()
-  local size = getBoardSize()
-
-  local leftBoard = getObjectFromGUID(left_boards_infos[size].guid)
-  local rightBoard = getObjectFromGUID(right_boards_infos[size].guid)
-
-  leftBoard.setPositionSmooth(left_boards_infos[size].position, false, true)
-  rightBoard.setPositionSmooth(right_boards_infos[size].position, false, true)
 end
 
 function updateTileBoards()
@@ -572,7 +573,6 @@ function startGame()
   end, 1)
   destroyObjectsIfExists(hidden_boards)
   destroyUnusedPieces()
-  placeTileBoards()
 
   getObjectFromGUID(table_guid).call("unfreezeTemp")
   Wait.frames(function()
@@ -930,9 +930,18 @@ function spaceOutPlayers()
 end
 
 -- Utility functions
-function isObjectIn(objectGuid, list)
-  for _, guid in pairs(list) do
-    if objectGuid == guid then
+function isInValues(value_to_test, list)
+  for _, value in pairs(list) do
+    if value == value_to_test then
+      return true
+    end
+  end
+  return false
+end
+
+function isInKeys(key_to_test, list)
+  for key, _ in pairs(list) do
+    if key == key_to_test then
       return true
     end
   end

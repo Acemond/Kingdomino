@@ -1,6 +1,6 @@
 function onLoad()
   Player["White"].lookAt({
-    position = { x = 0, y = 0, z = -18 },
+    position = { x = 0, y = 0, z = -28 },
     pitch = 55,
     yaw = 0,
     distance = 30,
