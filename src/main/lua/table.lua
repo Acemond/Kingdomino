@@ -1,6 +1,7 @@
 -- useless hidden objects used to keep button textures in memory
 local decoyButtons = { "9bb39a", "3416fc", "2a0d3f", "25ef05", "d78ce4", "25bfc4", "29ae89", "6ce2c6", "31bd66",
-                       "5740ca", "180cbc", "2c055b", "28fcc5", "5aebb9", "536275", "eb1dfc", "3853c3", "bb8090", "59253d" }
+                       "5740ca", "180cbc", "2c055b", "28fcc5", "5aebb9", "536275", "eb1dfc", "3853c3", "bb8090",
+                       "59253d", "02c925", "093a20" }
 
 -- Decks
 local kingdomino_deck_guid = "b972db"

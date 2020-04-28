@@ -131,6 +131,8 @@ local buttons_to_remove = {
   kingdomino_xl_disable = "92f52d",
   teamdomino_enable = "83af19",
   teamdomino_disable = "355eca",
+  local_players_enable = "4f044d",
+  local_players_disable = "d1e47c"
 }
 
 local left_control_zone_guid = "38ed1c"

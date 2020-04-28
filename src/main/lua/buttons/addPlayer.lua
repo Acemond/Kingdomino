@@ -1,5 +1,6 @@
 local color = "Green"
 local start_button_guid = "af7bb2"
+local local_players_var = "local_players"
 
 function onLoad()
   self.createButton({
@@ -11,26 +12,28 @@ function onLoad()
     width = 2400,
     height = 600,
   })
-  if isSeatTaken() then
+  if isSeatTaken() and not Global.getVar(local_players_var) then
     addPlayer()
   end
 end
 
 function onPlayerChangeColor(player_color)
-  if player_color == color then
+  if player_color == color and not Global.getVar(local_players_var) then
     addPlayer()
   end
 end
 
 function onPlayerConnect(person)
-  if person.color == color then
+  if person.color == color and not Global.getVar(local_players_var) then
     addPlayer()
   end
 end
 
 function onClick(_, player_color)
   addPlayer()
-  Player[player_color].changeColor(color)
+  if not Global.getVar(local_players_var) then
+    Player[player_color].changeColor(color)
+  end
 end
 
 function addPlayer()
