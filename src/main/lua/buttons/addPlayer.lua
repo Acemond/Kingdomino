@@ -12,7 +12,7 @@ function onLoad()
     width = 2400,
     height = 600,
   })
-  if isSeatTaken() and not Global.getVar(local_players_var) then
+  if Player[color].seated and not Global.getVar(local_players_var) then
     addPlayer()
   end
 end
@@ -41,13 +41,5 @@ function addPlayer()
   getObjectFromGUID(start_button_guid).call("addPlayer", color:lower())
   if self.getStateId() == 1 then
     self.setState(2)
-  end
-end
-
-function isSeatTaken()
-  for _, player in pairs(Player.getPlayers()) do
-    if player.color == color then
-      return true
-    end
   end
 end

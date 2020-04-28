@@ -243,6 +243,6 @@ function updateTotal()
     end
   end
 
-  total_counter.label = tostring(total)
+  total_counter.tooltip = "Total Score: " .. tostring(total)
   self.editButton(total_counter)
 end
