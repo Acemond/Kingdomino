@@ -1001,9 +1001,3 @@ function isInKeys(key_to_test, list)
   end
   return false
 end
-
-function printTable(table_to_print)
-  for key, value in pairs(table_to_print) do
-    print("[" .. tostring(key) .. " -> " .. tostring(value) .. "]")
-  end
-end
