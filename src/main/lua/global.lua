@@ -1,5 +1,5 @@
 function onLoad()
-  Player["White"].lookAt({
+  Player.getPlayers()[1].lookAt({
     position = { x = 0, y = 0, z = -28 },
     pitch = 55,
     yaw = 0,

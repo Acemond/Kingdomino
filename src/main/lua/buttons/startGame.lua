@@ -229,7 +229,7 @@ local decks_positions = {
 }
 
 local next_turn_position = { 0.00, 1.05, -13.00 }
-local next_turn_position_5p = {0.00, 1.05, -21.00}
+local next_turn_position_5p = { 0.00, 1.05, -21.00 }
 
 local quests_positions = {
   { -3.00, 1.03, -21.00 },
@@ -356,6 +356,7 @@ function hideCastle(playerColor)
 end
 
 function showCastle(playerColor)
+  print(playerColor)
   local castle = getObjectFromGUID(player_pieces_guids[playerColor].castle)
   castle.setPositionSmooth({ castle_tile_positions[playerColor].x, castle_y, castle_tile_positions[playerColor].z })
 end
