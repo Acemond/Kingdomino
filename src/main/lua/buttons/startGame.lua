@@ -6,7 +6,6 @@ local kingTargetPositions = {
   { 0.00, 1.92, -9.00 },
   { 0.00, 1.92, -11.00 }
 }
-local next_turn_position = { 0.00, 1.05, -13.00 }
 local table_guid = "0f8757"
 
 local hidden_boards = {}
@@ -223,16 +222,28 @@ local decks_positions = {
     { { 0.00, 1.24, -24.00 } },
     { { -3.00, 1.24, -24.00 }, { 3.00, 1.24, -24.00 } }
   },
+  main_deck_5p = {
+    { { 0.00, 1.24, -32.00 } },
+    { { -3.00, 1.24, -32.00 }, { 3.00, 1.24, -32.00 } }
+  },
   buildings = {
     queendomino = { -5.88, 1.25, 4.05 },
     the_court = { -3.67, 1.21, 8.04 }
   }
 }
 
-local questPositions = {
+local next_turn_position = { 0.00, 1.05, -13.00 }
+local next_turn_position_5p = {0.00, 1.05, -21.00}
+
+local quests_positions = {
   { -3.00, 1.03, -21.00 },
   { 3.00, 1.03, -21.00 }
 }
+local quests_positions_5p = {
+  { -3.00, 1.03, -29.00 },
+  { 3.00, 1.03, -29.00 }
+}
+
 local default_quests_guid = { "e29f53", "e865f4" }
 
 local game_settings = {
@@ -606,10 +617,22 @@ function startGame()
   }
   Global.setTable("game", new_game)
   local next_turn_button = getObjectFromGUID(next_turn_button_guid)
-  next_turn_button.setPosition(next_turn_position)
-  next_turn_button.setRotation({ 0, 180, 0 })
+  setNextTurnPosition(next_turn_button)
   next_turn_button.call("firstTurn", new_game)
   self.destroy()
+end
+
+function setNextTurnPosition(button)
+  local position = next_turn_position
+  if getPlayerCount() > 4 then
+    position = next_turn_position_5p
+  end
+
+  button.setPosition({ position[1], -2.5, position[3] })
+  Wait.frames(function()
+    button.setPositionSmooth(position)
+  end, 30)
+  button.setRotation({ 0, 180, 0 })
 end
 
 function dealDefaultQuests()
@@ -623,10 +646,16 @@ end
 function dealQuests(quest_guids)
   local quest_deck = getObjectFromGUID(quests_deck_guid)
   quest_deck.shuffle()
+
+  local actual_quests_positions = quests_positions
+  if getPlayerCount() > 4 then
+    actual_quests_positions = quests_positions_5p
+  end
+
   for i = 1, 2, 1 do
     quest_deck.takeObject({
       guid = quest_guids[i],
-      position = questPositions[i],
+      position = actual_quests_positions[i],
       callback_function = function(obj)
         obj.lock()
       end })
@@ -883,8 +912,18 @@ function getMainDecksPosition(decks)
   local decks_target_position = {}
   local size = getSize(decks)
   local i = 1
+
+  local actual_decks_positions = decks_positions.main_deck
+  if getPlayerCount() > 4 then
+    actual_decks_positions = decks_positions.main_deck_5p
+  end
+
   for mode, _ in pairs(decks) do
-    decks_target_position[mode] = decks_positions.main_deck[size][i]
+    if getPlayerCount() < 5 then
+      decks_target_position[mode] = actual_decks_positions[size][i]
+    else
+      decks_target_position[mode] = actual_decks_positions[size][i]
+    end
     i = i + 1
   end
   return decks_target_position
