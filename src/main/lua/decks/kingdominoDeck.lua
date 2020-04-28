@@ -100,7 +100,7 @@ end
 
 function mergeDeck(deck)
   addTilesValues(deck.getTable("tiles_values"))
-  deck.setInvisibleTo({ "Black", "Red", "Orange", "Purple", "White" })
+  deck.setInvisibleTo({ "Black", "Grey", "Red", "Orange", "Purple", "White", "Pink", "Green"})
   self.putObject(deck)
 end
 

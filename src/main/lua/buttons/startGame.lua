@@ -356,7 +356,6 @@ function hideCastle(playerColor)
 end
 
 function showCastle(playerColor)
-  print(playerColor)
   local castle = getObjectFromGUID(player_pieces_guids[playerColor].castle)
   castle.setPositionSmooth({ castle_tile_positions[playerColor].x, castle_y, castle_tile_positions[playerColor].z })
 end
@@ -601,7 +600,7 @@ function startGame()
     lockExistingObjects()
   end, 60)
 
-  if getPlayerCount() > 4 then
+  if game_settings.players.green or game_settings.players.pink then
     spaceOutPlayers()
   end
 

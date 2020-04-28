@@ -1,5 +1,5 @@
 local color = "Red"
-local game_master_color = "Black"
+local non_playing_color = "Grey"
 local start_button_guid = "af7bb2"
 
 function onLoad()
@@ -13,30 +13,32 @@ function onLoad()
     height = 600
   })
   if not isSeatTaken() then
-    removePlayer(color)
+    removePlayer()
   end
 end
 
 function onPlayerChangeColor()
   if not isSeatTaken() then
-    removePlayer(color)
+    removePlayer()
   end
 end
 
 function onPlayerDisconnect()
-  if isSeatTaken() then
+  if not isSeatTaken() then
     addPlayer()
   end
 end
 
 function onClick()
   removePlayer()
-  Player[color].changeColor(game_master_color)
+  Player[color].changeColor(non_playing_color)
 end
 
 function removePlayer()
   getObjectFromGUID(start_button_guid).call("removePlayer", color:lower())
-  self.setState(1)
+  if self.getStateId() == 2 then
+    self.setState(1)
+  end
 end
 
 function isSeatTaken()
