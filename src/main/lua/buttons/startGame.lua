@@ -373,8 +373,22 @@ function showVariant(variant_name)
   showObjects(game_buttons_guid[variant_name], true)
 end
 
+function OrganizeQuests()
+  local quests = getObjectFromGUID(quests_deck_guid)
+  quests.takeObject({
+    guid = default_quests_guid[2],
+    position = { quests.getPosition().x, quests.getPosition().y + 0.15, quests.getPosition().z },
+    smooth = false
+  })
+end
+
 function setVariant(parameters)
   game_settings.variants[parameters.variant_name] = parameters.value
+  if parameters.variant_name == "random_quests" and parameters.value then
+    getObjectFromGUID(quests_deck_guid).shuffle()
+  elseif parameters.variant_name == "random_quests" then
+    OrganizeQuests()
+  end
 end
 
 function checkInteractions()
