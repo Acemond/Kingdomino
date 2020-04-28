@@ -930,12 +930,13 @@ function getMainDecksPosition(decks)
 end
 
 function resizeDecks(decks)
-  decks.kingdomino.shuffle()
-  if not game_settings.modes.queendomino then
+  if game_settings.modes.kingdomino and not game_settings.modes.queendomino then
     if getPlayerCount() == 2 and not game_settings.variants.two_players_advanced then
+      decks.kingdomino.shuffle()
       cutDeck(decks.kingdomino, deck_size_modifiers.two_players_basic)
     end
     if getPlayerCount() == 3 and not game_settings.variants.three_players_variant then
+      decks.kingdomino.shuffle()
       cutDeck(decks.kingdomino, deck_size_modifiers.three_players_classic)
     end
   end
