@@ -27,7 +27,14 @@ function onLoad()
   })
 end
 
+function temporarilyDisableButtons()
+  local button = self.getButtons()[1]
+  self.editButton({ index = button.index, scale = { 0, 0, 0 } })
+  Wait.frames(function () self.editButton({ index = button.index, scale = { 1, 1, 1 } }) end, 120)
+end
+
 function onClick()
+  temporarilyDisableButtons()
   nextTurn()
 end
 
