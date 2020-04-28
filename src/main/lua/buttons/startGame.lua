@@ -967,10 +967,18 @@ function movePlayerPieces(color, offset_vector)
 end
 
 function spaceOutPlayers()
-  movePlayerPieces("white", { 0, 0, -8 })
-  movePlayerPieces("orange", { 0, 0, -8 })
-  movePlayerPieces("purple", { 0, 0, 8 })
-  movePlayerPieces("red", { 0, 0, 8 })
+  if game_settings.players.white then
+    movePlayerPieces("white", { 0, 0, -8 })
+  end
+  if game_settings.players.orange then
+    movePlayerPieces("orange", { 0, 0, -8 })
+  end
+  if game_settings.players.purple then
+    movePlayerPieces("purple", { 0, 0, 8 })
+  end
+  if game_settings.players.red then
+    movePlayerPieces("red", { 0, 0, 8 })
+  end
 end
 
 -- Utility functions
