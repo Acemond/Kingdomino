@@ -51,8 +51,8 @@ function nextTurn()
   turn = turn + 1
   removedUnpickedTiles()
 
-  for _, deck in pairs(game.buildings) do
-    deck.call("dealBuildings")
+  for _, manager in pairs(game.buildings) do
+    manager.call("dealBuildings")
   end
 
   if turn ~= 1 then

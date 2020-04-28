@@ -160,8 +160,8 @@ local game_objects_guid = {
   queendomino = {
     deck = "b12f86",
     buildings = "04de04",
-    left_building_board = "a77d62",
-    right_building_board = "a066dc",
+    building_board = "a066dc",
+    right_building_board = "a77d62",
     coin1_bag = "38e164",
     coin3_bag = "8468e9",
     coin9_bag = "4638c0",
@@ -188,7 +188,7 @@ local objects_to_lock = {
   game_objects_guid.kingdomino.deck,
   game_objects_guid.queendomino.deck,
   game_objects_guid.queendomino.buildings,
-  game_objects_guid.queendomino.left_building_board,
+  game_objects_guid.queendomino.building_board,
   game_objects_guid.queendomino.right_building_board,
   game_objects_guid.queendomino.coin1_bag,
   game_objects_guid.queendomino.coin3_bag,
@@ -225,10 +225,6 @@ local decks_positions = {
   main_deck_5p = {
     { { 0.00, 1.24, -32.00 } },
     { { -3.00, 1.24, -32.00 }, { 3.00, 1.24, -32.00 } }
-  },
-  buildings = {
-    queendomino = { -5.88, 1.25, 4.05 },
-    the_court = { -3.67, 1.21, 8.04 }
   }
 }
 
@@ -583,7 +579,7 @@ function startGame()
   end
 
   local decks = prepareMainDecks()
-  local buildings = prepareBuildingsDecks()
+  local buildings = prepareBuildings()
 
   if game_settings.modes.queendomino then
     for _, color in pairs(getPlayingColors()) do
@@ -841,12 +837,24 @@ function prepareMainDecks()
   return indexedDeck
 end
 
-function prepareBuildingsDecks()
-  local decks = getBuildingsDecks()
-  local positions = getBuildingsDecksPosition(decks)
-  readyDecks(decks, positions)
+function getBuildingsManagers()
+  local building_managers = {}
+  for mode, enabled in pairs(game_settings.modes) do
+    if enabled and game_objects_guid[mode].building_board then
+      building_managers[mode] = getObjectFromGUID(game_objects_guid[mode].building_board)
+    end
+  end
+  return building_managers
+end
 
-  return decks
+function prepareBuildings()
+  local building_managers = getBuildingsManagers()
+
+  for _, manager in pairs(building_managers) do
+    manager.call("placeDeck")
+  end
+
+  return building_managers
 end
 
 function readyDecks(decks, positions)
@@ -888,24 +896,6 @@ function getMainDecks()
     end
   end
   return mergeAgeOfGiants(decks)
-end
-
-function getBuildingsDecks()
-  local buildings_decks = {}
-  for mode, enabled in pairs(game_settings.modes) do
-    if enabled and game_objects_guid[mode].buildings then
-      buildings_decks[mode] = getObjectFromGUID(game_objects_guid[mode].buildings)
-    end
-  end
-  return buildings_decks
-end
-
-function getBuildingsDecksPosition(buildings)
-  local decks_target_position = {}
-  for mode, _ in pairs(buildings) do
-    decks_target_position[mode] = decks_positions.buildings[mode]
-  end
-  return decks_target_position
 end
 
 function getMainDecksPosition(decks)
