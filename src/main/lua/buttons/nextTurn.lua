@@ -60,7 +60,7 @@ function nextTurn()
   end
 
   local deck = game.decks[(turn - 1) % #game.decks + 1]
-  if deck then
+  if deck ~= nil then
     deck.shuffle()
     deck.call("dealTiles")
   else
