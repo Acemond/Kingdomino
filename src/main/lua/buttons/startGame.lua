@@ -353,13 +353,17 @@ end
 
 function hideCastle(playerColor)
   local castle = getObjectFromGUID(player_pieces_guids[playerColor].castle)
-  castle.setPositionSmooth({ castle_tile_positions[playerColor].x, -1.5, castle_tile_positions[playerColor].z })
   castle.lock()
+  Wait.frames(function()
+    castle.setPositionSmooth({ castle_tile_positions[playerColor].x, -0.8, castle_tile_positions[playerColor].z })
+  end, 15)
 end
 
 function showCastle(playerColor)
   local castle = getObjectFromGUID(player_pieces_guids[playerColor].castle)
-  castle.setPositionSmooth({ castle_tile_positions[playerColor].x, castle_y, castle_tile_positions[playerColor].z })
+  Wait.frames(function()
+    castle.setPositionSmooth({ castle_tile_positions[playerColor].x, castle_y, castle_tile_positions[playerColor].z })
+  end, 15)
 end
 
 function removeLocalPlayers()
