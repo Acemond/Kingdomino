@@ -37,7 +37,7 @@ function dealTile(tileGuid, position)
       obj.flip()
       Wait.frames(function()
         obj.lock()
-      end, 60)
+      end, 90)
     end
   })
 end
