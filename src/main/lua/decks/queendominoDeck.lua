@@ -35,9 +35,13 @@ function dealTile(tileGuid, position)
     rotation = { 0, 180, 180 },
     callback_function = function(obj)
       obj.flip()
-      Wait.frames(function()
+      Wait.condition(function()
         obj.lock()
-      end, 90)
+      end, function()
+        return obj.getPosition().y < 1.24
+      end, 180, function()
+        obj.lock()
+      end)
     end
   })
 end
