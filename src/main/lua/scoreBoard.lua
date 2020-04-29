@@ -11,6 +11,7 @@ local button_config = {
   }
 }
 local plus_minus_spacing = 0.16
+local total_label_prefix = "Total Score: "
 
 local total_counter_count = 0
 local counters = {}
@@ -111,9 +112,9 @@ function setupCounter(position, default_value)
   }
 
   self.setVar(input_function_name,
-    function (_, _, input_value, _)
-      changeCounterValue(parameters, tonumber(input_value))
-    end)
+      function (_, _, input_value, _)
+        changeCounterValue(parameters, tonumber(input_value))
+      end)
   self.createInput(parameters)
   table.insert(counters, parameters)
   total_counter_count = total_counter_count + 1
@@ -125,9 +126,9 @@ end
 function createPlusButton(counter, position)
   local click_function_name = "plus_function_" .. tostring(counter)
   self.setVar(click_function_name,
-    function (_, _, alt_click)
-      incrementCounter(counter, alt_click, 1)
-    end)
+      function (_, _, alt_click)
+        incrementCounter(counter, alt_click, 1)
+      end)
 
   self.createButton({
     index = buttons_count,
@@ -146,9 +147,9 @@ end
 function createMinusButton(counter, position)
   local click_function_name = "minus_function_" .. tostring(counter)
   self.setVar(click_function_name,
-    function (_, _, alt_click)
-      incrementCounter(counter, alt_click, -1)
-    end)
+      function (_, _, alt_click)
+        incrementCounter(counter, alt_click, -1)
+      end)
 
   self.createButton({
     index = buttons_count,
@@ -179,7 +180,8 @@ function setupTotal(position)
     font_size = button_config["counter"].font,
     color = {1, 1, 1, 0},
     font_color = {0, 0, 0, 100},
-    alignment = 3  -- Center
+    alignment = 3,  -- Center
+    tooltip = total_label_prefix .. "0"
   }
   buttons_count = buttons_count + 1
   self.createButton(parameters)
@@ -243,6 +245,7 @@ function updateTotal()
     end
   end
 
-  total_counter.tooltip = "Total Score: " .. tostring(total)
+  total_counter.label = tostring(total)
+  total_counter.tooltip = total_label_prefix .. tostring(total)
   self.editButton(total_counter)
 end
