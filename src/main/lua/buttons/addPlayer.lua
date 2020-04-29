@@ -12,19 +12,22 @@ function onLoad()
     width = 2400,
     height = 600,
   })
-  if Player[color].seated and not Global.getVar(local_players_enabled) then
+  if Player[color].seated
+      and not Global.getVar(local_players_enabled) then
     addPlayer()
   end
 end
 
 function onPlayerChangeColor(player_color)
-  if player_color == color and not Global.getVar(local_players_enabled) then
+  if player_color == color
+      and not Global.getVar(local_players_enabled) then
     addPlayer()
   end
 end
 
 function onPlayerConnect(person)
-  if person.color == color and not Global.getVar(local_players_enabled) then
+  if person.color == color
+      and not Global.getVar(local_players_enabled) then
     addPlayer()
   end
 end
