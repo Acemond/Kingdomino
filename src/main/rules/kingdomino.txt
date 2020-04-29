@@ -1,0 +1,70 @@
+This is a shortened version of the rules, you can find the rulebook on the left of the table.
+
+
+Object of the Game
+----------------------
+
+The object is to build your kingdom in a 5x5 grid by connecting dominoes with matching terrains. The more matching terrain you have and the more crowns there are, the more points you get.
+
+
+Setting up the Game
+------------------------
+
+Play Kingdomino by enabling the Kingdomino deck and disabling all the others.
+
+
+Playing the Game
+--------------------
+
+The playing order is determined by the position of the kings on the first line of dominoes. The player whose king is placed on the 1st domino closest to the box (the one with the lowest number), starts.
+
+That player must take the following actions:
+ - 1. Add the domino with their king onto their territory according to the connection rules.
+ - 2. Choose a new domino in the new line by placing their king on it.
+
+Now, it is the turn of the player whose king is on the second domino to take their two actions, and so on, until the last player has taken their two actions.
+
+
+Connection rules
+-------------------
+
+The players must build their kingdom in a 5x5 grid (each domino is composed of two territory squares).
+
+In order to place down their domino, the player must:
+ - Either connect it to their starting tile (the starting domino can be considered as a wild domino, any terrain can be connected to this domino),
+ - Or connect it to another domino, matching at least 1 of its terrains (horizontally or vertically only).
+
+If you can’t add a domino to your territory following these rules, the domino must be discarded. All your dominoes must fit in a 5x5 grid. If, due to bad planning, one or more of your dominoes does not fit, discard that domino. You do not get points for discarded tiles.
+
+
+End of the game
+-------------------
+
+When the last dominoes are lined up the players will take one last turn. Each player should now have in front of them a 5x5 grid forming their kingdom. (Some kingdoms may not be complete if a player was forced to discard any dominoes – see above).
+
+Now, each player can calculate the points for their kingdoms in the following way:
+ - A kingdom is composed of different TERRITORIES; squares with the same type of terrain, that are connected horizontally or vertically.
+ - Count the number of connected territory squares and multiply that number of squares by the number of crowns that appear in that territory.
+ - You can have multiple crowns within a territory.
+ - A territory without a crown will give you no points.
+
+For example, if you have 7 forest squares connected and you have 3 crowns in that forest you multiply 7x3 to get a score of 21. If you have 9 lake squares connected but no crowns you will score 0 points.
+
+In addition to points won by crowns are the Quests. By default they are the following:
+ - Harmony: score 5 additional points if your territory is complete (no discarded dominoes).
+ - The middle Kingdom: score 10 additional points if your castle is in the center of your territory.
+There are other quests that you can activate by clicking on the "Random Quests" button, the details of the quest are written on their cards when hovering them for 2 or more seconds.
+
+Add up the scores for each of your territories with the score from your accomplished quests and the player with the highest score is the winner.
+
+In case of a tie, the player with the biggest territory (with the highest number of squares) wins the game.
+
+If it is still a tie, the player who has the most crowns wins the game.
+
+If it is still a tie, the players share the victory.
+
+
+Score Sheets
+---------------
+
+There are special score sheets with this mod, details are at the end of the "Start Here!" page.

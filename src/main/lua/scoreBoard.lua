@@ -30,24 +30,34 @@ local buttons_count = 0
 local total_counter = {}
 
 local counters_configuration = {
-  {amount = 7, sheet_col = 1, columns = 2, first_row = 1, default_values = {0, 0}},
-  {amount = 1, sheet_col = 1, columns = 1, first_row = 8, default_values = {0}},
-  {amount = 2, sheet_col = 1, columns = 2, first_row = 9, default_values = {0, 1}},
-  {amount = 4, sheet_col = 1, columns = 1, first_row = 11, default_values = {0}},
+  {columns = 3, subcolumns = 2, default_values = {0, 0}},
+  {columns = 3, subcolumns = 2, default_values = {0, 0}},
+  {columns = 3, subcolumns = 2, default_values = {0, 0}},
+  {columns = 3, subcolumns = 2, default_values = {0, 0}},
+  {columns = 3, subcolumns = 2, default_values = {0, 0}},
+  {columns = 3, subcolumns = 2, default_values = {0, 0}},
+  {columns = 3, subcolumns = 2, default_values = {0, 0}},
 
-  {amount = 7, sheet_col = 2, columns = 2, first_row = 1, default_values = {0, 0}},
-  {amount = 7, sheet_col = 3, columns = 2, first_row = 1, default_values = {0, 0}}
+  {columns = 1, subcolumns = 1, default_values = {0}},
+
+  {columns = 1, subcolumns = 2, default_values = {0, 1}},
+  {columns = 1, subcolumns = 2, default_values = {0, 1}},
+
+  {columns = 1, subcolumns = 1, default_values = {0}},
+  {columns = 1, subcolumns = 1, default_values = {0}},
+  {columns = 1, subcolumns = 1, default_values = {0}},
+  {columns = 1, subcolumns = 1, default_values = {0}}
 }
 local total_position = {
-  sheet_col = 1,
-  row = 15
+  row = 15,
+  column = 1
 }
 
 function onLoad()
   initButtons()
 end
 
-function getCounterCoordinates(sheet_column, subcolumn, row)
+function getCounterCoordinates(row, sheet_column, subcolumn)
   return {
     x = getUiXPos(sheet_column, subcolumn),
     y = ui_y_position,
@@ -55,25 +65,28 @@ function getCounterCoordinates(sheet_column, subcolumn, row)
   }
 end
 
-function generateCounters(counters_table)
-  for _, counter_details in pairs(counters_table) do
-    for i = 1, counter_details.amount, 1 do
-      local current_row = counter_details.first_row + i - 1
-      generateSetOfCounters(counter_details, current_row)
-    end
+function generateCounters()
+  for row, row_configuration in pairs(counters_configuration) do
+    generateRow(row, row_configuration)
+  end
+end
+
+function generateRow(row, row_configuration)
+  for col = 1, row_configuration.columns, 1 do
+    generateSubcolumns(row, col, row_configuration)
   end
 end
 
 -- A set is all contained on the same line
-function generateSetOfCounters(counter_details, current_row)
-  for col = 1, counter_details.columns, 1 do
-    setupCounter(getCounterCoordinates(counter_details.sheet_col, col, current_row), counter_details.default_values[col])
+function generateSubcolumns(row, col, row_configuration)
+  for subcol = 1, row_configuration.subcolumns, 1 do
+    setupCounter(getCounterCoordinates(row, col, subcol), row_configuration.default_values[subcol])
   end
 end
 
 function initButtons()
-  generateCounters(counters_configuration)
-  setupTotal(getCounterCoordinates(total_position.sheet_col, 1.5, total_position.row))
+  generateCounters()
+  setupTotal(getCounterCoordinates(total_position.row, total_position.column, 1.5))
 end
 
 function setupCounter(position, default_value)
@@ -98,7 +111,7 @@ function setupCounter(position, default_value)
   }
 
   self.setVar(input_function_name,
-    function (obj, player_clicker_color, input_value, selected)
+    function (_, _, input_value, _)
       changeCounterValue(parameters, tonumber(input_value))
     end)
   self.createInput(parameters)
@@ -112,7 +125,7 @@ end
 function createPlusButton(counter, position)
   local click_function_name = "plus_function_" .. tostring(counter)
   self.setVar(click_function_name,
-    function (obj, player_clicker_color, alt_click)
+    function (_, _, alt_click)
       incrementCounter(counter, alt_click, 1)
     end)
 
@@ -133,7 +146,7 @@ end
 function createMinusButton(counter, position)
   local click_function_name = "minus_function_" .. tostring(counter)
   self.setVar(click_function_name,
-    function (obj, player_clicker_color, alt_click)
+    function (_, _, alt_click)
       incrementCounter(counter, alt_click, -1)
     end)
 
@@ -197,7 +210,7 @@ end
 function sumSimpleCounters(cursor, counter_count)
   local result = 0
   for i = cursor, cursor + counter_count - 1, 1 do
-    if counters[i + 1].value ~= nil then
+    if counters[i + 1].value then
       result = result + counters[i + 1].value
     end
   end
@@ -205,7 +218,7 @@ function sumSimpleCounters(cursor, counter_count)
 end
 
 function getValueOrElse(value, else_value)
-  if value ~= nil then
+  if value then
     return value
   else
     return else_value
@@ -224,12 +237,12 @@ function updateTotal()
   local counter_index = 1
   local total = 0
   for _, config in pairs(counters_configuration) do
-    for i = 1, config.amount, 1 do
-      total = total + multiplyCells(counter_index, config.columns, config.default_values)
-      counter_index = counter_index + config.columns
+    for _ = 1, config.columns, 1 do
+      total = total + multiplyCells(counter_index, config.subcolumns, config.default_values)
+      counter_index = counter_index + config.subcolumns
     end
   end
 
-  total_counter.label = tostring(total)
+  total_counter.tooltip = "Total Score: " .. tostring(total)
   self.editButton(total_counter)
 end

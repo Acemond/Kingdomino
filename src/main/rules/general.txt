@@ -1,0 +1,29 @@
+Welcome to the mod "Kingdomino (Scripted)" by Acemond.
+
+Take your first steps with this guide and then turn the pages to get the games specific rules.
+
+
+Setting up the Game
+------------------------
+
+Each player must chose a color or join the table by clicking on "Add Player". If one or more players are sharing the same computer, you must click the "Local Players" button then add them with the "Add Player" button.
+
+When the amount of players is set, click the "Start Game" button.
+
+You can also directly click the "Quick Setup" button corresponding to the amount of players playing and a game will automatically be launched with the corresponding amount of players.
+
+
+Rules of the game
+---------------------
+
+Go to the section that corresponds to the game you picked or refer to the rulebooks on the left of the table.
+
+
+Score Sheets
+---------------
+
+There are special score sheets with this mod that you will find in the infinite bag on the table map's compass.
+
+Just click the + and - buttons to increment or decrement the values of crowns and territory size.
+Each pair of column correspond to a different territory.
+Everything is added up automatically and your total appears at the bottom of the sheet.
