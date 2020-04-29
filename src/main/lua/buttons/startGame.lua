@@ -351,19 +351,31 @@ function removePlayer(playerColor)
   updateTileBoards()
 end
 
-function hideCastle(playerColor)
-  local castle = getObjectFromGUID(player_pieces_guids[playerColor].castle)
+local castle_animations = {}
+
+function hideCastle(player_color)
+  local castle = getObjectFromGUID(player_pieces_guids[player_color].castle)
   castle.lock()
-  Wait.frames(function()
-    castle.setPositionSmooth({ castle_tile_positions[playerColor].x, -0.8, castle_tile_positions[playerColor].z })
-  end, 15)
+
+  if castle_animations[player_color] ~= nil then
+    Wait.stop(castle_animations[player_color])
+  end
+
+  castle.setPositionSmooth({ castle_tile_positions[player_color].x, -0.8, castle_tile_positions[player_color].z })
 end
 
-function showCastle(playerColor)
-  local castle = getObjectFromGUID(player_pieces_guids[playerColor].castle)
-  Wait.frames(function()
-    castle.setPositionSmooth({ castle_tile_positions[playerColor].x, castle_y, castle_tile_positions[playerColor].z })
-  end, 15)
+function showCastle(player_color)
+  local castle = getObjectFromGUID(player_pieces_guids[player_color].castle)
+
+  if castle_animations[player_color] ~= nil then
+    Wait.stop(castle_animations[player_color])
+    castle_animations[player_color] = nil
+  end
+
+  castle_animations[player_color] = Wait.frames(function()
+    castle.setPositionSmooth({ castle_tile_positions[player_color].x, castle_y, castle_tile_positions[player_color].z })
+    castle_animations[player_color] = nil
+  end, 25)
 end
 
 function removeLocalPlayers()
