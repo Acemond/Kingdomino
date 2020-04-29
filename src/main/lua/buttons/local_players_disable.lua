@@ -1,0 +1,21 @@
+local player_manager_guid = ""
+local player_manager = {}
+
+function onLoad()
+  self.createButton({
+    click_function = "onClick",
+    function_owner = self,
+    label = "",
+    tooltip = "Allow multiple players on the same machine",
+    position = { 0, 0.05, 0 },
+    color = { 0, 0, 0, 0 },
+    width = 2400,
+    height = 600,
+  })
+  player_manager = getObjectFromGUID(player_manager_guid)
+end
+
+function onClick()
+  player_manager.call("setLocalPlayersEnabled", false)
+  self.setState(1)
+end

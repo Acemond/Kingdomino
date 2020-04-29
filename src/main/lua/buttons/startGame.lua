@@ -10,37 +10,37 @@ local table_guid = "0f8757"
 
 local hidden_boards = {}
 local player_pieces_guids = {
-  orange = {
+  Orange = {
     hand_zone = "96929a",
     castle_tile = "9ab771",
     castle = "768b9c",
     kings = { "4d2d92", "5e6289" }
   },
-  purple = {
+  Purple = {
     hand_zone = "6ea086",
     castle_tile = "7db35a",
     castle = "a1e204",
     kings = { "7dd59a", "e44a70" }
   },
-  red = {
+  Red = {
     hand_zone = "31279b",
     castle_tile = "f6948c",
     castle = "ae130d",
     kings = { "24345c", "2837e9" }
   },
-  white = {
+  White = {
     hand_zone = "f85ea1",
     castle_tile = "537260",
     castle = "fd4160",
     kings = { "86f4c2", "61259d" }
   },
-  green = {
+  Green = {
     hand_zone = "352048",
     castle_tile = "8c9612",
     castle = "b5c1bc",
     kings = { "526c31", "f2cd83" }
   },
-  pink = {
+  Pink = {
     hand_zone = "49989f",
     castle_tile = "a5aad1",
     castle = "a407fb",
@@ -81,34 +81,34 @@ local zone_coordinates_modifiers = {
   { zPos = -9, zScale = 20 },
 }
 local player_add_buttons = {
-  red = "a1ef12",
-  orange = "8d17b0",
-  white = "f60fe5",
-  purple = "1b4b1a",
-  green = "fbeaba",
-  pink = "6987e6"
+  Red = "a1ef12",
+  Orange = "8d17b0",
+  White = "f60fe5",
+  Purple = "1b4b1a",
+  Green = "fbeaba",
+  Pink = "6987e6"
 }
 local player_remove_buttons = {
-  red = "dfeee5",
-  orange = "fa1b7c",
-  white = "74e8b0",
-  purple = "1bbcb3",
-  green = "8fedd0",
-  pink = "668a0a"
+  Red = "dfeee5",
+  Orange = "fa1b7c",
+  White = "74e8b0",
+  Purple = "1bbcb3",
+  Green = "8fedd0",
+  Pink = "668a0a"
 }
 local buttons_to_remove = {
-  player_remove_buttons.red,
-  player_add_buttons.red,
-  player_remove_buttons.orange,
-  player_add_buttons.orange,
-  player_remove_buttons.white,
-  player_add_buttons.white,
-  player_remove_buttons.purple,
-  player_add_buttons.purple,
-  player_remove_buttons.green,
-  player_add_buttons.green,
-  player_remove_buttons.pink,
-  player_add_buttons.pink,
+  player_remove_buttons.Red,
+  player_add_buttons.Red,
+  player_remove_buttons.Orange,
+  player_add_buttons.Orange,
+  player_remove_buttons.White,
+  player_add_buttons.White,
+  player_remove_buttons.Purple,
+  player_add_buttons.Purple,
+  player_remove_buttons.Green,
+  player_add_buttons.Green,
+  player_remove_buttons.Pink,
+  player_add_buttons.Pink,
   quickSetup = "31971b",
   quickSetup2p = "46971b",
   quickSetup3p = "4f4db6",
@@ -133,25 +133,6 @@ local buttons_to_remove = {
   teamdomino_disable = "355eca",
   local_players_enable = "4f044d",
   local_players_disable = "d1e47c"
-}
-
-local left_control_zone_guid = "38ed1c"
-local right_control_zone_guid = "358f4e"
-local game_buttons_guid = {
-  age_of_giants = { buttons_to_remove.age_of_giants_enable, buttons_to_remove.age_of_giants_disable },
-  two_players_advanced = { buttons_to_remove.two_players_advanced_enable, buttons_to_remove.two_players_advanced_disable },
-  kingdomino_xl = { buttons_to_remove.kingdomino_xl_enable, buttons_to_remove.kingdomino_xl_disable },
-  teamdomino = { buttons_to_remove.teamdomino_enable, buttons_to_remove.teamdomino_disable }
-}
-
-local deck_interaction = {
-  age_of_giants = { dependency = "kingdomino", incompatibilities = nil },
-}
-
-local variant_interaction = {
-  kingdomino_xl = { dependency = "kingdomino", incompatibilities = "queendomino" },
-  teamdomino = { dependency = "kingdomino", incompatibilities = "queendomino" },
-  two_players_advanced = { dependency = "kingdomino", incompatibilities = "queendomino" }
 }
 
 local quests_deck_guid = "fd8a62"
@@ -207,15 +188,6 @@ local deck_size_modifiers = {
   two_players_basic = 0.5,
   three_players_classic = 0.75
 }
-
-local castle_tile_positions = {
-  white = { x = -21.00, z = -11.00 },
-  orange = { x = 21.00, z = -11.00 },
-  purple = { x = -21.00, z = 11.00 },
-  red = { x = 21.00, z = 11.00 },
-  green = { x = -31.00, z = 1.00 },
-  pink = { x = 31.00, z = -1.00 },
-}
 local castle_tile_y = 0.95
 local castle_y = 1.16
 
@@ -246,12 +218,12 @@ local default_quests_guid = { "e29f53", "e865f4" }
 
 local game_settings = {
   players = {
-    white = false,
-    orange = false,
-    purple = false,
-    red = false,
-    green = false,
-    pink = false
+    White = false,
+    Orange = false,
+    Purple = false,
+    Red = false,
+    Green = false,
+    Pink = false
   },
   modes = {
     kingdomino = true,
@@ -290,297 +262,6 @@ function onLoad()
     width = 2400,
     height = 600
   })
-end
-
-function quickSetup(target_player_count)
-  if getPlayerCount() ~= target_player_count then
-    if target_player_count == 2 then
-      setPlayers({ "White", "Orange" }, { "Purple", "Red", "Green", "Pink" })
-    elseif target_player_count == 3 then
-      setPlayers({ "White", "Orange", "Purple" }, { "Red", "Green", "Pink" })
-    elseif target_player_count == 4 then
-      setPlayers({ "White", "Orange", "Purple", "Red" }, { "Green", "Pink" })
-    elseif target_player_count == 5 then
-      setPlayers({ "White", "Orange", "Purple", "Red", "Green" }, { "Pink" })
-    elseif target_player_count == 6 then
-      if not game_settings.modes.queendomino then
-        enableDeck("queendomino")
-      end
-      if not game_settings.modes.kingdomino then
-        enableDeck("kingdomino")
-      end
-      setPlayers({ "White", "Orange", "Purple", "Red", "Green", "Pink" }, {})
-    end
-  end
-
-  startGame()
-end
-
-function isGameReady()
-  if getPlayerCount() < 2 then
-    return false, "There should be at least two players to start a game"
-  elseif game_settings.variants.kingdomino_xl and (getPlayerCount() == 2 or getPlayerCount() > 4) then
-    return false, "Kingdomino XL is for 3 to 4 players only"
-  elseif not game_settings.modes.kingdomino and not game_settings.modes.queendomino then
-    return false, "You should pick at least a deck to play"
-  elseif getPlayerCount() == 5 and not (
-      game_settings.modes.age_of_giants
-          or (game_settings.modes.queendomino and game_settings.modes.kingdomino)) then
-    return false, "You need to enable Age of Giants or both Kingdomino and Queendomino to play with 5 players"
-  elseif getPlayerCount() == 5 and game_settings.modes.age_of_giants
-      and game_settings.modes.queendomino
-      and game_settings.modes.kingdomino then
-    return false, "Royal Wedding not yet implemented for Age of Giants with 5 players"
-  elseif getPlayerCount() > 5 and not (game_settings.variants.teamdomino or (game_settings.modes.queendomino and game_settings.modes.kingdomino)) then
-    return false, "You need to enable both Kingdomino and Queendomino to play with " .. tostring(getPlayerCount()) .. " players"
-  elseif getPlayerCount() > 5 and game_settings.modes.age_of_giants then
-    return false, "Age of Giants is for 5 players or less"
-  end
-  return true
-end
-
-function addPlayer(playerColor)
-  showCastle(playerColor)
-  game_settings.players[playerColor] = true
-  updateTileBoards()
-end
-
-function removePlayer(playerColor)
-  hideCastle(playerColor)
-  game_settings.players[playerColor] = false
-  updateTileBoards()
-end
-
-local castle_animations = {}
-
-function hideCastle(player_color)
-  local castle = getObjectFromGUID(player_pieces_guids[player_color].castle)
-  castle.lock()
-
-  if castle_animations[player_color] ~= nil then
-    Wait.stop(castle_animations[player_color])
-  end
-
-  castle.setPositionSmooth({ castle_tile_positions[player_color].x, -0.8, castle_tile_positions[player_color].z })
-end
-
-function showCastle(player_color)
-  local castle = getObjectFromGUID(player_pieces_guids[player_color].castle)
-
-  if castle_animations[player_color] ~= nil then
-    Wait.stop(castle_animations[player_color])
-    castle_animations[player_color] = nil
-  end
-
-  castle_animations[player_color] = Wait.frames(function()
-    castle.setPositionSmooth({ castle_tile_positions[player_color].x, castle_y, castle_tile_positions[player_color].z })
-    castle_animations[player_color] = nil
-  end, 25)
-end
-
-function removeLocalPlayers()
-  for color, enabled in pairs(game_settings.players) do
-    if not Player[color].seated and enabled then
-      local button = getObjectFromGUID(player_remove_buttons[color])
-      if button ~= nil and button.getStateId() == 2 then
-        button.setState(1)
-      end
-      removePlayer(color)
-    end
-  end
-end
-
-function enableDeck(gameName)
-  game_settings.modes[gameName] = true
-  showObjects(game_objects_guid[gameName])
-
-  checkInteractions()
-  updateTileBoards()
-end
-
-function disableDeck(gameName)
-  game_settings.modes[gameName] = false
-  hideObjects(game_objects_guid[gameName])
-
-  checkInteractions()
-  updateTileBoards()
-end
-
-function showVariant(variant_name)
-  showObjects(game_buttons_guid[variant_name], true)
-end
-
-function OrganizeQuests()
-  local quests = getObjectFromGUID(quests_deck_guid)
-  quests.takeObject({
-    guid = default_quests_guid[2],
-    position = { quests.getPosition().x, quests.getPosition().y + 0.15, quests.getPosition().z },
-    smooth = false
-  })
-end
-
-function setVariant(parameters)
-  game_settings.variants[parameters.variant_name] = parameters.value
-  if parameters.variant_name == "random_quests" and parameters.value then
-    getObjectFromGUID(quests_deck_guid).shuffle()
-  elseif parameters.variant_name == "random_quests" then
-    OrganizeQuests()
-  end
-end
-
-function checkInteractions()
-  local decks_to_hide = shouldHide(deck_interaction)
-  local decks_to_show = shouldShow(deck_interaction)
-  local variants_to_hide = shouldHide(variant_interaction)
-  local variants_to_show = shouldShow(variant_interaction)
-
-  for deck_name, _ in pairs(decks_to_hide) do
-    if object_visible[deck_name] then
-      object_visible[deck_name] = false
-      disableDeck(deck_name)
-      hideObjects(game_buttons_guid[deck_name])
-    end
-  end
-
-  for deck_name, _ in pairs(decks_to_show) do
-    if not object_visible[deck_name] then
-      object_visible[deck_name] = true
-      showObjects(game_buttons_guid[deck_name], true)
-    end
-  end
-  for variant_name, _ in pairs(variants_to_show) do
-    if not isInKeys(variant_name, variants_to_hide) then
-      object_visible[variant_name] = true
-      showObjects(game_buttons_guid[variant_name], true)
-    end
-  end
-  for variant_name, _ in pairs(variants_to_hide) do
-    object_visible[variant_name] = false
-    hideObjects(game_buttons_guid[variant_name])
-  end
-end
-
-function shouldHide(interaction_table)
-  local to_hide = {}
-  for game_name, interactions in pairs(interaction_table) do
-    for mode, enabled in pairs(game_settings.modes) do
-      if mode == interactions.incompatibilities and enabled
-          or mode == interactions.dependency and not enabled then
-        to_hide[game_name] = true
-      end
-    end
-  end
-
-  return to_hide
-end
-
-function shouldShow(interaction_table)
-  local to_show = {}
-  for game_name, interactions in pairs(interaction_table) do
-    if not object_visible[game_name] then
-      for mode, enabled in pairs(game_settings.modes) do
-        if mode == interactions.dependency and enabled
-            or mode == interactions.incompatibilities and not enabled then
-          to_show[game_name] = true
-        end
-      end
-    end
-  end
-
-  return to_show
-end
-
-function getBoardSize()
-  local size = 4
-  if getPlayerCount() == 3
-      and not game_settings.modes.queendomino
-      and not game_settings.variants.three_players_variant then
-    size = 3
-  elseif game_settings.modes.queendomino and game_settings.modes.kingdomino
-      and (getPlayerCount() == 5 or getPlayerCount() == 6) then
-    size = 8
-  end
-
-  if game_settings.modes.age_of_giants then
-    size = size + 1
-  end
-
-  -- FIXME: Quickfix until other board sizes gets added
-  if size ~= 3 and size ~= 4 and size ~= 5 and size ~= 8 then
-    return 4
-  end
-
-  return size
-end
-
-function hideTileBoards(board_size)
-  table.insert(hidden_boards, left_boards_infos[board_size].guid)
-  table.insert(hidden_boards, right_boards_infos[board_size].guid)
-  local leftBoard = getObjectFromGUID(left_boards_infos[board_size].guid)
-  local rightBoard = getObjectFromGUID(right_boards_infos[board_size].guid)
-
-  leftBoard.setPositionSmooth({ leftBoard.getPosition().x, 0, leftBoard.getPosition().z }, false, true)
-  rightBoard.setPositionSmooth({ rightBoard.getPosition().x, 0, rightBoard.getPosition().z }, false, true)
-end
-
-function showTilesBoard(board_size)
-  local leftBoard = getObjectFromGUID(left_boards_infos[board_size].guid)
-  local rightBoard = getObjectFromGUID(right_boards_infos[board_size].guid)
-
-  leftBoard.setPositionSmooth({ leftBoard.getPosition().x, 1.06, leftBoard.getPosition().z }, false, true)
-  rightBoard.setPositionSmooth({ rightBoard.getPosition().x, 1.06, rightBoard.getPosition().z }, false, true)
-end
-
-function updateTileBoards()
-  local target_size = getBoardSize()
-  showTilesBoard(target_size)
-  hidden_boards = {}
-  for size, _ in pairs(right_boards_infos) do
-    if size ~= target_size then
-      hideTileBoards(size)
-    end
-  end
-  resizeControlZones(target_size)
-end
-
-function setPlayers(playing, not_playing)
-  for i, player_color in pairs(playing) do
-    local player = Player.getPlayers()[i]
-    local add_button = getObjectFromGUID(player_add_buttons[player_color:lower()])
-    if player ~= nil and add_button then
-      add_button.call("addPlayer")
-      player.changeColor(player_color)
-    else
-      Global.setVar("local_players", true)
-      addPlayer(player_color:lower())
-      if add_button then
-        add_button.setState(2)
-      end
-    end
-  end
-  for i, player_color in pairs(not_playing) do
-    local player = Player.getPlayers()[i]
-    local remove_button = getObjectFromGUID(player_remove_buttons[player_color:lower()])
-    if player ~= nil and remove_button then
-      remove_button.call("onClick")
-    else
-      Global.setVar("local_players", true)
-      removePlayer(player_color:lower())
-      if remove_button then
-        remove_button.setState(1)
-      end
-    end
-  end
-end
-
-function getPlayerCount()
-  local count = 0
-  for _, playing in pairs(game_settings.players) do
-    if playing then
-      count = count + 1
-    end
-  end
-  return count
 end
 
 function destroyObjectsIfExists(guids)
@@ -643,7 +324,7 @@ function startGame()
     lockExistingObjects()
   end, 60)
 
-  if game_settings.players.green or game_settings.players.pink then
+  if game_settings.players.Green or game_settings.players.Pink then
     spaceOutPlayers()
   end
 
@@ -716,7 +397,7 @@ function takeCoins(playerColor)
   local coin1Bag = getObjectFromGUID(game_objects_guid.queendomino.coin1_bag)
   local coin3Bag = getObjectFromGUID(game_objects_guid.queendomino.coin3_bag)
   local knightBag = getObjectFromGUID(game_objects_guid.queendomino.knight_bag)
-  if playerColor == "green" or playerColor == "pink" then
+  if playerColor == "Green" or playerColor == "Pink" then
     coin1Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z + 2 } })
     coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z + 1 } })
     coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z } })
@@ -798,73 +479,6 @@ function destroyObjectInBag(bag, guid)
       destroyObject(obj)
     end
   })
-end
-
-function showObjects(object_guids, is_button)
-  for _, guid in pairs(object_guids) do
-    local object = getObjectFromGUID(guid)
-    if object and is_button then
-      showButton(object)
-      showObjectsButton(object)
-    elseif object then
-      showObject(object)
-    end
-  end
-end
-
-function hideObjects(object_guids)
-  for _, guid in pairs(object_guids) do
-    local object = getObjectFromGUID(guid)
-    if object then
-      hideObject(object)
-      hideObjectsButton(object)
-    end
-  end
-end
-
-function hideObjectsButton(object)
-  local buttons = object.getButtons()
-  if buttons then
-    for _, button in pairs(buttons) do
-      object.editButton({ index = button.index, scale = { 0, 0, 0 } })
-    end
-  end
-end
-
-function showObjectsButton(object)
-  local buttons = object.getButtons()
-  if buttons then
-    for _, button in pairs(buttons) do
-      object.editButton({ index = button.index, scale = { 1, 1, 1 } })
-    end
-  end
-end
-
-function showObject(object)
-  object.setPosition({ object.getPosition().x, 3, object.getPosition().z })
-  object.unlock()
-end
-
-function showButton(object)
-  object.setPosition({ object.getPosition().x, 1.06, object.getPosition().z })
-  if object.getStateId() == 2 then
-    object.setState(1)
-  end
-end
-
-function hideObject(object)
-  object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
-  object.lock()
-end
-
-function resizeControlZones(slots)
-  resizeControlZone(getObjectFromGUID(right_control_zone_guid), slots)
-  resizeControlZone(getObjectFromGUID(left_control_zone_guid), slots)
-end
-
-function resizeControlZone(zone, slots)
-  zone.setScale({ zone.getScale().x, zone.getScale().y, zone_coordinates_modifiers[slots].zScale })
-  zone.setPosition({ zone.getPosition().x, zone.getPosition().y, zone_coordinates_modifiers[slots].zPos })
 end
 
 function prepareMainDecks()
@@ -987,7 +601,7 @@ function getSize(t)
   return size
 end
 
-function movePlayerPieces(color, offset_vector)
+  function movePlayerPieces(color, offset_vector)
   local castle = getObjectFromGUID(player_pieces_guids[color].castle)
   local castle_tile = getObjectFromGUID(player_pieces_guids[color].castle_tile)
   local hand_zone = getObjectFromGUID(player_pieces_guids[color].hand_zone)
@@ -1010,17 +624,17 @@ function movePlayerPieces(color, offset_vector)
 end
 
 function spaceOutPlayers()
-  if game_settings.players.white then
-    movePlayerPieces("white", { 0, 0, -8 })
+  if game_settings.players.White then
+    movePlayerPieces("White", { 0, 0, -8 })
   end
-  if game_settings.players.orange then
-    movePlayerPieces("orange", { 0, 0, -8 })
+  if game_settings.players.Orange then
+    movePlayerPieces("Orange", { 0, 0, -8 })
   end
-  if game_settings.players.purple then
-    movePlayerPieces("purple", { 0, 0, 8 })
+  if game_settings.players.Purple then
+    movePlayerPieces("Purple", { 0, 0, 8 })
   end
-  if game_settings.players.red then
-    movePlayerPieces("red", { 0, 0, 8 })
+  if game_settings.players.Red then
+    movePlayerPieces("Red", { 0, 0, 8 })
   end
 end
 

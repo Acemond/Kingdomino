@@ -1,5 +1,7 @@
 local variant_name = "two_players_advanced"
-local start_button_guid = "af7bb2"
+
+local game_manager_guid = ""
+local game_manager = {}
 
 function onLoad()
   self.createButton({
@@ -12,10 +14,11 @@ function onLoad()
     width = 2400,
     height = 600
   })
-  self.interactable = false
+
+  game_manager = getObjectFromGUID(game_manager_guid)
 end
 
 function onClick()
-  getObjectFromGUID(start_button_guid).call("setVariant", {variant_name = variant_name, value = true})
+  game_manager.call("setVariant", {variant_name = variant_name, enable = true})
   self.setState(2)
 end

@@ -1,4 +1,5 @@
-local start_button_guid = "af7bb2"
+local player_manager_guid = ""
+local player_manager = {}
 
 function onLoad()
   self.createButton({
@@ -11,10 +12,10 @@ function onLoad()
     width = 2400,
     height = 600,
   })
+  player_manager = getObjectFromGUID(player_manager_guid)
 end
 
 function onClick()
-  Global.setVar("local_players", false)
-  getObjectFromGUID(start_button_guid).call("removeLocalPlayers")
+  player_manager.call("setLocalPlayersEnabled", true)
   self.setState(1)
 end
