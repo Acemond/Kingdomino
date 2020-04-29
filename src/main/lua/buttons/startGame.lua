@@ -295,13 +295,13 @@ end
 function quickSetup(target_player_count)
   if getPlayerCount() ~= target_player_count then
     if target_player_count == 2 then
-      setPlayers({ "white", "orange" }, { "purple", "red", "green", "pink" })
+      setPlayers({ "White", "Orange" }, { "Purple", "Red", "Green", "Pink" })
     elseif target_player_count == 3 then
-      setPlayers({ "white", "orange", "purple" }, { "red", "green", "pink" })
+      setPlayers({ "White", "Orange", "Purple" }, { "Red", "Green", "Pink" })
     elseif target_player_count == 4 then
-      setPlayers({ "red", "orange", "purple", "white" }, { "green", "pink" })
+      setPlayers({ "White", "Orange", "Purple", "Red" }, { "Green", "Pink" })
     elseif target_player_count == 5 then
-      setPlayers({ "red", "orange", "purple", "white", "green" }, { "pink" })
+      setPlayers({ "White", "Orange", "Purple", "Red", "Green" }, { "Pink" })
     elseif target_player_count == 6 then
       if not game_settings.modes.queendomino then
         enableDeck("queendomino")
@@ -309,7 +309,7 @@ function quickSetup(target_player_count)
       if not game_settings.modes.kingdomino then
         enableDeck("kingdomino")
       end
-      setPlayers({ "red", "orange", "purple", "white", "green", "pink" }, {})
+      setPlayers({ "White", "Orange", "Purple", "Red", "Green", "Pink" }, {})
     end
   end
 
@@ -544,18 +544,31 @@ function updateTileBoards()
 end
 
 function setPlayers(playing, not_playing)
-  for _, color in pairs(playing) do
-    addPlayer(color)
-    local player_button = getObjectFromGUID(player_add_buttons[color])
-    if player_button then
-      player_button.setState(2)
+  for i, player_color in pairs(playing) do
+    local player = Player.getPlayers()[i]
+    local add_button = getObjectFromGUID(player_add_buttons[player_color:lower()])
+    if player ~= nil and add_button then
+      add_button.call("addPlayer")
+      player.changeColor(player_color)
+    else
+      Global.setVar("local_players", true)
+      addPlayer(player_color:lower())
+      if add_button then
+        add_button.setState(2)
+      end
     end
   end
-  for _, color in pairs(not_playing) do
-    removePlayer(color)
-    local player_button = getObjectFromGUID(player_remove_buttons[color])
-    if player_button then
-      player_button.setState(1)
+  for i, player_color in pairs(not_playing) do
+    local player = Player.getPlayers()[i]
+    local remove_button = getObjectFromGUID(player_remove_buttons[player_color:lower()])
+    if player ~= nil and remove_button then
+      remove_button.call("onClick")
+    else
+      Global.setVar("local_players", true)
+      removePlayer(player_color:lower())
+      if remove_button then
+        remove_button.setState(1)
+      end
     end
   end
 end
