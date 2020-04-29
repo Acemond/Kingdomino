@@ -1,3 +1,5 @@
+local start_button_guid = "af7bb2"
+
 function onLoad()
   self.createButton({
     click_function = "onClick",
@@ -12,6 +14,7 @@ function onLoad()
 end
 
 function onClick()
-  Global.setVar("local_players", true)
-  self.setState(2)
+  Global.setVar("local_players", false)
+  getObjectFromGUID(start_button_guid).call("removeLocalPlayers")
+  self.setState(1)
 end

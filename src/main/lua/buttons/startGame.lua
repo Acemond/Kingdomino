@@ -362,6 +362,18 @@ function showCastle(playerColor)
   castle.setPositionSmooth({ castle_tile_positions[playerColor].x, castle_y, castle_tile_positions[playerColor].z })
 end
 
+function removeLocalPlayers()
+  for color, enabled in pairs(game_settings.players) do
+    if not Player[color].seated and enabled then
+      local button = getObjectFromGUID(player_remove_buttons[color])
+      if button ~= nil and button.getStateId() == 2 then
+        button.setState(1)
+      end
+      removePlayer(color)
+    end
+  end
+end
+
 function enableDeck(gameName)
   game_settings.modes[gameName] = true
   showObjects(game_objects_guid[gameName])
