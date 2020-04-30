@@ -14,5 +14,4 @@ end
 
 function onClick()
   Global.call("setDeckEnabled", {deck_name = deck_name, is_enabled = false})
-  self.setState(2)
 end

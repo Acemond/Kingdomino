@@ -15,5 +15,4 @@ end
 
 function onClick()
   Global.call("setVariantEnabled", {variant_name = variant_name, is_enabled = true})
-  self.setState(2)
 end

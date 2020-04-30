@@ -46,7 +46,7 @@ local tile_board_manager_guid = "3853c3"
 local tile_board_manager = {}
 
 function onLoad(save_state)
-  initialize(save_state)
+  loadSaveState(save_state)
   Player.getPlayers()[1].lookAt({
     position = { x = 0, y = 0, z = -28 },
     pitch = 55,
