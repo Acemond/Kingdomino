@@ -15,7 +15,7 @@ local game_settings = {
   }
 }
 
-local deck_buttons = {
+local deck_buttons_guids = {
   enable = {
     kingdomino = "9f4a39",
     queendomino = "69cbda",
@@ -29,7 +29,7 @@ local deck_buttons = {
     the_court = "2c22ed"
   }
 }
-local variant_buttons = {
+local variant_buttons_guids = {
   enable = {
     two_players_advanced = "823bca",
     three_players_variant = "",
@@ -62,12 +62,12 @@ local castle_manager_guid = "9bb39a"
 local castle_manager = {}
 
 function onUpdate()
-  updateButtons(game_settings.decks, deck_buttons)
-  updateButtons(game_settings.variants, variant_buttons)
+  updateButtonsState(game_settings.decks, deck_buttons_guids)
+  updateButtonsState(game_settings.variants, variant_buttons_guids)
 end
 
 function onLoad(save_state)
-  loadSaveState(save_state)
+  --loadSaveState(save_state)
   player_manager = getObjectFromGUID(player_manager_guid)
   deck_manager = getObjectFromGUID(deck_manager_guid)
   variant_manager = getObjectFromGUID(variant_manager_guid)
@@ -129,8 +129,8 @@ function removePlayer(seat_color)
 end
 
 function setDeckEnabled(parameters)
-  game_settings.decks[parameters.deck_name] = parameters.is_enabled
-  deck_manager.call("checkInteractions", game_settings.decks)
+  deck_manager.call("setDeckEnabled", { deck_name = parameters.deck_name, is_enabled = parameters.is_enabled })
+  game_settings.decks = deck_manager.getTable("deck_enabled")
   tile_board_manager.call("updateTileBoards", getBoardSize())
 end
 
@@ -200,7 +200,7 @@ function resolveForPlayerCount(target_player_count)
   end
 end
 
-function updateButtons(enabled_objects, button_list)
+function updateButtonsState(enabled_objects, button_list)
   for object_name, enabled in pairs(enabled_objects) do
     if enabled then
       local button_enable = getObjectFromGUID(button_list.enable[object_name])

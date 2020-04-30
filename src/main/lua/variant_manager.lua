@@ -6,18 +6,20 @@ local variants_visible = {
   teamdomino = true,
 }
 
-local game_buttons_guid = {
-  two_players_advanced = {
-    enable = "823bca",
-    disable = "02322f"
+local variant_buttons_guids = {
+  enable = {
+    two_players_advanced = "823bca",
+    three_players_variant = "",
+    randomn_quests = "75dcb1",
+    kingdomino_xl = "42f5a4",
+    teamdomino = "83af19"
   },
-  kingdomino_xl = {
-    enable = "42f5a4",
-    disable = "92f52d"
-  },
-  teamdomino = {
-    enable = "83af19",
-    disable = "355eca"
+  disable = {
+    two_players_advanced = "02322f",
+    three_players_variant = "",
+    randomn_quests = "edb838",
+    kingdomino_xl = "92f52d",
+    teamdomino = "355eca"
   }
 }
 
@@ -32,7 +34,7 @@ local deck_manager = {}
 
 function onLoad(save_state)
   if save_state ~= "" then
-    decks_visible = JSON.decode(save_state).variants_visible
+    variants_visible = JSON.decode(save_state).variants_visible
   end
   deck_manager = getObjectFromGUID(deck_manager_guid)
 end
@@ -48,17 +50,16 @@ function checkInteractions(decks_enabled)
   for variant_name, _ in pairs(variants_to_show) do
     if not isInKeys(variant_name, variants_to_hide) then
       variants_visible[variant_name] = true
-      showObjects(game_buttons_guid[variant_name], true)
+      showButtonIfExists(variant_buttons_guids.enable[variant_name])
+      showButtonIfExists(variant_buttons_guids.disable[variant_name])
     end
   end
   for variant_name, _ in pairs(variants_to_hide) do
     variants_visible[variant_name] = false
-    hideObjects(game_buttons_guid[variant_name])
+    hideObjectIfExists(variant_buttons_guids.enable[variant_name])
+    hideObjectIfExists(variant_buttons_guids.disable[variant_name])
+    Global.call("setVariantEnabled", { variant_name = variant_name, is_enabled = false })
   end
-end
-
-function showVariant(variant_name)
-  showObjects(game_buttons_guid[variant_name], true)
 end
 
 function shouldHide(decks_enabled, interaction_table)
@@ -91,59 +92,38 @@ function shouldShow(decks_enabled, interaction_table)
   return to_show
 end
 
-function showObjects(object_guids, is_button)
-  for _, guid in pairs(object_guids) do
-    local object = getObjectFromGUID(guid)
-    if object and is_button then
-      showButton(object)
-      showObjectsButton(object)
-    elseif object then
-      showObject(object)
-    end
+function showButtonIfExists(guid)
+  local object = getObjectFromGUID(guid)
+  if object == nil then
+    return
   end
-end
-
-function hideObjects(object_guids)
-  for _, guid in pairs(object_guids) do
-    local object = getObjectFromGUID(guid)
-    if object then
-      hideObject(object)
-      hideObjectsButton(object)
-    end
-  end
-end
-
-function hideObjectsButton(object)
-  local buttons = object.getButtons()
-  if buttons then
-    for _, button in pairs(buttons) do
-      object.editButton({ index = button.index, scale = { 0, 0, 0 } })
-    end
-  end
-end
-
-function showObjectsButton(object)
-  local buttons = object.getButtons()
-  if buttons then
-    for _, button in pairs(buttons) do
+  object.setPosition({ object.getPosition().x, 1.06, object.getPosition().z })
+  if object.getButtons() then
+    for _, button in pairs(object.getButtons()) do
       object.editButton({ index = button.index, scale = { 1, 1, 1 } })
     end
   end
 end
 
-function showObject(object)
-  object.setPosition({ object.getPosition().x, 3, object.getPosition().z })
-  object.unlock()
-end
-
-function showButton(object)
-  object.setPosition({ object.getPosition().x, 1.06, object.getPosition().z })
-  if object.getStateId() == 2 then
-    object.setState(1)
+function hideObjectIfExists(guid)
+  local object = getObjectFromGUID(guid)
+  if object == nil then
+    return
+  end
+  object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
+  object.lock()
+  if object.getButtons() then
+    for _, button in pairs(object.getButtons()) do
+      object.editButton({ index = button.index, scale = { 0, 0, 0 } })
+    end
   end
 end
 
-function hideObject(object)
-  object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
-  object.lock()
+function isInKeys(key_to_test, list)
+  for key, _ in pairs(list) do
+    if key == key_to_test then
+      return true
+    end
+  end
+  return false
 end
