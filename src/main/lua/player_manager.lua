@@ -6,6 +6,28 @@ local seated_players = {
   Green = false,
   Pink = false
 }
+local local_players_button_guid = {
+  enable = "4f044d",
+  disable = "d1e47c"
+}
+local player_buttons_guids = {
+  add = {
+    White = "f60fe5",
+    Orange = "8d17b0",
+    Purple = "1b4b1a",
+    Red = "a1ef12",
+    Green = "fbeaba",
+    Pink = "6987e6"
+  },
+  remove = {
+    White = "74e8b0",
+    Orange = "fa1b7c",
+    Purple = "1bbcb3",
+    Red = "dfeee5",
+    Green = "8fedd0",
+    Pink = "668a0a"
+  }
+}
 local game_master_color = "Black"
 local spectator_color = "Grey"
 
@@ -18,15 +40,13 @@ local castle_positions = {
   Pink = { position = { 31.00, 1.16, -1.00 }, yaw = 270 }
 }
 
-local local_players_enabled = false
+local local_players_enabled = false  -- Set this with setLocalPlayersEnabled only
 
 local tile_board_manager_guid = "3853c3"
 local tile_board_manager = {}
 
 function onLoad(save_state)
-  if save_state ~= "" then
-    seated_players = JSON.decode(save_state).seated_players
-  end
+  initialize(save_state)
   Player.getPlayers()[1].lookAt({
     position = { x = 0, y = 0, z = -28 },
     pitch = 55,
@@ -37,7 +57,19 @@ function onLoad(save_state)
 end
 
 function onSave()
-  return JSON.encode({ seated_players = seated_players })
+  return JSON.encode({
+    seated_players = seated_players,
+    local_players_enabled = local_players_enabled,
+  })
+end
+
+function initialize(save_state)
+  if save_state ~= "" then
+    seated_players = JSON.decode(save_state).seated_players
+    local_players_enabled = JSON.decode(save_state).local_players_enabled
+  end
+  updatePlayerButtons()
+  updateLocalPlayerButton()
 end
 
 function setLocalPlayersEnabled(is_enabled)
@@ -45,6 +77,7 @@ function setLocalPlayersEnabled(is_enabled)
   if not local_players_enabled then
     removeAllLocalPlayers()
   end
+  updateLocalPlayerButton()
 end
 
 function sitPlayer(parameters)
@@ -52,11 +85,15 @@ function sitPlayer(parameters)
   if not local_players_enabled then
     Player[parameters.player_color].changeColor(parameters.seat_color)
   end
+  updatePlayerButtons()
 end
 
 function kickPlayer(seat_color)
   seated_players[seat_color] = false
-  removePlayerColor(Player[seat_color])
+  if not local_players_enabled then
+    removePlayerColor(Player[seat_color])
+  end
+  updatePlayerButtons()
 end
 
 function removePlayerColor(player)
@@ -91,10 +128,11 @@ function getPlayerNotSeated()
   end
 end
 
+-- TODO: fixme
 function removeAllLocalPlayers()
   for color, enabled in pairs(seated_players) do
     if not Player[color].seated and enabled then
-      removePlayer(color)
+      Global.call("removePlayer", color)
     end
   end
 end
@@ -144,5 +182,32 @@ end
 function onPlayerDisconnect(person)
   if not local_players_enabled and seated_players[person.color] then
     removePlayer(person.color)
+  end
+end
+
+function updatePlayerButtons()
+  for color, seated in pairs(seated_players) do
+    local add_button = getObjectFromGUID(player_buttons_guids.add[color])
+    local remove_button = getObjectFromGUID(player_buttons_guids.remove[color])
+
+    if seated and add_button and add_button.getStateId() == 1 then
+      add_button.setState(2)
+    elseif not seated and remove_button and remove_button.getStateId() == 2 then
+      remove_button.setState(1)
+    end
+  end
+end
+
+function updateLocalPlayerButton()
+  if local_players_enabled then
+    local enable_button = getObjectFromGUID(local_players_button_guid.enable)
+    if enable_button and enable_button.getStateId() == 1 then
+      enable_button.setState(2)
+    end
+  else
+    local disable_button = getObjectFromGUID(local_players_button_guid.disable)
+    if disable_button and disable_button.getStateId() == 2 then
+      disable_button.setState(1)
+    end
   end
 end

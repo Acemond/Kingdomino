@@ -14,5 +14,4 @@ end
 
 function onClick()
   Global.call("removePlayer", color)
-  self.setState(1)
 end

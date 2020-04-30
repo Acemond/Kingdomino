@@ -17,5 +17,4 @@ end
 
 function onClick()
   player_manager.call("setLocalPlayersEnabled", false)
-  self.setState(1)
 end

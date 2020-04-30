@@ -14,5 +14,4 @@ end
 
 function onClick(_, player_color)
   Global.call("addPlayer", { player_color = player_color, seat_color = color })
-  self.setState(2)
 end
