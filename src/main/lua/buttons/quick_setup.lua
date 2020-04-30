@@ -1,5 +1,4 @@
 local playerCount = 2
-local game_manager_guid = "af7bb2"
 
 function onLoad()
   self.createButton({
@@ -14,6 +13,6 @@ function onLoad()
 end
 
 function onClick()
-  getObjectFromGUID(game_manager_guid).call("quickSetup", playerCount)
-  getObjectFromGUID(game_manager_guid).call("startGame")
+  Global.call("quickSetup", playerCount)
+  Global.call("startGame")
 end

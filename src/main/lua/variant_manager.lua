@@ -6,14 +6,6 @@ local variants_visible = {
   teamdomino = true,
 }
 
-local variants_enabled = {
-  two_players_advanced = false, -- TODO: rename in the_mighty duel
-  three_players_variant = true,
-  random_quests = false,
-  kingdomino_xl = false,
-  teamdomino = false
-}
-
 local game_buttons_guid = {
   two_players_advanced = {
     enable = "823bca",
