@@ -95,7 +95,7 @@ end
 function showButtonIfExists(guid)
   local object = getObjectFromGUID(guid)
   if object == nil then
-    return
+    return false
   end
   object.setPosition({ object.getPosition().x, 1.06, object.getPosition().z })
   if object.getButtons() then
@@ -103,12 +103,13 @@ function showButtonIfExists(guid)
       object.editButton({ index = button.index, scale = { 1, 1, 1 } })
     end
   end
+  return true
 end
 
 function hideObjectIfExists(guid)
   local object = getObjectFromGUID(guid)
   if object == nil then
-    return
+    return false
   end
   object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
   object.lock()
@@ -117,6 +118,7 @@ function hideObjectIfExists(guid)
       object.editButton({ index = button.index, scale = { 0, 0, 0 } })
     end
   end
+  return true
 end
 
 function isInKeys(key_to_test, list)

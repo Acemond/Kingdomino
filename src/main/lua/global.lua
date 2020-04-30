@@ -62,7 +62,6 @@ local castle_manager_guid = "9bb39a"
 local castle_manager = {}
 
 function onUpdate()
-  updateButtonsState(game_settings.decks, deck_buttons_guids)
   updateButtonsState(game_settings.variants, variant_buttons_guids)
 end
 

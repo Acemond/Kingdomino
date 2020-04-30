@@ -1,3 +1,9 @@
+local deck_button_accessible = {
+  kingdomino = true,
+  queendomino = true,
+  age_of_giants = true,
+  the_court = true,
+}
 local deck_button_visible = {
   kingdomino = true,
   queendomino = true,
@@ -10,7 +16,12 @@ local deck_enabled = {
   age_of_giants = false,
   the_court = false,
 }
-
+local deck_visible = {
+  kingdomino = true,
+  queendomino = false,
+  age_of_giants = true,
+  the_court = false,
+}
 local deck_buttons_guids = {
   enable = {
     kingdomino = "9f4a39",
@@ -27,7 +38,7 @@ local deck_buttons_guids = {
 }
 
 local deck_interaction = {
-  age_of_giants = { dependency = "kingdomino", incompatibilities = nil },
+  age_of_giants = { dependency = "kingdomino", incompatibility = nil },
 }
 
 local deck_objects_guid = {
@@ -61,6 +72,13 @@ local deck_objects_guid = {
   }
 }
 
+function onUpdate()
+  checkInteractions()
+  updateDeckVisible()
+  updateButtonVisible()
+  updateButtonsState()
+end
+
 function onLoad(save_state)
   --if save_state ~= "" then
   --  deck_button_visible = JSON.decode(save_state).decks_visible
@@ -71,71 +89,54 @@ end
 
 function onSave()
   return JSON.encode({
-    decks_visible = deck_button_visible,
-    deck_enabled = deck_enabled
+    deck_button_accessible = deck_button_accessible,
+    deck_button_visible = deck_button_visible,
+    deck_enabled = deck_enabled,
+    deck_visible = deck_visible
   })
 end
 
 function setDeckEnabled(parameters)
   deck_enabled[parameters.deck_name] = parameters.is_enabled
   self.setTable("deck_enabled", deck_enabled)
-  if parameters.is_enabled then
-    showDeck(parameters.deck_name)
-  else
-    hideDeck(parameters.deck_name)
-  end
-  checkInteractions()
 end
 
 function checkInteractions()
-  local buttons_to_hide = shouldHideDeckButton()
-  local buttons_to_show = shouldShowButtons()
-
-  for deck_name, _ in pairs(buttons_to_show) do
-    if not isInKeys(deck_name, buttons_to_hide) then
-      deck_button_visible[deck_name] = true
-      showButtonIfExists(deck_buttons_guids.enable[deck_name])
-      showButtonIfExists(deck_buttons_guids.disable[deck_name])
-    end
-  end
-  for deck_name, _ in pairs(buttons_to_hide) do
-    deck_button_visible[deck_name] = false
-    hideObjectIfExists(deck_buttons_guids.enable[deck_name])
-    hideObjectIfExists(deck_buttons_guids.disable[deck_name])
-    if deck_enabled[deck_name] then
-      --Global.call("setDeckEnabled", { deck_name = deck_name, is_enabled = false })
+  for deck_name, interaction in pairs(deck_interaction) do
+    if checkDependency(interaction) and checkIncompatibility(interaction) then
+      deck_button_accessible[deck_name] = true
+    else
+      -- FIXME: dirty fix to wait for state switch
+      --Wait.frames(function() deck_button_accessible[deck_name] = false end, 1)
+      deck_button_accessible[deck_name] = false
+      if deck_enabled[deck_name] then
+        setDeckEnabled({ deck_name = deck_name, is_enabled = false })
+      end
     end
   end
 end
 
-function shouldHideDeckButton()
-  local to_hide = {}
-  for game_name, interactions in pairs(deck_interaction) do
-    for mode, enabled in pairs(deck_enabled) do
-      if mode == interactions.incompatibilities and enabled
-          or mode == interactions.dependency and not enabled then
-        to_hide[game_name] = true
-      end
+function checkIncompatibility(interaction)
+  for other_deck, is_enabled in pairs(deck_enabled) do
+    if other_deck == interaction.incompatibility and is_enabled then
+      return false
     end
   end
-
-  return to_hide
+  return true
 end
 
-function shouldShowButtons()
-  local to_show = {}
-  for game_name, interactions in pairs(deck_interaction) do
-    if not deck_button_visible[game_name] then
-      for mode, enabled in pairs(deck_enabled) do
-        if mode == interactions.dependency and enabled
-            or mode == interactions.incompatibilities and not enabled then
-          to_show[game_name] = true
-        end
-      end
+function checkDependency(interaction)
+  for other_deck, is_enabled in pairs(deck_enabled) do
+    if other_deck == interaction.dependency and not is_enabled then
+      return false
     end
   end
+  return true
+end
 
-  return to_show
+function isOtherDeckConflicting(deck_name, other_deck, other_deck_enabled)
+  return other_deck == deck_interaction[deck_name].incompatibility and other_deck_enabled
+      or other_deck == deck_interaction[deck_name].dependency and not other_deck_enabled
 end
 
 function hideDeck(deck_name)
@@ -177,8 +178,8 @@ function hideObjectIfExists(guid)
   if object == nil then
     return
   end
-  object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
   object.lock()
+  object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
   if object.getButtons() then
     for _, button in pairs(object.getButtons()) do
       object.editButton({ index = button.index, scale = { 0, 0, 0 } })
@@ -193,4 +194,48 @@ function isInKeys(key_to_test, list)
     end
   end
   return false
+end
+
+function updateButtonVisible()
+  for deck_name, should_be_accessible in pairs(deck_button_accessible) do
+    if should_be_accessible and not deck_button_visible[deck_name] then
+      showButtonIfExists(deck_buttons_guids.enable[deck_name])
+      showButtonIfExists(deck_buttons_guids.disable[deck_name])
+      deck_button_visible[deck_name] = true
+    elseif not should_be_accessible and deck_button_visible[deck_name] then
+      hideObjectIfExists(deck_buttons_guids.enable[deck_name])
+      hideObjectIfExists(deck_buttons_guids.disable[deck_name])
+      deck_button_visible[deck_name] = false
+    end
+  end
+end
+
+function updateDeckVisible()
+  for deck_name, should_be_visible in pairs(deck_enabled) do
+    if should_be_visible and not deck_visible[deck_name] then
+      deck_visible[deck_name] = true
+      showDeck(deck_name)
+    elseif not should_be_visible and deck_visible[deck_name] then
+      deck_visible[deck_name] = false
+      hideDeck(deck_name)
+    end
+  end
+end
+
+function updateButtonsState()
+  for deck_name, should_be_accessible in pairs(deck_button_accessible) do
+    if should_be_accessible then
+      if deck_enabled[deck_name] then
+        local button_enable = getObjectFromGUID(deck_buttons_guids.enable[deck_name])
+        if button_enable ~= nil and button_enable.getStateId() == 1 then
+          button_enable.setState(2)
+        end
+      else
+        local button_disable = getObjectFromGUID(deck_buttons_guids.disable[deck_name])
+        if button_disable ~= nil and button_disable.getStateId() == 2 then
+          button_disable.setState(1)
+        end
+      end
+    end
+  end
 end
