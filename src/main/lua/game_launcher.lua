@@ -48,6 +48,8 @@ local player_pieces_guids = {
   }
 }
 
+local start_button_guid = "af7bb2"
+
 local player_add_buttons = {
   Red = "a1ef12",
   Orange = "8d17b0",
@@ -249,7 +251,7 @@ function launchGame(new_game_settings)
 
   local new_game = {
     decks = decks,
-    board_size = getBoardSize(),
+    board_size = game_settings.tile_deal_count,
     buildings = buildings,
     settings = game_settings,
     player_count = game_settings.player_count
@@ -258,7 +260,7 @@ function launchGame(new_game_settings)
   local next_turn_button = getObjectFromGUID(next_turn_button_guid)
   setNextTurnPosition(next_turn_button)
   next_turn_button.call("firstTurn", new_game)
-  self.destroy()
+  getObjectFromGUID(start_button_guid).destroy()
 end
 
 function setNextTurnPosition(button)
@@ -519,6 +521,15 @@ function getSize(t)
   end
   return size
 end
+
+local castle_tile_positions = {
+  White = { x = -21.00, z = -11.00 },
+  Orange = { x = 21.00, z = -11.00 },
+  Purple = { x = -21.00, z = 11.00 },
+  Red = { x = 21.00, z = 11.00 },
+  Green = { x = -31.00, z = 1.00 },
+  Pink = { x = 31.00, z = -1.00 },
+}
 
 function movePlayerPieces(color, offset_vector)
   local castle = getObjectFromGUID(player_pieces_guids[color].castle)

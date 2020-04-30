@@ -8,6 +8,7 @@ local game_settings = {
     Green = false,
     Pink = false
   },
+  tile_deal_count = 4,
   decks = {
     kingdomino = true,
     queendomino = false,
@@ -77,11 +78,13 @@ end
 
 function quickSetup(target_player_count)
   player_manager.call("setPlayerCount", target_player_count)
-  game_settings.seated_players = player_manager.getTable("seated_players")
   resolveForPlayerCount(target_player_count)
 end
 
 function startGame()
+  game_settings.player_count = player_manager.call("getPlayerCount")
+  game_settings.seated_players = player_manager.getTable("seated_players")
+  game_settings.tile_deal_count = getBoardSize()
   if configuration_validator.call("validate", game_settings) then
     game_launcher.call("launchGame", game_settings)
   end
@@ -92,8 +95,6 @@ function addPlayer(parameters)
   game_settings.player_count = player_manager.call("getPlayerCount")
   game_settings.seated_players = player_manager.getTable("seated_players")
   castle_manager.call("showCastle", parameters.seat_color)
-  log(getBoardSize())
-  log(tile_board_manager)
   tile_board_manager.call("updateTileBoards", getBoardSize())
 end
 

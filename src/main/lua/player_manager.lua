@@ -6,6 +6,14 @@ local seated_players = {
   Green = false,
   Pink = false
 }
+local color_priority = {
+  "White",
+  "Orange",
+  "Purple",
+  "Red",
+  "Green",
+  "Pink"
+}
 local local_players_button_guid = {
   enable = "4f044d",
   disable = "d1e47c"
@@ -116,8 +124,8 @@ function setPlayerCount(target_player_count)
 end
 
 function addNextPlayer()
-  for color, enabled in pairs(seated_players) do
-    if not enabled then
+  for _, color in ipairs(color_priority) do
+    if not seated_players[color] then
       local player = getPlayerNotSeated()
       if player ~= nil then
         Global.call("addPlayer", { player_color = player.color, seat_color = color })

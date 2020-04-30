@@ -71,10 +71,10 @@ function dealTiles()
   local game = Global.getTable("game")
 
   for index, guid in pairs(getSortedTilesValue()) do
-    if game.settings.modes.age_of_giants then
+    if game.settings.decks.age_of_giants then
       if game.player_count == 3 and (index == 2 or index == 4) then
         trashTile(guid, targetDealingPositions[index])
-      elseif game.settings.modes.age_of_giants and (game.player_count == 2 or game.player_count > 3) and index == 3 then
+      elseif game.settings.decks.age_of_giants and (game.player_count == 2 or game.player_count > 3) and index == 3 then
         trashTile(guid, targetDealingPositions[index])
       else
         dealTile(guid, targetDealingPositions[index])
