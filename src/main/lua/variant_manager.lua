@@ -36,7 +36,7 @@ local variant_interaction = {
   two_players_advanced = { dependency = "kingdomino", incompatibilities = "queendomino" }
 }
 
-local deck_manager_guid = ""
+local deck_manager_guid = "180cbc"
 local deck_manager = {}
 
 function onUpdate()
@@ -77,8 +77,9 @@ function checkInteractions()
 end
 
 function checkIncompatibility(interaction)
-  for other_deck, is_enabled in pairs(variant_enabled) do
-    if other_deck == interaction.incompatibility and is_enabled then
+  local deck_enabled = deck_manager.getTable("deck_enabled")
+  for deck, is_enabled in pairs(deck_enabled) do
+    if deck == interaction.incompatibility and is_enabled then
       return false
     end
   end
@@ -86,8 +87,9 @@ function checkIncompatibility(interaction)
 end
 
 function checkDependency(interaction)
-  for other_deck, is_enabled in pairs(variant_enabled) do
-    if other_deck == interaction.dependency and not is_enabled then
+  local deck_enabled = deck_manager.getTable("deck_enabled")
+  for deck, is_enabled in pairs(deck_enabled) do
+    if deck == interaction.dependency and not is_enabled then
       return false
     end
   end
