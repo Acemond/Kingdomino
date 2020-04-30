@@ -63,13 +63,16 @@ function onSave()
   })
 end
 
+function onUpdate()
+  updatePlayerButtons()
+  updateLocalPlayerButton()
+end
+
 function initialize(save_state)
   if save_state ~= "" then
     seated_players = JSON.decode(save_state).seated_players
     local_players_enabled = JSON.decode(save_state).local_players_enabled
   end
-  updatePlayerButtons()
-  updateLocalPlayerButton()
 end
 
 function setLocalPlayersEnabled(is_enabled)
@@ -77,7 +80,6 @@ function setLocalPlayersEnabled(is_enabled)
   if not local_players_enabled then
     removeAllLocalPlayers()
   end
-  updateLocalPlayerButton()
 end
 
 function sitPlayer(parameters)
@@ -85,7 +87,6 @@ function sitPlayer(parameters)
   if not local_players_enabled then
     Player[parameters.player_color].changeColor(parameters.seat_color)
   end
-  updatePlayerButtons()
 end
 
 function kickPlayer(seat_color)
@@ -93,7 +94,6 @@ function kickPlayer(seat_color)
   if not local_players_enabled then
     removePlayerColor(Player[seat_color])
   end
-  updatePlayerButtons()
 end
 
 function removePlayerColor(player)
@@ -128,7 +128,6 @@ function getPlayerNotSeated()
   end
 end
 
--- TODO: fixme
 function removeAllLocalPlayers()
   for color, enabled in pairs(seated_players) do
     if not Player[color].seated and enabled then
@@ -190,9 +189,9 @@ function updatePlayerButtons()
     local add_button = getObjectFromGUID(player_buttons_guids.add[color])
     local remove_button = getObjectFromGUID(player_buttons_guids.remove[color])
 
-    if seated and add_button and add_button.getStateId() == 1 then
+    if seated and add_button ~= nil and add_button.getStateId() == 1 then
       add_button.setState(2)
-    elseif not seated and remove_button and remove_button.getStateId() == 2 then
+    elseif not seated and remove_button ~= nil and remove_button.getStateId() == 2 then
       remove_button.setState(1)
     end
   end
