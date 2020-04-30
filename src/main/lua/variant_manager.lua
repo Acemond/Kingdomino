@@ -31,17 +31,19 @@ local deck_manager_guid = ""
 local deck_manager = {}
 
 function onLoad(save_state)
+  if save_state ~= "" then
+    decks_visible = JSON.decode(save_state).variants_visible
+  end
   deck_manager = getObjectFromGUID(deck_manager_guid)
-  decks_visible = JSON.decode(save_state).variants_visible
 end
 
 function onSave()
   return JSON.encode({ variants_visible = variants_visible })
 end
 
-function checkInteractions(game_settings)
-  local variants_to_hide = shouldHide(game_settings.decks, variant_interaction)
-  local variants_to_show = shouldShow(game_settings.decks, variant_interaction)
+function checkInteractions(decks_enabled)
+  local variants_to_hide = shouldHide(decks_enabled, variant_interaction)
+  local variants_to_show = shouldShow(decks_enabled, variant_interaction)
 
   for variant_name, _ in pairs(variants_to_show) do
     if not isInKeys(variant_name, variants_to_hide) then

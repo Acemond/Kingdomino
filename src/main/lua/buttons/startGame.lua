@@ -48,38 +48,6 @@ local player_pieces_guids = {
   }
 }
 
-local right_boards_infos = {
-  nil, -- size 1
-  nil, -- size 2
-  { guid = "e5b23a", position = { 5.50, 1.06, -3.01 } }, -- size 3
-  { guid = "7a72d1", position = { 5.50, 1.06, -4.21 } }, -- size 4
-  { guid = "174390", position = { 5.50, 1.06, -5.50 } }, -- size 5
-  nil, -- size 6
-  nil, -- size 7
-  { guid = "722967", position = { 5.50, 1.06, -9 } } -- size 8
-}
-
-local left_boards_infos = {
-  nil, -- size 1
-  nil, -- size 2
-  { guid = "ae485e", position = { -5.50, 1.06, -3.01 } }, -- size 3
-  { guid = "bd95f5", position = { -5.50, 1.06, -4.21 } }, -- size 4
-  { guid = "8c018b", position = { -5.50, 1.06, -5.50 } }, -- size 5
-  nil, -- size 6
-  nil, -- size 7
-  { guid = "a391ea", position = { -5.50, 1.06, -9 } }, -- size 8
-}
-
-local zone_coordinates_modifiers = {
-  nil, -- size 1
-  nil, -- size 2
-  { zPos = -3, zScale = 8.25 }, -- size 3
-  { zPos = -4.25, zScale = 10.5 }, -- size 4
-  { zPos = -5.5, zScale = 13.5 }, -- size 5
-  nil,
-  nil,
-  { zPos = -9, zScale = 20 },
-}
 local player_add_buttons = {
   Red = "a1ef12",
   Orange = "8d17b0",
@@ -239,17 +207,7 @@ local game_settings = {
     teamdomino = false
   }
 }
-local object_visible = {
-  kingdomino = true,
-  queendomino = true,
-  age_of_giants = true,
-  the_court = true,
-  two_players_advanced = true,
-  three_players_variant = true,
-  random_quests = true,
-  kingdomino_xl = true,
-  teamdomino = true,
-}
+
 local next_turn_button_guid = "4a6126"
 
 function onLoad()
@@ -288,12 +246,6 @@ function getPlayingColors()
 end
 
 function startGame()
-  is_ready, message = isGameReady()
-  if not is_ready then
-    broadcastToAll(message, { r = 1, g = 0, b = 0 })
-    return
-  end
-
   placeKings()
 
   if game_settings.variants.random_quests then

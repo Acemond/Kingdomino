@@ -17,7 +17,9 @@ local deck_interaction = {
 }
 
 function onLoad(save_state)
-  decks_visible = JSON.decode(save_state).decks_visible
+  if save_state ~= "" then
+    decks_visible = JSON.decode(save_state).decks_visible
+  end
 end
 
 function onSave()

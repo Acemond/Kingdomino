@@ -20,22 +20,24 @@ local castle_positions = {
 
 local local_players_enabled = false
 
-local castle_manager_guid = ""
-local castle_manager = {}
+local tile_board_manager_guid = "3853c3"
+local tile_board_manager = {}
 
 function onLoad(save_state)
-  seated_players = JSON.decode(save_state).seated_players
+  if save_state ~= "" then
+    seated_players = JSON.decode(save_state).seated_players
+  end
   Player.getPlayers()[1].lookAt({
     position = { x = 0, y = 0, z = -28 },
     pitch = 55,
     yaw = 0,
     distance = 30,
   })
-  castle_manager = getObjectFromGUID(castle_manager_guid)
+  tile_board_manager = getObjectFromGUID(tile_board_manager_guid)
 end
 
 function onSave()
-  return JSON.encode({seated_players = seated_players})
+  return JSON.encode({ seated_players = seated_players })
 end
 
 function setLocalPlayersEnabled(is_enabled)
@@ -45,33 +47,25 @@ function setLocalPlayersEnabled(is_enabled)
   end
 end
 
-function addPlayer(parameters)
+function sitPlayer(parameters)
   seated_players[parameters.seat_color] = true
-  castle_manager.call("showCastle", parameters.seat_color)
-  tile_board_manager.call("updateTileBoards", getBoardSize())
   if not local_players_enabled then
     Player[parameters.player_color].changeColor(parameters.seat_color)
+    makePlayerLookAtCastle(parameters.seat_color)
   end
-end
-
-function removePlayer(seat_color)
-  player_manager.call("kickPlayer", seat_color)
-  game_settings.player_count = player_manager.call("getPlayerCount")
-  tile_board_manager.call("updateTileBoards", getBoardSize())
 end
 
 function kickPlayer(seat_color)
   seated_players[seat_color] = false
-  castle_manager.call("hideCastle", seat_color)
   removePlayerColor(Player[seat_color])
 end
 
-function removePlayerColor(player_color)
+function removePlayerColor(player)
   local target_color = game_master_color
   if Player[game_master_color].seated then
     target_color = spectator_color
   end
-  Player[player_color].changeColor(game_master_color)
+  player.changeColor(game_master_color)
 end
 
 function setPlayerCount(target_player_count)
@@ -80,10 +74,10 @@ function setPlayerCount(target_player_count)
       if not enabled then
         local player = getPlayerNotSeated()
         if player ~= nil then
-          addPlayer({player_color = player.color, seat_color = color})
+          Global.call("addPlayer", { player_color = player.color, seat_color = color })
         else
           setLocalPlayersEnabled(true)
-          addPlayer({seat_color = color})
+          Global.call("addPlayer", { seat_color = color })
         end
       end
     end
@@ -107,7 +101,17 @@ function removeAllLocalPlayers()
 end
 
 function onPlayerChangeColor(player_color)
-  if castle_positions[player_color] and not Global.getVar("local_players") then
+  if not local_players_enabled and player_color ~= spectator_color and player_color ~= game_master_color then
+    if seated_players[player_color] and not Player[player_color].seated then
+      Global.call("removePlayer", player_color)
+    elseif not seated_players[player_color] and Player[player_color].seated then
+      Global.call("addPlayer", { player_color = player_color, seat_color = player_color })
+    end
+  end
+end
+
+function makePlayerLookAtCastle(player_color)
+  if castle_positions[player_color] then
     Player[player_color].lookAt({
       position = castle_positions[player_color].position,
       pitch = 55,
@@ -129,4 +133,16 @@ function getPlayerCount()
     end
   end
   return count
+end
+
+function onPlayerConnect(person)
+  if not local_players_enabled and not seated_players[person.color] then
+    addPlayer({ player_color = person.color, seat_color = person.color })
+  end
+end
+
+function onPlayerDisconnect(person)
+  if not local_players_enabled and seated_players[person.color] then
+    removePlayer(person.color)
+  end
 end

@@ -1,4 +1,4 @@
-local player_manager_guid = ""
+local player_manager_guid = "31971b"
 local player_manager = {}
 
 function onLoad()
