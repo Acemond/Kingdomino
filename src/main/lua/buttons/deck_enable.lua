@@ -1,5 +1,4 @@
-local deck = "queendomino"
-local start_button_guid = "af7bb2"
+local deck_name = "kingdomino"
 
 function onLoad()
   self.createButton({
@@ -14,6 +13,6 @@ function onLoad()
 end
 
 function onClick()
-  getObjectFromGUID(start_button_guid).call("enableDeck", deck)
+  Global.call("setDeckEnabled", {deck_name = deck_name, is_enabled = true})
   self.setState(2)
 end
