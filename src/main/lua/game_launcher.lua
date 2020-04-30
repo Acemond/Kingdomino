@@ -184,29 +184,7 @@ local quests_positions_5p = {
 
 local default_quests_guid = { "e29f53", "e865f4" }
 
-local game_settings = {
-  players = {
-    White = false,
-    Orange = false,
-    Purple = false,
-    Red = false,
-    Green = false,
-    Pink = false
-  },
-  modes = {
-    kingdomino = true,
-    queendomino = false,
-    age_of_giants = false,
-    the_court = false
-  },
-  variants = {
-    two_players_advanced = false,
-    three_players_variant = true,
-    random_quests = false,
-    kingdomino_xl = false,
-    teamdomino = false
-  }
-}
+local game_settings = {}
 
 local next_turn_button_guid = "4a6126"
 
@@ -225,7 +203,7 @@ end
 
 function getPlayingColors()
   local playingColors = {}
-  for color, playing in pairs(game_settings.players) do
+  for color, playing in pairs(game_settings.seated_players) do
     if playing then
       table.insert(playingColors, color)
     end
@@ -233,11 +211,8 @@ function getPlayingColors()
   return playingColors
 end
 
-function launchGame()
-  log("LAUNCHING!")
-end
-
-function startGame()
+function launchGame(new_game_settings)
+  game_settings = new_game_settings
   placeKings()
 
   if game_settings.variants.random_quests then
@@ -249,7 +224,7 @@ function startGame()
   local decks = prepareMainDecks()
   local buildings = prepareBuildings()
 
-  if game_settings.modes.queendomino then
+  if game_settings.decks.queendomino then
     for _, color in pairs(getPlayingColors()) do
       Wait.frames(function()
         takeCoins(color)
@@ -268,7 +243,7 @@ function startGame()
     lockExistingObjects()
   end, 60)
 
-  if game_settings.players.Green or game_settings.players.Pink then
+  if game_settings.seated_players.Green or game_settings.seated_players.Pink then
     spaceOutPlayers()
   end
 
@@ -277,7 +252,7 @@ function startGame()
     board_size = getBoardSize(),
     buildings = buildings,
     settings = game_settings,
-    player_count = getPlayerCount()
+    player_count = game_settings.player_count
   }
   Global.setTable("game", new_game)
   local next_turn_button = getObjectFromGUID(next_turn_button_guid)
@@ -288,7 +263,7 @@ end
 
 function setNextTurnPosition(button)
   local position = next_turn_position
-  if getPlayerCount() > 4 then
+  if game_settings.player_count > 4 then
     position = next_turn_position_5p
   end
 
@@ -312,7 +287,7 @@ function dealQuests(quest_guids)
   quest_deck.shuffle()
 
   local actual_quests_positions = quests_positions
-  if getPlayerCount() > 4 then
+  if game_settings.player_count > 4 then
     actual_quests_positions = quests_positions_5p
   end
 
@@ -355,7 +330,7 @@ function takeCoins(playerColor)
 end
 
 function destroyUnusedPieces()
-  for mode, enabled in pairs(game_settings.modes) do
+  for mode, enabled in pairs(game_settings.decks) do
     if not enabled then
       for _, guid in pairs(game_objects_guid[mode]) do
         destroyObjectIfExists(guid)
@@ -383,7 +358,7 @@ end
 function takeKings(kingsBag)
   kingsBag.shuffle()
 
-  if getPlayerCount() == 2 then
+  if game_settings.player_count == 2 then
     math.randomseed(os.time())
     local firstPlayerIndex = math.random(2)
     local firstPlayer = player_pieces_guids[getPlayingColors()[firstPlayerIndex]]
@@ -394,7 +369,7 @@ function takeKings(kingsBag)
     kingsBag.takeObject({ guid = otherPlayer.kings[2], position = kingTargetPositions[3], rotation = { 0, 180, 0 } })
     kingsBag.takeObject({ guid = firstPlayer.kings[2], position = kingTargetPositions[4], rotation = { 0, 180, 0 } })
   else
-    for i = 1, getPlayerCount(), 1 do
+    for i = 1, game_settings.player_count, 1 do
       kingsBag.takeObject({ position = kingTargetPositions[i], rotation = { 0, 180, 0 } })
     end
   end
@@ -403,13 +378,13 @@ function takeKings(kingsBag)
 end
 
 function destroyNonPlayingKings(kingsBag)
-  for color, playing in pairs(game_settings.players) do
+  for color, playing in pairs(game_settings.seated_players) do
     if not playing then
       destroyObjectInBag(kingsBag, player_pieces_guids[color].kings[1])
       destroyObjectInBag(kingsBag, player_pieces_guids[color].kings[2])
       destroyObject(getObjectFromGUID(player_pieces_guids[color].castle))
       destroyObject(getObjectFromGUID(player_pieces_guids[color].castle_tile))
-    elseif getPlayerCount() > 2 then
+    elseif game_settings.player_count > 2 then
       destroyObjectInBag(kingsBag, player_pieces_guids[color].kings[1])
     end
   end
@@ -440,7 +415,7 @@ end
 
 function getBuildingsManagers()
   local building_managers = {}
-  for mode, enabled in pairs(game_settings.modes) do
+  for mode, enabled in pairs(game_settings.decks) do
     if enabled and game_objects_guid[mode].building_board then
       building_managers[mode] = getObjectFromGUID(game_objects_guid[mode].building_board)
     end
@@ -486,7 +461,7 @@ end
 
 function getMainDecks()
   local decks = {}
-  for mode, enabled in pairs(game_settings.modes) do
+  for mode, enabled in pairs(game_settings.decks) do
     if enabled and game_objects_guid[mode].deck then
       local deck = getObjectFromGUID(game_objects_guid[mode].deck)
       decks[mode] = deck
@@ -505,12 +480,12 @@ function getMainDecksPosition(decks)
   local i = 1
 
   local actual_decks_positions = decks_positions.main_deck
-  if getPlayerCount() > 4 then
+  if game_settings.player_count > 4 then
     actual_decks_positions = decks_positions.main_deck_5p
   end
 
   for mode, _ in pairs(decks) do
-    if getPlayerCount() < 5 then
+    if game_settings.player_count < 5 then
       decks_target_position[mode] = actual_decks_positions[size][i]
     else
       decks_target_position[mode] = actual_decks_positions[size][i]
@@ -521,12 +496,12 @@ function getMainDecksPosition(decks)
 end
 
 function resizeDecks(decks)
-  if game_settings.modes.kingdomino and not game_settings.modes.queendomino then
-    if getPlayerCount() == 2 and not game_settings.variants.two_players_advanced then
+  if game_settings.decks.kingdomino and not game_settings.decks.queendomino then
+    if game_settings.player_count == 2 and not game_settings.variants.two_players_advanced then
       decks.kingdomino.shuffle()
       cutDeck(decks.kingdomino, deck_size_modifiers.two_players_basic)
     end
-    if getPlayerCount() == 3 and not game_settings.variants.three_players_variant then
+    if game_settings.player_count == 3 and not game_settings.variants.three_players_variant then
       decks.kingdomino.shuffle()
       cutDeck(decks.kingdomino, deck_size_modifiers.three_players_classic)
     end
@@ -568,16 +543,16 @@ function movePlayerPieces(color, offset_vector)
 end
 
 function spaceOutPlayers()
-  if game_settings.players.White then
+  if game_settings.seated_players.White then
     movePlayerPieces("White", { 0, 0, -8 })
   end
-  if game_settings.players.Orange then
+  if game_settings.seated_players.Orange then
     movePlayerPieces("Orange", { 0, 0, -8 })
   end
-  if game_settings.players.Purple then
+  if game_settings.seated_players.Purple then
     movePlayerPieces("Purple", { 0, 0, 8 })
   end
-  if game_settings.players.Red then
+  if game_settings.seated_players.Red then
     movePlayerPieces("Red", { 0, 0, 8 })
   end
 end

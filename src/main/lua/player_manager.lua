@@ -55,7 +55,10 @@ function onLoad(save_state)
     yaw = 0,
     distance = 30,
   })
+  --FIXME
+  Wait.frames(seatColoredPlayer, 1)
   tile_board_manager = getObjectFromGUID(tile_board_manager_guid)
+  self.setTable("seated_players", seated_players)
 end
 
 function loadSaveState(save_state)
@@ -75,13 +78,6 @@ function onUpdate()
   updateLocalPlayerButton()
 end
 
-function initialize(save_state)
-  if save_state ~= "" then
-    seated_players = JSON.decode(save_state).seated_players
-    local_players_enabled = JSON.decode(save_state).local_players_enabled
-  end
-end
-
 function setLocalPlayersEnabled(is_enabled)
   local_players_enabled = is_enabled
   if not local_players_enabled then
@@ -94,6 +90,7 @@ function sitPlayer(parameters)
   if not local_players_enabled then
     Player[parameters.player_color].changeColor(parameters.seat_color)
   end
+  self.setTable("seated_players", seated_players)
 end
 
 function kickPlayer(seat_color)
@@ -101,6 +98,7 @@ function kickPlayer(seat_color)
   if not local_players_enabled then
     removePlayerColor(Player[seat_color])
   end
+  self.setTable("seated_players", seated_players)
 end
 
 function removePlayerColor(player)
@@ -151,11 +149,27 @@ end
 
 function onPlayerChangeColor(player_color)
   makePlayerLookAtCastle(player_color)
-  if not local_players_enabled and player_color ~= spectator_color and player_color ~= game_master_color then
-    if seated_players[player_color] and not Player[player_color].seated then
-      Global.call("removePlayer", player_color)
-    elseif not seated_players[player_color] and Player[player_color].seated then
-      Global.call("addPlayer", { player_color = player_color, seat_color = player_color })
+  if not local_players_enabled and player_color ~= spectator_color and player_color ~= game_master_color
+      and not seated_players[player_color] and Player[player_color].seated then
+    Global.call("addPlayer", { player_color = player_color, seat_color = player_color })
+  end
+  removeUnoccupiedSeats()
+end
+
+function removeUnoccupiedSeats()
+  for color, is_seated in pairs(seated_players) do
+    if is_seated and not Player[color].seated then
+      Global.call("removePlayer", color)
+    end
+  end
+end
+
+function seatColoredPlayer()
+  for _, player in pairs(Player.getPlayers()) do
+    if not local_players_enabled and player.color ~= spectator_color and player.color ~= game_master_color then
+      if not seated_players[player.color] and player.seated then
+        Global.call("addPlayer", { player_color = player.color, seat_color = player.color })
+      end
     end
   end
 end
@@ -169,10 +183,6 @@ function makePlayerLookAtCastle(player_color)
       distance = 20,
     })
   end
-end
-
-function getSeatedPlayers()
-  return seated_players
 end
 
 function getPlayerCount()

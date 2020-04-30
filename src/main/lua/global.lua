@@ -1,5 +1,13 @@
 local game_settings = {
   player_count = 0,
+  seated_players = {
+    White = false,
+    Orange = false,
+    Purple = false,
+    Red = false,
+    Green = false,
+    Pink = false
+  },
   decks = {
     kingdomino = true,
     queendomino = false,
@@ -69,6 +77,7 @@ end
 
 function quickSetup(target_player_count)
   player_manager.call("setPlayerCount", target_player_count)
+  game_settings.seated_players = player_manager.getTable("seated_players")
   resolveForPlayerCount(target_player_count)
 end
 
@@ -81,13 +90,17 @@ end
 function addPlayer(parameters)
   player_manager.call("sitPlayer", { player_color = parameters.player_color, seat_color = parameters.seat_color })
   game_settings.player_count = player_manager.call("getPlayerCount")
+  game_settings.seated_players = player_manager.getTable("seated_players")
   castle_manager.call("showCastle", parameters.seat_color)
+  log(getBoardSize())
+  log(tile_board_manager)
   tile_board_manager.call("updateTileBoards", getBoardSize())
 end
 
 function removePlayer(seat_color)
   player_manager.call("kickPlayer", seat_color)
   game_settings.player_count = player_manager.call("getPlayerCount")
+  game_settings.seated_players = player_manager.getTable("seated_players")
   castle_manager.call("hideCastle", seat_color)
   tile_board_manager.call("updateTileBoards", getBoardSize())
 end

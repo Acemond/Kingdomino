@@ -38,6 +38,7 @@ local zone_coordinates_modifiers = {
 }
 
 function updateTileBoards(board_size)
+  log("updateTileBoard")
   setBoardYPosition(board_size, board_visible_y_position)
 
   for size, _ in pairs(right_boards_infos) do
