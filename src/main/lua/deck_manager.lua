@@ -100,8 +100,8 @@ function checkInteractions()
       showButtonIfExists(deck_buttons_guids.disable[deck_name])
       deck_button_visible[deck_name] = true
     else
-      hideButtonIfExists(deck_buttons_guids.enable[deck_name])
-      hideButtonIfExists(deck_buttons_guids.disable[deck_name])
+      hideObjectIfExists(deck_buttons_guids.enable[deck_name])
+      hideObjectIfExists(deck_buttons_guids.disable[deck_name])
       deck_button_visible[deck_name] = false
       if deck_enabled[deck_name] then
         setDeckEnabled({ deck_name = deck_name, is_enabled = false })
@@ -126,11 +126,6 @@ function checkDependency(interaction)
     end
   end
   return true
-end
-
-function isOtherDeckConflicting(deck_name, other_deck, other_deck_enabled)
-  return other_deck == deck_interaction[deck_name].incompatibility and other_deck_enabled
-      or other_deck == deck_interaction[deck_name].dependency and not other_deck_enabled
 end
 
 function hideDeck(deck_name)

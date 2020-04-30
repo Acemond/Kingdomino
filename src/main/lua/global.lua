@@ -15,37 +15,6 @@ local game_settings = {
   }
 }
 
-local deck_buttons_guids = {
-  enable = {
-    kingdomino = "9f4a39",
-    queendomino = "69cbda",
-    age_of_giants = "df1760",
-    the_court = "6ff70f"
-  },
-  disable = {
-    kingdomino = "697d5b",
-    queendomino = "d64709",
-    age_of_giants = "6a25ff",
-    the_court = "2c22ed"
-  }
-}
-local variant_buttons_guids = {
-  enable = {
-    two_players_advanced = "823bca",
-    three_players_variant = "",
-    randomn_quests = "75dcb1",
-    kingdomino_xl = "42f5a4",
-    teamdomino = "83af19"
-  },
-  disable = {
-    two_players_advanced = "02322f",
-    three_players_variant = "",
-    randomn_quests = "edb838",
-    kingdomino_xl = "92f52d",
-    teamdomino = "355eca"
-  }
-}
-
 local deck_manager_guid = "180cbc"
 local deck_manager = {}
 local variant_manager_guid = "2c055b"
@@ -61,9 +30,6 @@ local configuration_validator = {}
 local castle_manager_guid = "9bb39a"
 local castle_manager = {}
 
-function onUpdate()
-  updateButtonsState(game_settings.variants, variant_buttons_guids)
-end
 
 function onLoad(save_state)
   --loadSaveState(save_state)
@@ -134,8 +100,8 @@ function setDeckEnabled(parameters)
 end
 
 function setVariantEnabled(parameters)
-  game_settings.variants[parameters.variant_name] = parameters.is_enabled
-  variant_manager.call("checkInteractions", game_settings.decks)
+  variant_manager.call("setVariantEnabled", { variant_name = parameters.variant_name, is_enabled = parameters.is_enabled })
+  game_settings.variants = variant_manager.getTable("variant_enabled")
   tile_board_manager.call("updateTileBoards", getBoardSize())
 end
 
@@ -196,21 +162,5 @@ function resolveForPlayerCount(target_player_count)
       },
       variants = default_game_settings.variants
     }
-  end
-end
-
-function updateButtonsState(enabled_objects, button_list)
-  for object_name, enabled in pairs(enabled_objects) do
-    if enabled then
-      local button_enable = getObjectFromGUID(button_list.enable[object_name])
-      if button_enable ~= nil and button_enable.getStateId() == 1 then
-        button_enable.setState(2)
-      end
-    else
-      local button_disable = getObjectFromGUID(button_list.disable[object_name])
-      if button_disable ~= nil and button_disable.getStateId() == 2 then
-        button_disable.setState(1)
-      end
-    end
   end
 end

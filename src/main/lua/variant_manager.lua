@@ -1,9 +1,16 @@
-local variants_visible = {
+local variant_visible = {
   two_players_advanced = true,
-  three_players_variant = true,
+  three_players_variant = false,
   random_quests = true,
   kingdomino_xl = true,
   teamdomino = true,
+}
+local variant_enabled = {
+  two_players_advanced = false,
+  three_players_variant = true,
+  random_quests = false,
+  kingdomino_xl = false,
+  teamdomino = false,
 }
 
 local variant_buttons_guids = {
@@ -32,70 +39,65 @@ local variant_interaction = {
 local deck_manager_guid = ""
 local deck_manager = {}
 
+function onUpdate()
+  checkInteractions()
+  updateButtonsState()
+end
+
 function onLoad(save_state)
   if save_state ~= "" then
-    variants_visible = JSON.decode(save_state).variants_visible
+    --variant_visible = JSON.decode(save_state).variant_visible
   end
   deck_manager = getObjectFromGUID(deck_manager_guid)
 end
 
 function onSave()
-  return JSON.encode({ variants_visible = variants_visible })
+  return JSON.encode({ variant_visible = variant_visible })
 end
 
-function checkInteractions(decks_enabled)
-  local variants_to_hide = shouldHide(decks_enabled, variant_interaction)
-  local variants_to_show = shouldShow(decks_enabled, variant_interaction)
+function setVariantEnabled(parameters)
+  log(parameters.variant_name)
+  variant_enabled[parameters.variant_name] = parameters.is_enabled
+  self.setTable("variant_enabled", variant_enabled)
+end
 
-  for variant_name, _ in pairs(variants_to_show) do
-    if not isInKeys(variant_name, variants_to_hide) then
-      variants_visible[variant_name] = true
+function checkInteractions()
+  for variant_name, interaction in pairs(variant_interaction) do
+    if checkDependency(interaction) and checkIncompatibility(interaction) then
       showButtonIfExists(variant_buttons_guids.enable[variant_name])
       showButtonIfExists(variant_buttons_guids.disable[variant_name])
+      variant_visible[variant_name] = true
+    else
+      hideObjectIfExists(variant_buttons_guids.enable[variant_name])
+      hideObjectIfExists(variant_buttons_guids.disable[variant_name])
+      variant_visible[variant_name] = false
+      variant_enabled[variant_name] = false
     end
-  end
-  for variant_name, _ in pairs(variants_to_hide) do
-    variants_visible[variant_name] = false
-    hideObjectIfExists(variant_buttons_guids.enable[variant_name])
-    hideObjectIfExists(variant_buttons_guids.disable[variant_name])
-    Global.call("setVariantEnabled", { variant_name = variant_name, is_enabled = false })
   end
 end
 
-function shouldHide(decks_enabled, interaction_table)
-  local to_hide = {}
-  for game_name, interactions in pairs(interaction_table) do
-    for mode, enabled in pairs(decks_enabled) do
-      if mode == interactions.incompatibilities and enabled
-          or mode == interactions.dependency and not enabled then
-        to_hide[game_name] = true
-      end
+function checkIncompatibility(interaction)
+  for other_deck, is_enabled in pairs(variant_enabled) do
+    if other_deck == interaction.incompatibility and is_enabled then
+      return false
     end
   end
-
-  return to_hide
+  return true
 end
 
-function shouldShow(decks_enabled, interaction_table)
-  local to_show = {}
-  for game_name, interactions in pairs(interaction_table) do
-    if not variants_visible[game_name] then
-      for mode, enabled in pairs(decks_enabled) do
-        if mode == interactions.dependency and enabled
-            or mode == interactions.incompatibilities and not enabled then
-          to_show[game_name] = true
-        end
-      end
+function checkDependency(interaction)
+  for other_deck, is_enabled in pairs(variant_enabled) do
+    if other_deck == interaction.dependency and not is_enabled then
+      return false
     end
   end
-
-  return to_show
+  return true
 end
 
 function showButtonIfExists(guid)
   local object = getObjectFromGUID(guid)
   if object == nil then
-    return false
+    return
   end
   object.setPosition({ object.getPosition().x, 1.06, object.getPosition().z })
   if object.getButtons() then
@@ -103,22 +105,20 @@ function showButtonIfExists(guid)
       object.editButton({ index = button.index, scale = { 1, 1, 1 } })
     end
   end
-  return true
 end
 
 function hideObjectIfExists(guid)
   local object = getObjectFromGUID(guid)
   if object == nil then
-    return false
+    return
   end
-  object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
   object.lock()
+  object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
   if object.getButtons() then
     for _, button in pairs(object.getButtons()) do
       object.editButton({ index = button.index, scale = { 0, 0, 0 } })
     end
   end
-  return true
 end
 
 function isInKeys(key_to_test, list)
@@ -128,4 +128,20 @@ function isInKeys(key_to_test, list)
     end
   end
   return false
+end
+
+function updateButtonsState()
+  for variant_name, visible in pairs(variant_visible) do
+    if visible and variant_enabled[variant_name] then
+      local button_enable = getObjectFromGUID(variant_buttons_guids.enable[variant_name])
+      if button_enable ~= nil and button_enable.getStateId() == 1 then
+        button_enable.setState(2)
+      end
+    elseif visible and not variant_enabled[variant_name] then
+      local button_disable = getObjectFromGUID(variant_buttons_guids.disable[variant_name])
+      if button_disable ~= nil and button_disable.getStateId() == 2 then
+        button_disable.setState(1)
+      end
+    end
+  end
 end
