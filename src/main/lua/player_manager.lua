@@ -51,7 +51,6 @@ function sitPlayer(parameters)
   seated_players[parameters.seat_color] = true
   if not local_players_enabled then
     Player[parameters.player_color].changeColor(parameters.seat_color)
-    makePlayerLookAtCastle(parameters.seat_color)
   end
 end
 
@@ -101,6 +100,7 @@ function removeAllLocalPlayers()
 end
 
 function onPlayerChangeColor(player_color)
+  makePlayerLookAtCastle(player_color)
   if not local_players_enabled and player_color ~= spectator_color and player_color ~= game_master_color then
     if seated_players[player_color] and not Player[player_color].seated then
       Global.call("removePlayer", player_color)
