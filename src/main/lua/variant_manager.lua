@@ -46,17 +46,24 @@ end
 
 function onLoad(save_state)
   if save_state ~= "" then
-    --variant_visible = JSON.decode(save_state).variant_visible
+    loadSaveState(save_state)
   end
   deck_manager = getObjectFromGUID(deck_manager_guid)
 end
 
+function loadSaveState(save_state)
+  variant_visible = JSON.decode(save_state).variant_visible
+  variant_enabled = JSON.decode(save_state).variant_enabled
+end
+
 function onSave()
-  return JSON.encode({ variant_visible = variant_visible })
+  --return JSON.encode({
+  --  variant_visible = variant_visible,
+  --  variant_enabled = variant_enabled
+  --})
 end
 
 function setVariantEnabled(parameters)
-  log(parameters.variant_name)
   variant_enabled[parameters.variant_name] = parameters.is_enabled
   self.setTable("variant_enabled", variant_enabled)
 end

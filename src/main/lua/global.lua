@@ -61,11 +61,11 @@ function loadSaveState(save_state)
 end
 
 function onSave()
-  return JSON.encode({
-    player_count = game_settings.player_count,
-    decks = game_settings.decks,
-    variants = game_settings.variants
-  })
+  --return JSON.encode({
+  --  player_count = game_settings.player_count,
+  --  decks = game_settings.decks,
+  --  variants = game_settings.variants
+  --})
 end
 
 function quickSetup(target_player_count)

@@ -1,5 +1,6 @@
 local variant_name = "random_quests"
-local quests_deck_guid = ""
+local quests_deck_guid = "fd8a62"
+local default_quests_guid = { "e29f53", "e865f4" }
 
 function onLoad()
   self.createButton({
@@ -15,7 +16,7 @@ function onLoad()
 end
 
 function onClick()
-  Global.call("setVariant", { variant_name = variant_name, enable = false })
+  Global.call("setVariantEnabled", { variant_name = variant_name, is_enabled = false })
   organizeQuests()
   self.setState(1)
 end

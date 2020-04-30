@@ -1,5 +1,5 @@
 local variant_name = "random_quests"
-local quests_deck_guid = ""
+local quests_deck_guid = "fd8a62"
 
 function onLoad()
   self.createButton({
@@ -15,7 +15,7 @@ function onLoad()
 end
 
 function onClick()
-  Global.call("setVariant", {variant_name = variant_name, enable = true})
+  Global.call("setVariantEnabled", { variant_name = variant_name, is_enabled = true })
   local quests = getObjectFromGUID(quests_deck_guid)
   quests.shuffle()
   self.setState(2)

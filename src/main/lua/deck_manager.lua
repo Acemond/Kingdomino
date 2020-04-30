@@ -73,19 +73,24 @@ function onUpdate()
 end
 
 function onLoad(save_state)
-  --if save_state ~= "" then
-  --  deck_button_visible = JSON.decode(save_state).decks_visible
-  --  deck_enabled = JSON.decode(save_state).deck_enabled
-  --end
+  if save_state ~= "" then
+    loadSaveState(save_state)
+  end
   self.setTable("deck_enabled", deck_enabled)
 end
 
+function loadSaveState(save_state)
+  deck_button_visible = JSON.decode(save_state).deck_button_visible
+  deck_enabled = JSON.decode(save_state).deck_enabled
+  deck_visible = JSON.decode(save_state).deck_visible
+end
+
 function onSave()
-  return JSON.encode({
-    deck_button_visible = deck_button_visible,
-    deck_enabled = deck_enabled,
-    deck_visible = deck_visible
-  })
+  --return JSON.encode({
+  --  deck_button_visible = deck_button_visible,
+  --  deck_enabled = deck_enabled,
+  --  deck_visible = deck_visible
+  --})
 end
 
 function setDeckEnabled(parameters)

@@ -46,7 +46,9 @@ local tile_board_manager_guid = "3853c3"
 local tile_board_manager = {}
 
 function onLoad(save_state)
-  loadSaveState(save_state)
+  if save_state ~= "" then
+    loadSaveState(save_state)
+  end
   Player.getPlayers()[1].lookAt({
     position = { x = 0, y = 0, z = -28 },
     pitch = 55,
@@ -56,11 +58,16 @@ function onLoad(save_state)
   tile_board_manager = getObjectFromGUID(tile_board_manager_guid)
 end
 
+function loadSaveState(save_state)
+  seated_players = JSON.decode(save_state).seated_players
+  local_players_enabled = JSON.decode(save_state).local_players_enabled
+end
+
 function onSave()
-  return JSON.encode({
-    seated_players = seated_players,
-    local_players_enabled = local_players_enabled,
-  })
+  --return JSON.encode({
+  --  seated_players = seated_players,
+  --  local_players_enabled = local_players_enabled,
+  --})
 end
 
 function onUpdate()
