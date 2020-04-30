@@ -45,10 +45,11 @@ function onUpdate()
 end
 
 function onLoad(save_state)
+  deck_manager = getObjectFromGUID(deck_manager_guid)
   if save_state ~= "" then
     loadSaveState(save_state)
   end
-  deck_manager = getObjectFromGUID(deck_manager_guid)
+  Global.setTable("variant_enabled", variant_enabled)
 end
 
 function loadSaveState(save_state)
@@ -65,7 +66,7 @@ end
 
 function setVariantEnabled(parameters)
   variant_enabled[parameters.variant_name] = parameters.is_enabled
-  self.setTable("variant_enabled", variant_enabled)
+  Global.setTable("variant_enabled", variant_enabled)
 end
 
 function checkInteractions()
@@ -84,7 +85,7 @@ function checkInteractions()
 end
 
 function checkIncompatibility(interaction)
-  local deck_enabled = deck_manager.getTable("deck_enabled")
+  local deck_enabled = Global.getTable("deck_enabled")
   for deck, is_enabled in pairs(deck_enabled) do
     if deck == interaction.incompatibility and is_enabled then
       return false
@@ -94,7 +95,7 @@ function checkIncompatibility(interaction)
 end
 
 function checkDependency(interaction)
-  local deck_enabled = deck_manager.getTable("deck_enabled")
+  local deck_enabled = Global.getTable("deck_enabled")
   for deck, is_enabled in pairs(deck_enabled) do
     if deck == interaction.dependency and not is_enabled then
       return false

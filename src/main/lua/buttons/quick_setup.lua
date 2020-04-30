@@ -14,5 +14,4 @@ end
 
 function onClick()
   Global.call("quickSetup", player_count)
-  Global.call("startGame")
 end

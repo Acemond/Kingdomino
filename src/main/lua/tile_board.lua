@@ -37,6 +37,16 @@ local zone_coordinates_modifiers = {
   { zPos = -9, zScale = 20 },
 }
 
+local current_board_size = 4
+
+function onUpdate()
+  local board_size = getBoardSize()
+  if current_board_size ~= board_size then
+    current_board_size = board_size
+    updateTileBoards(board_size)
+  end
+end
+
 function updateTileBoards(board_size)
   setBoardYPosition(board_size, board_visible_y_position)
 
@@ -48,7 +58,6 @@ function updateTileBoards(board_size)
   resizeControlZones(board_size)
 end
 
-
 function setBoardYPosition(board_size, y_position)
   local leftBoard = getObjectFromGUID(left_boards_infos[board_size].guid)
   local rightBoard = getObjectFromGUID(right_boards_infos[board_size].guid)
@@ -57,14 +66,39 @@ function setBoardYPosition(board_size, y_position)
   rightBoard.setPositionSmooth({ rightBoard.getPosition().x, y_position, rightBoard.getPosition().z }, false, true)
 end
 
-
 function resizeControlZones(slots)
   resizeControlZone(getObjectFromGUID(right_control_zone_guid), slots)
   resizeControlZone(getObjectFromGUID(left_control_zone_guid), slots)
 end
 
-
 function resizeControlZone(zone, slots)
   zone.setScale({ zone.getScale().x, zone.getScale().y, zone_coordinates_modifiers[slots].zScale })
   zone.setPosition({ zone.getPosition().x, zone.getPosition().y, zone_coordinates_modifiers[slots].zPos })
+end
+
+function getBoardSize()
+  local player_count = Global.getVar("player_count")
+  local decks = Global.getTable("deck_enabled")
+  local variants = Global.getTable("variant_enabled")
+
+  local size = 4
+  if player_count == 3
+      and not decks.queendomino
+      and not variants.three_players_variant then
+    size = 3
+  elseif decks.queendomino and decks.kingdomino
+      and (player_count == 5 or player_count == 6) then
+    size = 8
+  end
+
+  if decks.age_of_giants then
+    size = size + 1
+  end
+
+  -- FIXME: Quickfix until other board sizes gets added
+  if size ~= 3 and size ~= 4 and size ~= 5 and size ~= 8 then
+    return 4
+  end
+
+  return size
 end

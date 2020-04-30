@@ -76,7 +76,7 @@ function onLoad(save_state)
   if save_state ~= "" then
     loadSaveState(save_state)
   end
-  self.setTable("deck_enabled", deck_enabled)
+  Global.setTable("deck_enabled", deck_enabled)
 end
 
 function loadSaveState(save_state)
@@ -95,7 +95,7 @@ end
 
 function setDeckEnabled(parameters)
   deck_enabled[parameters.deck_name] = parameters.is_enabled
-  self.setTable("deck_enabled", deck_enabled)
+  Global.setTable("deck_enabled", deck_enabled)
 end
 
 function checkInteractions()
@@ -109,7 +109,7 @@ function checkInteractions()
       hideObjectIfExists(deck_buttons_guids.disable[deck_name])
       deck_button_visible[deck_name] = false
       if deck_enabled[deck_name] then
-        setDeckEnabled({ deck_name = deck_name, is_enabled = false })
+        setDeckEnabled { deck_name = deck_name, is_enabled = false }
       end
     end
   end

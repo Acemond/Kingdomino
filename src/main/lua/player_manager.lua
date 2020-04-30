@@ -50,28 +50,36 @@ local castle_positions = {
 
 local local_players_enabled = false  -- Set this with setLocalPlayersEnabled only
 
-local tile_board_manager_guid = "3853c3"
-local tile_board_manager = {}
+local castle_manager_guid = "9bb39a"
+local castle_manager = {}
 
 function onLoad(save_state)
-  if save_state ~= "" then
-    loadSaveState(save_state)
-  end
+  castle_manager = getObjectFromGUID(castle_manager_guid)
+
+  initialize(save_state)
   Player.getPlayers()[1].lookAt({
     position = { x = 0, y = 0, z = -28 },
     pitch = 55,
     yaw = 0,
     distance = 30,
   })
-  --FIXME
-  Wait.frames(seatColoredPlayer, 1)
-  tile_board_manager = getObjectFromGUID(tile_board_manager_guid)
-  self.setTable("seated_players", seated_players)
+  seatColoredPlayer()
 end
 
-function loadSaveState(save_state)
-  seated_players = JSON.decode(save_state).seated_players
-  local_players_enabled = JSON.decode(save_state).local_players_enabled
+function initialize(save_state)
+  if save_state ~= "" then
+    seated_players = JSON.decode(save_state).seated_players
+    local_players_enabled = JSON.decode(save_state).local_players_enabled
+  else
+    updateSeatedPlayers(seated_players)
+    setLocalPlayersEnabled(local_players_enabled)
+  end
+end
+
+function updateSeatedPlayers(new_seated_players)
+  seated_players = new_seated_players
+  Global.setTable("seated_players", seated_players)
+  Global.setVar("player_count", getPlayerCount())
 end
 
 function onSave()
@@ -93,20 +101,22 @@ function setLocalPlayersEnabled(is_enabled)
   end
 end
 
-function sitPlayer(parameters)
+function addPlayer(parameters)
   seated_players[parameters.seat_color] = true
   if not local_players_enabled then
     Player[parameters.player_color].changeColor(parameters.seat_color)
   end
-  self.setTable("seated_players", seated_players)
+  updateSeatedPlayers(seated_players)
+  castle_manager.call("showCastle", parameters.seat_color)
 end
 
-function kickPlayer(seat_color)
+function removePlayer(seat_color)
   seated_players[seat_color] = false
   if not local_players_enabled then
     removePlayerColor(Player[seat_color])
   end
-  self.setTable("seated_players", seated_players)
+  updateSeatedPlayers(seated_players)
+  castle_manager.call("hideCastle", seat_color)
 end
 
 function removePlayerColor(player)
@@ -128,11 +138,11 @@ function addNextPlayer()
     if not seated_players[color] then
       local player = getPlayerNotSeated()
       if player ~= nil then
-        Global.call("addPlayer", { player_color = player.color, seat_color = color })
+        addPlayer { player_color = player.color, seat_color = color }
         return
       else
         setLocalPlayersEnabled(true)
-        Global.call("addPlayer", { seat_color = color })
+        addPlayer { seat_color = color }
         return
       end
     end
@@ -150,7 +160,7 @@ end
 function removeAllLocalPlayers()
   for color, enabled in pairs(seated_players) do
     if not Player[color].seated and enabled then
-      Global.call("removePlayer", color)
+      removePlayer(color)
     end
   end
 end
@@ -159,7 +169,7 @@ function onPlayerChangeColor(player_color)
   makePlayerLookAtCastle(player_color)
   if not local_players_enabled and player_color ~= spectator_color and player_color ~= game_master_color
       and not seated_players[player_color] and Player[player_color].seated then
-    Global.call("addPlayer", { player_color = player_color, seat_color = player_color })
+    addPlayer { player_color = player_color, seat_color = player_color }
   end
   removeUnoccupiedSeats()
 end
@@ -167,7 +177,7 @@ end
 function removeUnoccupiedSeats()
   for color, is_seated in pairs(seated_players) do
     if is_seated and not Player[color].seated then
-      Global.call("removePlayer", color)
+      removePlayer(color)
     end
   end
 end
@@ -176,7 +186,7 @@ function seatColoredPlayer()
   for _, player in pairs(Player.getPlayers()) do
     if not local_players_enabled and player.color ~= spectator_color and player.color ~= game_master_color then
       if not seated_players[player.color] and player.seated then
-        Global.call("addPlayer", { player_color = player.color, seat_color = player.color })
+        addPlayer { player_color = player.color, seat_color = player.color }
       end
     end
   end
@@ -205,7 +215,7 @@ end
 
 function onPlayerConnect(person)
   if not local_players_enabled and not seated_players[person.color] then
-    addPlayer({ player_color = person.color, seat_color = person.color })
+    addPlayer { player_color = person.color, seat_color = person.color }
   end
 end
 
