@@ -210,18 +210,6 @@ local game_settings = {
 
 local next_turn_button_guid = "4a6126"
 
-function onLoad()
-  self.createButton({
-    click_function = "startGame",
-    function_owner = self,
-    label = "",
-    position = { 0, 0.05, 0 },
-    color = { 0, 0, 0, 0 },
-    width = 2400,
-    height = 600
-  })
-end
-
 function destroyObjectsIfExists(guids)
   for _, guid in pairs(guids) do
     destroyObjectIfExists(guid)
@@ -243,6 +231,10 @@ function getPlayingColors()
     end
   end
   return playingColors
+end
+
+function launchGame()
+  log("LAUNCHING!")
 end
 
 function startGame()
@@ -553,7 +545,7 @@ function getSize(t)
   return size
 end
 
-  function movePlayerPieces(color, offset_vector)
+function movePlayerPieces(color, offset_vector)
   local castle = getObjectFromGUID(player_pieces_guids[color].castle)
   local castle_tile = getObjectFromGUID(player_pieces_guids[color].castle_tile)
   local hand_zone = getObjectFromGUID(player_pieces_guids[color].hand_zone)

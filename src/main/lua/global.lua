@@ -23,13 +23,12 @@ local tile_board_manager_guid = "3853c3"
 local tile_board_manager = {}
 local player_manager_guid = "31971b"
 local player_manager = {}
-local game_launcher_guid = ""
+local game_launcher_guid = "bb8090"
 local game_launcher = {}
 local configuration_validator_guid = "2a0d3f"
 local configuration_validator = {}
 local castle_manager_guid = "9bb39a"
 local castle_manager = {}
-
 
 function onLoad(save_state)
   --loadSaveState(save_state)
@@ -70,11 +69,11 @@ end
 
 function quickSetup(target_player_count)
   player_manager.call("setPlayerCount", target_player_count)
-  game_settings = resolveForPlayerCount(target_player_count)
+  resolveForPlayerCount(target_player_count)
 end
 
 function startGame()
-  if configuration_validator.call("validateConfiguration", game_settings) then
+  if configuration_validator.call("validate", game_settings) then
     game_launcher.call("launchGame", game_settings)
   end
 end
@@ -129,38 +128,15 @@ function getBoardSize()
 end
 
 function resolveForPlayerCount(target_player_count)
-  if target_player_count < 5 then
-    return {
-      player_count = target_player_count,
-      decks = {
-        kingdomino = true,
-        queendomino = false,
-        age_of_giants = false,
-        the_court = false
-      },
-      variants = default_game_settings.variants
-    }
-  elseif target_player_count == 5 then
-    return {
-      player_count = target_player_count,
-      decks = {
-        kingdomino = true,
-        queendomino = false,
-        age_of_giants = true,
-        the_court = false
-      },
-      variants = default_game_settings.variants
-    }
+  if target_player_count == 5 then
+    game_settings.variants.kingdomino_xl = false
+    game_settings.variants.teamdomino = false
+    game_settings.variants.two_players_advanced = false
   elseif target_player_count == 6 then
-    return {
-      player_count = target_player_count,
-      decks = {
-        kingdomino = true,
-        queendomino = true,
-        age_of_giants = false,
-        the_court = false
-      },
-      variants = default_game_settings.variants
-    }
+    game_settings.decks.kingdomino = true
+    game_settings.decks.queendomino = true
+    game_settings.decks.age_of_giants = false
+    game_settings.variants.kingdomino_xl = false
+    game_settings.variants.two_players_advanced = false
   end
 end

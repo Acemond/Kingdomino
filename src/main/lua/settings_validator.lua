@@ -1,9 +1,9 @@
 local error_color = { r = 1, g = 0, b = 0 }
 
-function isGameReady(configuration)
-  local variants = configuration.game_settings.variants
-  local decks = configuration.game_settings.decks
-  local player_count = configuration.player_count
+function validate(game_settings)
+  local variants = game_settings.variants
+  local decks = game_settings.decks
+  local player_count = game_settings.player_count
   if player_count < 2 then
     broadcastToAll("There should be at least two players to start a game", error_color)
     return false

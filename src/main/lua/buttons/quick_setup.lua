@@ -1,4 +1,4 @@
-local playerCount = 2
+local player_count = 2
 
 function onLoad()
   self.createButton({
@@ -13,6 +13,6 @@ function onLoad()
 end
 
 function onClick()
-  Global.call("quickSetup", playerCount)
+  Global.call("quickSetup", player_count)
   Global.call("startGame")
 end

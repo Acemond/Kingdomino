@@ -113,15 +113,21 @@ end
 
 function setPlayerCount(target_player_count)
   while getPlayerCount() < target_player_count do
-    for color, enabled in pairs(seated_players) do
-      if not enabled then
-        local player = getPlayerNotSeated()
-        if player ~= nil then
-          Global.call("addPlayer", { player_color = player.color, seat_color = color })
-        else
-          setLocalPlayersEnabled(true)
-          Global.call("addPlayer", { seat_color = color })
-        end
+    addNextPlayer()
+  end
+end
+
+function addNextPlayer()
+  for color, enabled in pairs(seated_players) do
+    if not enabled then
+      local player = getPlayerNotSeated()
+      if player ~= nil then
+        Global.call("addPlayer", { player_color = player.color, seat_color = color })
+        return
+      else
+        setLocalPlayersEnabled(true)
+        Global.call("addPlayer", { seat_color = color })
+        return
       end
     end
   end
