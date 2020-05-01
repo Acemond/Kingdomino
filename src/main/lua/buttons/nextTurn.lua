@@ -62,12 +62,17 @@ end
 
 function onSave()
   local deck_guids = {}
-  for _, deck in ipairs(game.decks) do
-    table.insert(deck_guids, deck.guid)
+  if game.decks then
+    for _, deck in ipairs(game.decks) do
+      table.insert(deck_guids, deck.guid)
+    end
   end
+
   local building_guids = {}
-  for _, deck in pairs(game.buildings) do
-    table.insert(building_guids, deck.guid)
+  if game.buildings then
+    for _, deck in pairs(game.buildings) do
+      table.insert(building_guids, deck.guid)
+    end
   end
 
   --return JSON.encode({

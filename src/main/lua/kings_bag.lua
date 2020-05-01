@@ -9,37 +9,31 @@ local kingTargetPositions = {
 
 local player_pieces_guids = {
   Orange = {
-    hand_zone = "96929a",
     castle_tile = "9ab771",
     castle = "768b9c",
     kings = { "4d2d92", "5e6289" }
   },
   Purple = {
-    hand_zone = "6ea086",
     castle_tile = "7db35a",
     castle = "a1e204",
     kings = { "7dd59a", "e44a70" }
   },
   Red = {
-    hand_zone = "31279b",
     castle_tile = "f6948c",
     castle = "ae130d",
     kings = { "24345c", "2837e9" }
   },
   White = {
-    hand_zone = "f85ea1",
     castle_tile = "537260",
     castle = "fd4160",
     kings = { "86f4c2", "61259d" }
   },
   Green = {
-    hand_zone = "352048",
     castle_tile = "8c9612",
     castle = "b5c1bc",
     kings = { "526c31", "f2cd83" }
   },
   Pink = {
-    hand_zone = "49989f",
     castle_tile = "a5aad1",
     castle = "a407fb",
     kings = { "9dc643", "0dba70" }
@@ -58,8 +52,9 @@ function takeKings(game_settings)
   if game_settings.player_count == 2 then
     math.randomseed(os.time())
     local firstPlayerIndex = math.random(2)
-    local firstPlayer = player_pieces_guids[game_settings.seated_players[firstPlayerIndex]]
-    local otherPlayer = player_pieces_guids[game_settings.seated_players[3 - firstPlayerIndex]]
+    local colors = getTableKeys(game_settings.seated_players)
+    local firstPlayer = player_pieces_guids[colors[firstPlayerIndex]]
+    local otherPlayer = player_pieces_guids[colors[3 - firstPlayerIndex]]
 
     self.takeObject({ guid = firstPlayer.kings[1], position = kingTargetPositions[1], rotation = { 0, 180, 0 } })
     self.takeObject({ guid = otherPlayer.kings[1], position = kingTargetPositions[2], rotation = { 0, 180, 0 } })
@@ -72,6 +67,16 @@ function takeKings(game_settings)
   end
 
   self.destroy()
+end
+
+function getTableKeys(seated_players)
+  local colors = {}
+  for color, is_seated in pairs(seated_players) do
+    if is_seated then
+      table.insert(colors, color)
+    end
+  end
+  return colors
 end
 
 function destroyNonPlayingKings(game_settings)

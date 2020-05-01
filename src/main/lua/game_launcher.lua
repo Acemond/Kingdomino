@@ -75,23 +75,6 @@ local game_objects_guid = {
     fish_bag = "3725a9"
   }
 }
-local objects_to_lock = {
-  game_objects_guid.kingdomino.deck,
-  game_objects_guid.queendomino.deck,
-  game_objects_guid.queendomino.buildings,
-  game_objects_guid.queendomino.building_board,
-  game_objects_guid.queendomino.right_building_board,
-  game_objects_guid.queendomino.coin1_bag,
-  game_objects_guid.queendomino.coin3_bag,
-  game_objects_guid.queendomino.coin9_bag,
-  game_objects_guid.queendomino.knight_bag,
-  game_objects_guid.queendomino.tower_bag,
-  game_objects_guid.the_court.building_board,
-  game_objects_guid.the_court.wheat_bag,
-  game_objects_guid.the_court.sheep_bag,
-  game_objects_guid.the_court.wood_bag,
-  game_objects_guid.the_court.fish_bag
-}
 local deck_size_modifiers = {
   two_players_basic = 0.5,
   three_players_classic = 0.75
@@ -159,19 +142,18 @@ function launchGame(new_game_settings)
   local decks = prepareMainDecks()
   local buildings = prepareBuildings()
 
+  if game_settings.seated_players.Green or game_settings.seated_players.Pink then
+    spaceOutPlayers()
+  end
   if game_settings.decks.queendomino then
-    for _, color in pairs(game_settings.seated_players) do
-      Wait.frames(function()
+    for color, seated in pairs(game_settings.seated_players) do
+      if seated then
         takeCoins(color)
-      end, 1)
+      end
     end
   end
 
   destroyUnusedPieces()
-
-  if game_settings.seated_players.Green or game_settings.seated_players.Pink then
-    spaceOutPlayers()
-  end
   game_table.call("prepareTableForGame")
 
   local next_turn_button = getObjectFromGUID(next_turn_button_guid)

@@ -19,7 +19,7 @@ function onLoad(save_state)
 end
 
 function onSave()
-  return JSON.encode({ tileValues = tileValues })
+  --return JSON.encode({ tileValues = tileValues })
 end
 
 function assignTilesValue()
@@ -77,7 +77,7 @@ function getObjectsGuids()
   local tiles = self.getObjects()
   local guids = {}
   local tilesDealtPerTurn = 4
-  if Global.get("game").board_size == 8 then
+  if Global.getVar("board_size") == 8 then
     tilesDealtPerTurn = 8
   end
   for i = 1, tilesDealtPerTurn, 1 do

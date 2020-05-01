@@ -20,7 +20,7 @@ function onLoad(save_state)
 end
 
 function onSave()
-  return JSON.encode({ tileValues = tileValues })
+  --return JSON.encode({ tileValues = tileValues })
 end
 
 function assignTilesValue()
@@ -104,7 +104,7 @@ end
 function getObjectsGuids()
   local tiles = self.getObjects()
   local guids = {}
-  for i = 1, Global.get("game").board_size, 1 do
+  for i = 1, Global.getVar("board_size"), 1 do
     guids[i] = tiles[i].guid
   end
   return guids

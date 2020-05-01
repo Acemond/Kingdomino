@@ -37,13 +37,25 @@ local zone_coordinates_modifiers = {
   { zPos = -9, zScale = 20 },
 }
 
-local current_board_size = 4
+local board_size = 4
+
+function onLoad(save_state)
+  if save_state ~= "" then
+    board_size = JSON.decode(save_state).board_size
+  end
+  Global.setVar("board_size", board_size)
+end
+
+function onSave()
+  --return JSON.encode({ board_size = board_size })
+end
 
 function onUpdate()
-  local board_size = getBoardSize()
-  if current_board_size ~= board_size then
-    current_board_size = board_size
+  local new_board_size = getBoardSize()
+  if board_size ~= new_board_size then
+    board_size = new_board_size
     updateTileBoards(board_size)
+    Global.setVar("board_size", board_size)
   end
 end
 
