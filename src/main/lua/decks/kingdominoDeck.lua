@@ -11,8 +11,16 @@ local targetDealingPositions = {
 }
 local trashBagGuid = "32278a"
 
-function onLoad()
-  tileValues = assignTilesValue()
+function onLoad(save_state)
+  if save_state ~= nil then
+    tileValues = JSON.decode(save_state).tileValues
+  else
+    tileValues = assignTilesValue()
+  end
+end
+
+function onSave()
+  return JSON.encode({ tileValues = tileValues })
 end
 
 function assignTilesValue()
@@ -103,7 +111,7 @@ function getObjectsGuids()
 end
 
 function mergeDeck(deck)
-  addTilesValues(deck.getTable("tiles_values"))
+  addTilesValues(deck.getTable("tiles_value"))
   deck.setInvisibleTo({ "Black", "Grey", "Red", "Orange", "Purple", "White", "Pink", "Green" })
   self.putObject(deck)
 end

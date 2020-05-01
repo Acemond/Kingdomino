@@ -203,16 +203,6 @@ function destroyObjectIfExists(guid)
   end
 end
 
-function getPlayingColors()
-  local playingColors = {}
-  for color, playing in pairs(game_settings.seated_players) do
-    if playing then
-      table.insert(playingColors, color)
-    end
-  end
-  return playingColors
-end
-
 function launchGame(new_game_settings)
   game_settings = new_game_settings
   placeKings()
@@ -227,7 +217,7 @@ function launchGame(new_game_settings)
   local buildings = prepareBuildings()
 
   if game_settings.decks.queendomino then
-    for _, color in pairs(getPlayingColors()) do
+    for _, color in pairs(game_settings.seated_players) do
       Wait.frames(function()
         takeCoins(color)
       end, 1)
@@ -363,8 +353,8 @@ function takeKings(kingsBag)
   if game_settings.player_count == 2 then
     math.randomseed(os.time())
     local firstPlayerIndex = math.random(2)
-    local firstPlayer = player_pieces_guids[getPlayingColors()[firstPlayerIndex]]
-    local otherPlayer = player_pieces_guids[getPlayingColors()[3 - firstPlayerIndex]]
+    local firstPlayer = player_pieces_guids[game_settings.seated_players[firstPlayerIndex]]
+    local otherPlayer = player_pieces_guids[game_settings.seated_players[3 - firstPlayerIndex]]
 
     kingsBag.takeObject({ guid = firstPlayer.kings[1], position = kingTargetPositions[1], rotation = { 0, 180, 0 } })
     kingsBag.takeObject({ guid = otherPlayer.kings[1], position = kingTargetPositions[2], rotation = { 0, 180, 0 } })

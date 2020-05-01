@@ -1,5 +1,7 @@
 local color = "Green"
 
+local player_manager_guid = "31971b"
+
 function onLoad()
   self.createButton({
     click_function = "onClick",
@@ -13,5 +15,5 @@ function onLoad()
 end
 
 function onClick(_, player_color)
-  Global.call("addPlayer", { player_color = player_color, seat_color = color })
+  getObjectFromGUID(player_manager_guid).call("addPlayer", { player_color = player_color, seat_color = color })
 end

@@ -1,5 +1,7 @@
 local color = "Red"
 
+local player_manager_guid = "31971b"
+
 function onLoad()
   self.createButton({
     click_function = "onClick",
@@ -13,5 +15,5 @@ function onLoad()
 end
 
 function onClick()
-  Global.call("removePlayer", color)
+  getObjectFromGUID(player_manager_guid).call("removePlayer", color)
 end

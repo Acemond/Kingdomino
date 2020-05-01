@@ -1,5 +1,16 @@
-function onLoad()
-  self.setTable("tiles_values", assignTilesValue())
+local tiles_value
+
+function onLoad(save_state)
+  if save_state ~= nil then
+    tiles_value = JSON.decode(save_state).tiles_value
+  else
+    tiles_value = assignTilesValue()
+  end
+  self.setTable("tiles_value", tiles_value)
+end
+
+function onSave()
+  return JSON.encode({ tiles_value = tiles_value })
 end
 
 function assignTilesValue()

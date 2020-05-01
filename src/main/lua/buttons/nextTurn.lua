@@ -15,7 +15,8 @@ local kingsGuid = {
 }
 local game = {}
 
-function onLoad()
+function onLoad(save_state)
+  initialize(save_state)
   self.createButton({
     click_function = "onClick",
     function_owner = self,
@@ -27,10 +28,67 @@ function onLoad()
   })
 end
 
+function initialize(save_state)
+  if save_state ~= "" then
+    local save = JSON.decode(save_state)
+
+    local decks = {}
+    for _, guid in ipairs(save.deck_guids) do
+      table.insert(decks, getObjectFromGUID(guid))
+    end
+    local buildings = {}
+    for _, guid in ipairs(save.building_guids) do
+      table.insert(buildings, getObjectFromGUID(guid))
+    end
+
+    local game_settings = {
+      decks = save.decks_settings,
+      variants = save.variants_settings,
+      player_count = save.player_count,
+      seated_players = save.seated_players_settings,
+      tile_deal_count = save.tile_deal_count_settings
+    }
+
+    game = {
+      turn = save.turn,
+      decks = decks,
+      board_size = save.board_size,
+      buildings = buildings,
+      settings = game_settings,
+      player_count = save.player_count
+    }
+  end
+end
+
+function onSave()
+  local deck_guids = {}
+  for _, deck in ipairs(game.decks) do
+    table.insert(deck_guids, deck.guid)
+  end
+  local building_guids = {}
+  for _, deck in pairs(game.buildings) do
+    table.insert(building_guids, deck.guid)
+  end
+
+  --return JSON.encode({
+  --  turn = turn,
+  --  deck_guids = deck_guids,
+  --  board_size = game.game_settings.tile_deal_count,
+  --  building_guids = building_guids,
+  --  decks_settings = game.game_settings.decks,
+  --  variants_settings = game.game_settings.variants,
+  --  seated_players_settings = game.game_settings.seated_players,
+  --  tile_deal_count_settings = game.game_settings.tile_deal_count,
+  --  player_count = game.game_settings.player_count
+  --})
+end
+
 function temporarilyDisableButtons()
   local button = self.getButtons()[1]
   self.editButton({ index = button.index, scale = { 0, 0, 0 } })
-  Wait.frames(function () self.editButton({ index = button.index, scale = { 1, 1, 1 } }) end, 120)
+  Wait.frames(function()
+    self.editButton({ index = button.index, scale = { 1, 1, 1 } })
+  end, 120)
 end
 
 function onClick()

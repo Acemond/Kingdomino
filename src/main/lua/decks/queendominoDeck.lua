@@ -10,8 +10,16 @@ local targetDealingPositions = {
   { 5.49, 1.83, -17.55 }
 }
 
-function onLoad()
-  tileValues = assignTilesValue()
+function onLoad(save_state)
+  if save_state ~= nil then
+    tileValues = JSON.decode(save_state).tileValues
+  else
+    tileValues = assignTilesValue()
+  end
+end
+
+function onSave()
+  return JSON.encode({ tileValues = tileValues })
 end
 
 function assignTilesValue()
