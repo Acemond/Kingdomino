@@ -1,14 +1,3 @@
-local kingTargetPositions = {
-  { 0.00, 1.92, -1.00 },
-  { 0.00, 1.92, -3.00 },
-  { 0.00, 1.92, -5.00 },
-  { 0.00, 1.92, -7.00 },
-  { 0.00, 1.92, -9.00 },
-  { 0.00, 1.92, -11.00 }
-}
-local table_guid = "0f8757"
-
-local hidden_boards = {}
 local player_pieces_guids = {
   Orange = {
     hand_zone = "96929a",
@@ -50,60 +39,10 @@ local player_pieces_guids = {
 
 local start_button_guid = "af7bb2"
 
-local player_add_buttons = {
-  Red = "a1ef12",
-  Orange = "8d17b0",
-  White = "f60fe5",
-  Purple = "1b4b1a",
-  Green = "fbeaba",
-  Pink = "6987e6"
-}
-local player_remove_buttons = {
-  Red = "dfeee5",
-  Orange = "fa1b7c",
-  White = "74e8b0",
-  Purple = "1bbcb3",
-  Green = "8fedd0",
-  Pink = "668a0a"
-}
-local buttons_to_remove = {
-  player_remove_buttons.Red,
-  player_add_buttons.Red,
-  player_remove_buttons.Orange,
-  player_add_buttons.Orange,
-  player_remove_buttons.White,
-  player_add_buttons.White,
-  player_remove_buttons.Purple,
-  player_add_buttons.Purple,
-  player_remove_buttons.Green,
-  player_add_buttons.Green,
-  player_remove_buttons.Pink,
-  player_add_buttons.Pink,
-  quickSetup = "31971b",
-  quickSetup2p = "46971b",
-  quickSetup3p = "4f4db6",
-  quickSetup4p = "8dfa00",
-  quickSetup5p = "1765aa",
-  quickSetup6p = "6c37eb",
-  laCourEnable = "6ff70f",
-  laCourDisable = "2c22ed",
-  kingdominoEnable = "9f4a39",
-  kingdominoDisable = "697d5b",
-  queendominoEnable = "69cbda",
-  queendominoDisable = "d64709",
-  age_of_giants_enable = "df1760",
-  age_of_giants_disable = "6a25ff",
-  two_players_advanced_enable = "823bca",
-  two_players_advanced_disable = "02322f",
-  randomn_quests_enable = "75dcb1",
-  randomn_quests_disable = "edb838",
-  kingdomino_xl_enable = "42f5a4",
-  kingdomino_xl_disable = "92f52d",
-  teamdomino_enable = "83af19",
-  teamdomino_disable = "355eca",
-  local_players_enable = "4f044d",
-  local_players_disable = "d1e47c"
-}
+local kings_bag_guid = "1403b9"
+local kings_bag = {}
+local game_table_guid = "0f8757"
+local game_table = {}
 
 local quests_deck_guid = "fd8a62"
 local game_objects_guid = {
@@ -136,7 +75,6 @@ local game_objects_guid = {
     fish_bag = "3725a9"
   }
 }
-local kings_bag_guid = "1403b9"
 local objects_to_lock = {
   game_objects_guid.kingdomino.deck,
   game_objects_guid.queendomino.deck,
@@ -190,6 +128,11 @@ local game_settings = {}
 
 local next_turn_button_guid = "4a6126"
 
+function onLoad()
+  game_table = getObjectFromGUID(game_table_guid)
+  kings_bag = getObjectFromGUID(kings_bag_guid)
+end
+
 function destroyObjectsIfExists(guids)
   for _, guid in pairs(guids) do
     destroyObjectIfExists(guid)
@@ -205,7 +148,7 @@ end
 
 function launchGame(new_game_settings)
   game_settings = new_game_settings
-  placeKings()
+  kings_bag.call("placeKings", game_settings)
 
   if game_settings.variants.random_quests then
     dealRandomQuests()
@@ -224,20 +167,15 @@ function launchGame(new_game_settings)
     end
   end
 
-  Wait.frames(function()
-    destroyObjectsIfExists(buttons_to_remove)
-  end, 1)
-  destroyObjectsIfExists(hidden_boards)
   destroyUnusedPieces()
-
-  getObjectFromGUID(table_guid).call("unfreezeTemp")
-  Wait.frames(function()
-    lockExistingObjects()
-  end, 60)
 
   if game_settings.seated_players.Green or game_settings.seated_players.Pink then
     spaceOutPlayers()
   end
+  game_table.call("prepareTableForGame")
+
+  local next_turn_button = getObjectFromGUID(next_turn_button_guid)
+  setNextTurnPosition(next_turn_button)
 
   local new_game = {
     decks = decks,
@@ -247,9 +185,8 @@ function launchGame(new_game_settings)
     player_count = game_settings.player_count
   }
   Global.setTable("game", new_game)
-  local next_turn_button = getObjectFromGUID(next_turn_button_guid)
-  setNextTurnPosition(next_turn_button)
   next_turn_button.call("firstTurn", new_game)
+
   getObjectFromGUID(start_button_guid).destroy()
 end
 
@@ -294,15 +231,6 @@ function dealQuests(quest_guids)
   quest_deck.destroy()
 end
 
-function lockExistingObjects()
-  for _, guid in pairs(objects_to_lock) do
-    local obj = getObjectFromGUID(guid)
-    if obj then
-      obj.lock()
-    end
-  end
-end
-
 function takeCoins(playerColor)
   local handPosition = getObjectFromGUID(player_pieces_guids[playerColor].hand_zone).getPosition()
   local coin1Bag = getObjectFromGUID(game_objects_guid.queendomino.coin1_bag)
@@ -337,58 +265,6 @@ function setupRoyalWedding(decksPositions)
   Global.setTable("decks", {
     getObjectFromGUID(game_objects_guid.kingdomino.deck),
     getObjectFromGUID(game_objects_guid.queendomino.deck)
-  })
-end
-
-function placeKings()
-  local kingsBag = getObjectFromGUID(kings_bag_guid)
-
-  destroyNonPlayingKings(kingsBag)
-  takeKings(kingsBag)
-end
-
-function takeKings(kingsBag)
-  kingsBag.shuffle()
-
-  if game_settings.player_count == 2 then
-    math.randomseed(os.time())
-    local firstPlayerIndex = math.random(2)
-    local firstPlayer = player_pieces_guids[game_settings.seated_players[firstPlayerIndex]]
-    local otherPlayer = player_pieces_guids[game_settings.seated_players[3 - firstPlayerIndex]]
-
-    kingsBag.takeObject({ guid = firstPlayer.kings[1], position = kingTargetPositions[1], rotation = { 0, 180, 0 } })
-    kingsBag.takeObject({ guid = otherPlayer.kings[1], position = kingTargetPositions[2], rotation = { 0, 180, 0 } })
-    kingsBag.takeObject({ guid = otherPlayer.kings[2], position = kingTargetPositions[3], rotation = { 0, 180, 0 } })
-    kingsBag.takeObject({ guid = firstPlayer.kings[2], position = kingTargetPositions[4], rotation = { 0, 180, 0 } })
-  else
-    for i = 1, game_settings.player_count, 1 do
-      kingsBag.takeObject({ position = kingTargetPositions[i], rotation = { 0, 180, 0 } })
-    end
-  end
-
-  destroyObject(kingsBag)
-end
-
-function destroyNonPlayingKings(kingsBag)
-  for color, playing in pairs(game_settings.seated_players) do
-    if not playing then
-      destroyObjectInBag(kingsBag, player_pieces_guids[color].kings[1])
-      destroyObjectInBag(kingsBag, player_pieces_guids[color].kings[2])
-      destroyObject(getObjectFromGUID(player_pieces_guids[color].castle))
-      destroyObject(getObjectFromGUID(player_pieces_guids[color].castle_tile))
-    elseif game_settings.player_count > 2 then
-      destroyObjectInBag(kingsBag, player_pieces_guids[color].kings[1])
-    end
-  end
-end
-
-function destroyObjectInBag(bag, guid)
-  bag.takeObject({
-    guid = guid,
-    smooth = false,
-    callback_function = function(obj)
-      destroyObject(obj)
-    end
   })
 end
 

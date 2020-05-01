@@ -12,7 +12,7 @@ local targetDealingPositions = {
 local trashBagGuid = "32278a"
 
 function onLoad(save_state)
-  if save_state ~= nil then
+  if save_state ~= "" then
     tileValues = JSON.decode(save_state).tileValues
   else
     tileValues = assignTilesValue()

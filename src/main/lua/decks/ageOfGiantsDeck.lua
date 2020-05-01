@@ -1,7 +1,7 @@
 local tiles_value
 
 function onLoad(save_state)
-  if save_state ~= nil then
+  if save_state ~= "" then
     tiles_value = JSON.decode(save_state).tiles_value
   else
     tiles_value = assignTilesValue()
