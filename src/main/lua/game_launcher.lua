@@ -43,6 +43,8 @@ local kings_bag_guid = "1403b9"
 local kings_bag = {}
 local game_table_guid = "0f8757"
 local game_table = {}
+local castle_manager_guid = "9bb39a"
+local castle_manager = {}
 
 local quests_deck_guid = "fd8a62"
 local game_objects_guid = {
@@ -114,6 +116,7 @@ local next_turn_button_guid = "4a6126"
 function onLoad()
   game_table = getObjectFromGUID(game_table_guid)
   kings_bag = getObjectFromGUID(kings_bag_guid)
+  castle_manager = getObjectFromGUID(castle_manager_guid)
 end
 
 function destroyObjectsIfExists(guids)
@@ -380,7 +383,6 @@ local castle_tile_positions = {
 }
 
 function movePlayerPieces(color, offset_vector)
-  local castle = getObjectFromGUID(player_pieces_guids[color].castle)
   local castle_tile = getObjectFromGUID(player_pieces_guids[color].castle_tile)
   local hand_zone = getObjectFromGUID(player_pieces_guids[color].hand_zone)
 
@@ -389,10 +391,13 @@ function movePlayerPieces(color, offset_vector)
     hand_zone.getPosition().y + offset_vector[2],
     hand_zone.getPosition().z + offset_vector[3],
   })
-  castle.setPositionSmooth({
-    castle_tile_positions[color].x + offset_vector[1],
-    castle_y + offset_vector[2],
-    castle_tile_positions[color].z + offset_vector[3]
+  castle_manager.call("moveCastle", {
+    seat_color = color,
+    position = {
+      castle_tile_positions[color].x + offset_vector[1],
+      castle_y + offset_vector[2],
+      castle_tile_positions[color].z + offset_vector[3]
+    }
   })
   castle_tile.setPositionSmooth({
     castle_tile_positions[color].x + offset_vector[1],

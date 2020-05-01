@@ -14,44 +14,53 @@ local castle_tile_positions = {
   Green = { x = -31.00, z = 1.00 },
   Pink = { x = 31.00, z = -1.00 },
 }
-local castle_y_position = 1.16
+local y_position = 1.16
+local hidden_y_position = -0.8
 
 local castle_animations = {}
 function showCastle(seat_color)
-  if castle_animations[seat_color] ~= nil then
-    stopCastleAnimation(seat_color)
-  end
-
-  castleAnimationShow(seat_color)
+  local position = {
+    castle_tile_positions[seat_color].x,
+    y_position,
+    castle_tile_positions[seat_color].z
+  }
+  animateCastle(seat_color, position, 25)
 end
 
 function hideCastle(seat_color)
-  if castle_animations[seat_color] ~= nil then
-    stopCastleAnimation(seat_color)
-  end
+  local position = {
+    castle_tile_positions[seat_color].x,
+    hidden_y_position,
+    castle_tile_positions[seat_color].z
+  }
 
-  castleAnimationHide(seat_color)
+  animateCastle(seat_color, position, 0)
 end
 
-function stopCastleAnimation(seat_color)
+function moveCastle(parameters)
+  animateCastle(parameters.seat_color, parameters.position)
+end
+
+function stopAnimation(seat_color)
   Wait.stop(castle_animations[seat_color])
   castle_animations[seat_color] = nil
 end
 
-function castleAnimationShow(seat_color)
-  local castle = getObjectFromGUID(castles[seat_color])
-  castle_animations[seat_color] = Wait.frames(function()
-    castle.setPositionSmooth({
-      castle_tile_positions[seat_color].x,
-      castle_y_position,
-      castle_tile_positions[seat_color].z
-    })
-    castle_animations[seat_color] = nil
-  end, 25)
-end
+function animateCastle(seat_color, new_position, delay)
+  if castle_animations[seat_color] ~= nil then
+    stopAnimation(seat_color)
+  end
 
-function castleAnimationHide(seat_color)
   local castle = getObjectFromGUID(castles[seat_color])
-  castle.lock()
-  castle.setPositionSmooth({ castle_tile_positions[seat_color].x, -0.8, castle_tile_positions[seat_color].z })
+
+  if delay == nil or delay == 0 then
+    castle.lock()
+    castle.setPositionSmooth(new_position)
+  else
+    castle_animations[seat_color] = Wait.frames(function()
+      castle.lock()
+      castle.setPositionSmooth(new_position)
+      castle_animations[seat_color] = nil
+    end, delay)
+  end
 end

@@ -70,10 +70,10 @@ function initialize(save_state)
   if save_state ~= "" then
     seated_players = JSON.decode(save_state).seated_players
     local_players_enabled = JSON.decode(save_state).local_players_enabled
-  else
-    updateSeatedPlayers(seated_players)
-    setLocalPlayersEnabled(local_players_enabled)
   end
+
+  updateSeatedPlayers(seated_players)
+  setLocalPlayersEnabled(local_players_enabled)
 end
 
 function updateSeatedPlayers(new_seated_players)
@@ -171,7 +171,9 @@ function onPlayerChangeColor(player_color)
       and not seated_players[player_color] and Player[player_color].seated then
     addPlayer { player_color = player_color, seat_color = player_color }
   end
-  removeUnoccupiedSeats()
+  if not local_players_enabled then
+    removeUnoccupiedSeats()
+  end
 end
 
 function removeUnoccupiedSeats()
