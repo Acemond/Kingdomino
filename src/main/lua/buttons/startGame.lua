@@ -997,6 +997,9 @@ function movePlayerPieces(color, offset_vector)
     hand_zone.getPosition().y + offset_vector[2],
     hand_zone.getPosition().z + offset_vector[3],
   })
+  if castle_animations[color] ~= nil then
+    Wait.stop(castle_animations[color])
+  end
   castle.setPositionSmooth({
     castle_tile_positions[color].x + offset_vector[1],
     castle_y + offset_vector[2],
