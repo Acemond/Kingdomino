@@ -1,7 +1,16 @@
 -- useless hidden objects used to keep button textures in memory
-local decoyButtons = { "9bb39a", "3416fc", "2a0d3f", "25ef05", "d78ce4", "25bfc4", "29ae89", "6ce2c6", "31bd66",
-                       "5740ca", "180cbc", "2c055b", "28fcc5", "5aebb9", "536275", "eb1dfc", "3853c3", "bb8090",
-                       "59253d", "02c925", "093a20" }
+local decoyButtons = { "3416fc", "25ef05", "d78ce4", "25bfc4", "29ae89", "6ce2c6", "31bd66", "5740ca", "28fcc5",
+                       "5aebb9", "536275", "eb1dfc", "59253d", "02c925", "093a20" }
+
+-- useless decoy buttons used to hold management scripts
+local script_holders = {
+  game_launcher = "bb8090",
+  tile_board_manager = "3853c3",
+  variant_manager = "2c055b",
+  deck_manager = "180cbc",
+  castle_manager = "9bb39a",
+  settings_validator = "2a0d3f"
+}
 
 -- Decks
 local kingdomino_deck_guid = "b972db"
@@ -94,12 +103,13 @@ function onLoad(save_state)
   if save_state ~= "" then
     frozen = JSON.decode(save_state).frozen
   else
-    frozen = false
+    frozen = true
   end
 
   self.interactable = false
-  updateFreezeState(decoyButtons, frozen)
-  updateFreezeState(non_interactable_guids, frozen)
+  updateFreezeState(decoyButtons, true)
+  updateFreezeState(script_holders, true)
+  updateFreezeState(non_interactable_guids, true)
   updateFreezeState(temporarily_frozen, frozen)
 end
 
@@ -107,18 +117,18 @@ function onSave()
   return JSON.encode({ frozen = frozen })
 end
 
-function updateFreezeState(guids)
+function updateFreezeState(guids, is_frozen)
   for _, guid in pairs(guids) do
     obj = getObjectFromGUID(guid)
     if obj then
-      obj.interactable = not frozen
+      obj.interactable = not is_frozen
     end
   end
 end
 
 function prepareTableForGame()
   frozen = false
-  updateFreezeState(temporarily_frozen)
+  updateFreezeState(temporarily_frozen, frozen)
   Wait.frames(function()
     destroyObjectsIfExists(buttons_to_remove)
   end, 1)

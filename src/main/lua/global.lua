@@ -5,11 +5,13 @@ local game_launcher = {}
 local configuration_validator_guid = "2a0d3f"
 local configuration_validator = {}
 
-function onLoad()
+function onLoad(save_state)
+  if save_state == "" then
+    displayWelcomeMessage()
+  end
   player_manager = getObjectFromGUID(player_manager_guid)
   game_launcher = getObjectFromGUID(game_launcher_guid)
   configuration_validator = getObjectFromGUID(configuration_validator_guid)
-  displayWelcomeMessage()
 end
 
 function displayWelcomeMessage()

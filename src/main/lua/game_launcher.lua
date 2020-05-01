@@ -43,6 +43,8 @@ local kings_bag_guid = "1403b9"
 local kings_bag = {}
 local game_table_guid = "0f8757"
 local game_table = {}
+local tile_board_manager_guid = "3853c3"
+local tile_board_manager = {}
 local castle_manager_guid = "9bb39a"
 local castle_manager = {}
 
@@ -117,6 +119,7 @@ function onLoad()
   game_table = getObjectFromGUID(game_table_guid)
   kings_bag = getObjectFromGUID(kings_bag_guid)
   castle_manager = getObjectFromGUID(castle_manager_guid)
+  tile_board_manager = getObjectFromGUID(tile_board_manager_guid)
 end
 
 function destroyObjectsIfExists(guids)
@@ -145,7 +148,8 @@ function launchGame(new_game_settings)
   local decks = prepareMainDecks()
   local buildings = prepareBuildings()
 
-  if game_settings.seated_players.Green or game_settings.seated_players.Pink then
+  if game_settings.seated_players.Green or game_settings.seated_players.Pink
+      or game_settings.variants.kingdomino_xl then
     spaceOutPlayers()
   end
   if game_settings.decks.queendomino then
