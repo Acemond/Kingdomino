@@ -130,6 +130,7 @@ function prepareTableForGame()
   frozen = false
   updateFreezeState(temporarily_frozen, frozen)
   Wait.frames(function()
+    getObjectFromGUID(script_holders.tile_board_manager).destroy()
     destroyObjectsIfExists(buttons_to_remove)
   end, 1)
   Wait.frames(function()

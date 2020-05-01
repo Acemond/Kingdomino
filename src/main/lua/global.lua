@@ -59,5 +59,7 @@ function resolveForPlayerCount(target_player_count)
     game_settings.variants.kingdomino_xl = false
     game_settings.variants.two_players_advanced = false
   end
+  Global.setTable("deck_enabled", game_settings.decks)
+  Global.setTable("variant_enabled", game_settings.variants)
   return game_settings
 end

@@ -105,7 +105,7 @@ end
 function getObjectsGuids()
   local tiles = self.getObjects()
   local guids = {}
-  for i = 1, Global.getVar("board_size"), 1 do
+  for i = 1, Global.getTable("game").settings.tile_deal_count, 1 do
     guids[i] = tiles[i].guid
   end
   return guids
