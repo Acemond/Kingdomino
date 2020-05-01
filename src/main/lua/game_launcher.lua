@@ -164,10 +164,8 @@ function launchGame(new_game_settings)
 
   local new_game = {
     decks = decks,
-    board_size = game_settings.tile_deal_count,
     buildings = buildings,
     settings = game_settings,
-    player_count = game_settings.player_count
   }
   Global.setTable("game", new_game)
   next_turn_button.call("firstTurn", new_game)

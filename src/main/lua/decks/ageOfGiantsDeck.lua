@@ -10,7 +10,7 @@ function onLoad(save_state)
 end
 
 function onSave()
-  --return JSON.encode({ tiles_value = tiles_value })
+  return JSON.encode({ tiles_value = tiles_value })
 end
 
 function assignTilesValue()

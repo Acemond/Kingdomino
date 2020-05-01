@@ -104,7 +104,7 @@ function onLoad(save_state)
 end
 
 function onSave()
-  --return JSON.encode({ frozen = frozen })
+  return JSON.encode({ frozen = frozen })
 end
 
 function updateFreezeState(guids)

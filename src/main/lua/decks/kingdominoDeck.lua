@@ -20,7 +20,7 @@ function onLoad(save_state)
 end
 
 function onSave()
-  --return JSON.encode({ tileValues = tileValues })
+  return JSON.encode({ tileValues = tileValues })
 end
 
 function assignTilesValue()
@@ -80,9 +80,10 @@ function dealTiles()
 
   for index, guid in pairs(getSortedTilesValue()) do
     if game.settings.decks.age_of_giants then
-      if game.player_count == 3 and (index == 2 or index == 4) then
+      if game.settings.player_count == 3 and (index == 2 or index == 4) then
         trashTile(guid, targetDealingPositions[index])
-      elseif game.settings.decks.age_of_giants and (game.player_count == 2 or game.player_count > 3) and index == 3 then
+      elseif game.settings.decks.age_of_giants
+          and (game.settings.player_count == 2 or game.settings.player_count > 3) and index == 3 then
         trashTile(guid, targetDealingPositions[index])
       else
         dealTile(guid, targetDealingPositions[index])

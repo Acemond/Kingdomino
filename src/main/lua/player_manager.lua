@@ -83,10 +83,10 @@ function updateSeatedPlayers(new_seated_players)
 end
 
 function onSave()
-  --return JSON.encode({
-  --  seated_players = seated_players,
-  --  local_players_enabled = local_players_enabled,
-  --})
+  return JSON.encode({
+    seated_players = seated_players,
+    local_players_enabled = local_players_enabled,
+  })
 end
 
 function onUpdate()

@@ -58,10 +58,10 @@ function loadSaveState(save_state)
 end
 
 function onSave()
-  --return JSON.encode({
-  --  variant_visible = variant_visible,
-  --  variant_enabled = variant_enabled
-  --})
+  return JSON.encode({
+    variant_visible = variant_visible,
+    variant_enabled = variant_enabled
+  })
 end
 
 function setVariantEnabled(parameters)

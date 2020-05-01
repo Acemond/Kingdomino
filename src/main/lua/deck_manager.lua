@@ -86,11 +86,11 @@ function loadSaveState(save_state)
 end
 
 function onSave()
-  --return JSON.encode({
-  --  deck_button_visible = deck_button_visible,
-  --  deck_enabled = deck_enabled,
-  --  deck_visible = deck_visible
-  --})
+  return JSON.encode({
+    deck_button_visible = deck_button_visible,
+    deck_enabled = deck_enabled,
+    deck_visible = deck_visible
+  })
 end
 
 function setDeckEnabled(parameters)

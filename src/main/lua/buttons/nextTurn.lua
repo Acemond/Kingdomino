@@ -41,22 +41,13 @@ function initialize(save_state)
       table.insert(buildings, getObjectFromGUID(guid))
     end
 
-    local game_settings = {
-      decks = save.decks_settings,
-      variants = save.variants_settings,
-      player_count = save.player_count,
-      seated_players = save.seated_players_settings,
-      tile_deal_count = save.tile_deal_count_settings
-    }
-
+    turn = save.turn
     game = {
-      turn = save.turn,
       decks = decks,
-      board_size = save.board_size,
       buildings = buildings,
-      settings = game_settings,
-      player_count = save.player_count
+      settings = save.game_settings,
     }
+    Global.setTable("game", game)
   end
 end
 
@@ -75,17 +66,17 @@ function onSave()
     end
   end
 
-  --return JSON.encode({
-  --  turn = turn,
-  --  deck_guids = deck_guids,
-  --  board_size = game.game_settings.tile_deal_count,
-  --  building_guids = building_guids,
-  --  decks_settings = game.game_settings.decks,
-  --  variants_settings = game.game_settings.variants,
-  --  seated_players_settings = game.game_settings.seated_players,
-  --  tile_deal_count_settings = game.game_settings.tile_deal_count,
-  --  player_count = game.game_settings.player_count
-  --})
+  local settings = {}
+  if game ~= nil then
+    settings = game.settings
+  end
+
+  return JSON.encode({
+    turn = turn,
+    deck_guids = deck_guids,
+    building_guids = building_guids,
+    game_settings = settings
+  })
 end
 
 function temporarilyDisableButtons()
@@ -164,10 +155,10 @@ function checkZones()
 end
 
 function getExpectedKings()
-  if game.player_count == 2 then
+  if game.settings.player_count == 2 then
     return 4
   else
-    return game.player_count
+    return game.settings.player_count
   end
 end
 

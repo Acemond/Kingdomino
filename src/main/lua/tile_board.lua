@@ -47,7 +47,7 @@ function onLoad(save_state)
 end
 
 function onSave()
-  --return JSON.encode({ board_size = board_size })
+  return JSON.encode({ board_size = board_size })
 end
 
 function onUpdate()
