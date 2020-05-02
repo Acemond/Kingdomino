@@ -34,7 +34,7 @@ local hidden_y_position = -0.8
 local castle_animations = {}
 
 function onPlayerChangeColor(player_color)
-  if castle_positions[player_color] then
+  if castle_positions[player_color] and not Global.getVar("quick_setup") then
     Player[player_color].lookAt({
       position = castle_positions[player_color].position,
       pitch = 45,

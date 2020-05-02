@@ -32,6 +32,7 @@ function displayWelcomeMessage()
 end
 
 function quickSetup(target_player_count)
+  Global.setVar("quick_setup", true)
   player_manager.call("setPlayerCount", target_player_count)
   resolveForPlayerCount(target_player_count)
   Wait.frames(startGame, 10)

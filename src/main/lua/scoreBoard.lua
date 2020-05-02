@@ -67,8 +67,10 @@ function getCounterCoordinates(row, sheet_column, subcolumn)
 end
 
 function generateCounters()
+  local frame = 0
   for row, row_configuration in pairs(counters_configuration) do
-    generateRow(row, row_configuration)
+    frame = frame + 1
+    Wait.frames(function() generateRow(row, row_configuration) end, frame)
   end
 end
 
