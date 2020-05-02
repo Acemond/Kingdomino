@@ -2,12 +2,12 @@ local button_config = {
   counter = {
     width = 600, height = 550,
     font = 450,
-    scale = {0.15, 0.15, 0.15}
+    scale = { 0.15, 0.15, 0.15 }
   },
   plus_minus = {
     width = 300, height = 300,
     font = 400,
-    scale = {0.17, 0.17, 0.17}
+    scale = { 0.17, 0.17, 0.17 }
   }
 }
 local plus_minus_spacing = 0.16
@@ -31,31 +31,47 @@ local buttons_count = 0
 local total_counter = {}
 
 local counters_configuration = {
-  {columns = 3, subcolumns = 2, default_values = {0, 0}},
-  {columns = 3, subcolumns = 2, default_values = {0, 0}},
-  {columns = 3, subcolumns = 2, default_values = {0, 0}},
-  {columns = 3, subcolumns = 2, default_values = {0, 0}},
-  {columns = 3, subcolumns = 2, default_values = {0, 0}},
-  {columns = 3, subcolumns = 2, default_values = {0, 0}},
-  {columns = 3, subcolumns = 2, default_values = {0, 0}},
+  { columns = 3, subcolumns = 2, default_values = { 0, 0 } },
+  { columns = 3, subcolumns = 2, default_values = { 0, 0 } },
+  { columns = 3, subcolumns = 2, default_values = { 0, 0 } },
+  { columns = 3, subcolumns = 2, default_values = { 0, 0 } },
+  { columns = 3, subcolumns = 2, default_values = { 0, 0 } },
+  { columns = 3, subcolumns = 2, default_values = { 0, 0 } },
+  { columns = 3, subcolumns = 2, default_values = { 0, 0 } },
 
-  {columns = 1, subcolumns = 1, default_values = {0}},
+  { columns = 1, subcolumns = 1, default_values = { 0 } },
 
-  {columns = 1, subcolumns = 2, default_values = {0, 1}},
-  {columns = 1, subcolumns = 2, default_values = {0, 1}},
+  { columns = 1, subcolumns = 2, default_values = { 0, 1 } },
+  { columns = 1, subcolumns = 2, default_values = { 0, 1 } },
 
-  {columns = 1, subcolumns = 1, default_values = {0}},
-  {columns = 1, subcolumns = 1, default_values = {0}},
-  {columns = 1, subcolumns = 1, default_values = {0}},
-  {columns = 1, subcolumns = 1, default_values = {0}}
+  { columns = 1, subcolumns = 1, default_values = { 0 } },
+  { columns = 1, subcolumns = 1, default_values = { 0 } },
+  { columns = 1, subcolumns = 1, default_values = { 0 } },
+  { columns = 1, subcolumns = 1, default_values = { 0 } }
 }
 local total_position = {
   row = 15,
   column = 1
 }
 
-function onLoad()
-  initButtons()
+function onLoad(save_state)
+  if save_state ~= "" then
+    counters = JSON.decode(save_state).counters
+    total_counter_count = JSON.decode(save_state).total_counter_count
+    buttons_count = JSON.decode(save_state).buttons_count
+    total_counter = JSON.decode(save_state).total_counter
+  else
+    initButtons()
+  end
+end
+
+function onSave()
+  return JSON.encode({
+    counters = counters,
+    total_counter_count = total_counter_count,
+    buttons_count = buttons_count,
+    total_counter = total_counter
+  })
 end
 
 function getCounterCoordinates(row, sheet_column, subcolumn)
@@ -104,15 +120,15 @@ function setupCounter(position, default_value)
     width = button_config["counter"].width,
     height = button_config["counter"].height,
     font_size = button_config["counter"].font,
-    color = {0.5, 0.5, 0.5, 0},
-    font_color = {0, 0, 0, 100},
-    alignment = 3,  -- Center
-    validation = 2,  -- 1: None, 2: Integer
+    color = { 0.5, 0.5, 0.5, 0 },
+    font_color = { 0, 0, 0, 100 },
+    alignment = 3, -- Center
+    validation = 2, -- 1: None, 2: Integer
     tab = 2  -- Select next input
   }
 
   self.setVar(input_function_name,
-      function (_, _, input_value, _)
+      function(_, _, input_value, _)
         changeCounterValue(parameters, tonumber(input_value))
       end)
   self.createInput(parameters)
@@ -126,7 +142,7 @@ end
 function createPlusButton(counter, position)
   local click_function_name = "plus_function_" .. tostring(counter)
   self.setVar(click_function_name,
-      function (_, _, alt_click)
+      function(_, _, alt_click)
         incrementCounter(counter, alt_click, 1)
       end)
 
@@ -135,7 +151,7 @@ function createPlusButton(counter, position)
     click_function = click_function_name,
     function_owner = self,
     label = "+",
-    position = {position.x + plus_minus_spacing, position.y, position.z - 0.03},
+    position = { position.x + plus_minus_spacing, position.y, position.z - 0.03 },
     scale = button_config["plus_minus"].scale,
     width = button_config["plus_minus"].width,
     height = button_config["plus_minus"].height,
@@ -147,7 +163,7 @@ end
 function createMinusButton(counter, position)
   local click_function_name = "minus_function_" .. tostring(counter)
   self.setVar(click_function_name,
-      function (_, _, alt_click)
+      function(_, _, alt_click)
         incrementCounter(counter, alt_click, -1)
       end)
 
@@ -156,7 +172,7 @@ function createMinusButton(counter, position)
     click_function = click_function_name,
     function_owner = self,
     label = "-",
-    position = {position.x - plus_minus_spacing, position.y, position.z - 0.03},
+    position = { position.x - plus_minus_spacing, position.y, position.z - 0.03 },
     scale = button_config["plus_minus"].scale,
     width = button_config["plus_minus"].width,
     height = button_config["plus_minus"].height,
@@ -165,7 +181,8 @@ function createMinusButton(counter, position)
   buttons_count = buttons_count + 1
 end
 
-function doNothing() end
+function doNothing()
+end
 
 function setupTotal(position)
   local parameters = {
@@ -178,9 +195,9 @@ function setupTotal(position)
     width = button_config["counter"].width,
     height = button_config["counter"].height,
     font_size = button_config["counter"].font,
-    color = {1, 1, 1, 0},
-    font_color = {0, 0, 0, 100},
-    alignment = 3,  -- Center
+    color = { 1, 1, 1, 0 },
+    font_color = { 0, 0, 0, 100 },
+    alignment = 3, -- Center
     tooltip = total_label_prefix .. "0"
   }
   buttons_count = buttons_count + 1
