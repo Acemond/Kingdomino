@@ -198,10 +198,19 @@ function makePlayerLookAtCastle(player_color)
   if castle_positions[player_color] then
     Player[player_color].lookAt({
       position = castle_positions[player_color].position,
-      pitch = 55,
-      yaw = castle_positions[player_color].yaw,
-      distance = 20,
+      pitch = 30,
+      yaw = castle_positions[player_color].yaw + 25,
+      distance = 15,
     })
+
+    Wait.frames(function()
+      Player[player_color].lookAt({
+        position = castle_positions[player_color].position,
+        pitch = 45,
+        yaw = castle_positions[player_color].yaw,
+        distance = 30,
+      })
+    end, 70)
   end
 end
 

@@ -31,9 +31,9 @@ local variant_buttons_guids = {
 }
 
 local variant_interaction = {
-  kingdomino_xl = { dependency = "kingdomino", incompatibilities = "queendomino" },
-  teamdomino = { dependency = "kingdomino", incompatibilities = "queendomino" },
-  two_players_advanced = { dependency = "kingdomino", incompatibilities = "queendomino" }
+  kingdomino_xl = { dependency = "kingdomino", incompatibility = "queendomino" },
+  teamdomino = { dependency = "kingdomino", incompatibility = "queendomino" },
+  two_players_advanced = { dependency = "kingdomino", incompatibility = "queendomino" }
 }
 
 local deck_manager_guid = "180cbc"
@@ -79,7 +79,7 @@ function checkInteractions()
       hideObjectIfExists(variant_buttons_guids.enable[variant_name])
       hideObjectIfExists(variant_buttons_guids.disable[variant_name])
       variant_visible[variant_name] = false
-      variant_enabled[variant_name] = false
+      setVariantEnabled { variant_name = variant_name, is_enabled = false }
     end
   end
 end

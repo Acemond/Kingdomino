@@ -20,6 +20,10 @@ function onLoad(save_state)
   variant_manager = getObjectFromGUID(variant_manager_guid)
 end
 
+function onSave()
+  return JSON.encode({ new_game = false })
+end
+
 function displayWelcomeMessage()
   broadcastToAll("Welcome to Kingdomino!", { r = 1, g = 1, b = 1 })
   Wait.frames(function()
