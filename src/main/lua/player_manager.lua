@@ -210,7 +210,8 @@ function getPlayerCount()
 end
 
 function onPlayerConnect(person)
-  if not local_players_enabled and not seated_players[person.color] then
+  if not local_players_enabled and not seated_players[person.color]
+      and person.color ~= spectator_color and person.color ~= game_master_color then
     addPlayer { player_color = person.color, seat_color = person.color }
   end
 end

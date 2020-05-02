@@ -7,15 +7,6 @@ local castles = {
   Pink = "a407fb"
 }
 
-local castle_tiles = {
-  Orange = "9ab771",
-  Purple = "7db35a",
-  Red = "f6948c",
-  White = "537260",
-  Green = "8c9612",
-  Pink = "a5aad1"
-}
-
 local castle_positions = {
   White = {
     position = { x = -21.00, y = 1.16, z = -11.00 },
@@ -46,19 +37,10 @@ function onPlayerChangeColor(player_color)
   if castle_positions[player_color] then
     Player[player_color].lookAt({
       position = castle_positions[player_color].position,
-      pitch = 30,
-      yaw = castle_positions[player_color].yaw + 25,
-      distance = 15,
+      pitch = 45,
+      yaw = castle_positions[player_color].yaw,
+      distance = 30,
     })
-
-    Wait.frames(function()
-      Player[player_color].lookAt({
-        position = castle_positions[player_color].position,
-        pitch = 45,
-        yaw = castle_positions[player_color].yaw,
-        distance = 30,
-      })
-    end, 70)
   end
 end
 
