@@ -148,7 +148,8 @@ function launchGame(new_game_settings)
   destroyUnusedPieces()
   game_table.call("prepareTableForGame")
   if game_settings.seated_players.Green or game_settings.seated_players.Pink
-      or game_settings.variants.kingdomino_xl then
+      or game_settings.variants.kingdomino_xl
+      or (game_settings.decks.kingdomino and game_settings.decks.queendomino) then
     Wait.frames(spaceOutPlayers, 5)
   end
   if game_settings.decks.queendomino then
