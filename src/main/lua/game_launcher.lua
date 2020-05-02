@@ -39,7 +39,7 @@ local player_pieces_guids = {
 
 local start_button_guid = "af7bb2"
 
-local kings_bag_guid = "1403b9"
+local kings_bag_guid = "11eb0a"
 local kings_bag = {}
 local game_table_guid = "0f8757"
 local game_table = {}
@@ -260,7 +260,7 @@ function prepareMainDecks()
 
   local indexedDeck = {}
   for _, deck in pairs(decks) do
-    table.insert(indexedDeck, deck)
+    table.insert(indexedDeck, deck.guid)
   end
   return indexedDeck
 end
@@ -269,7 +269,7 @@ function getBuildingsManagers()
   local building_managers = {}
   for mode, enabled in pairs(game_settings.decks) do
     if enabled and game_objects_guid[mode].building_board then
-      building_managers[mode] = getObjectFromGUID(game_objects_guid[mode].building_board)
+      building_managers[mode] = game_objects_guid[mode].building_board
     end
   end
   return building_managers
@@ -279,7 +279,7 @@ function prepareBuildings()
   local building_managers = getBuildingsManagers()
 
   for _, manager in pairs(building_managers) do
-    manager.call("placeDeck")
+    getObjectFromGUID(manager).call("placeDeck")
   end
 
   return building_managers

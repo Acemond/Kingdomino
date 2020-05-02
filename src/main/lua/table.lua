@@ -30,7 +30,7 @@ local non_interactable_guids = {
   the_court_deck_guid, "2c22ed", "6ff70f", "d19b4c", -- the court
   start_button_guid, "31971b", "4a6126", "46971b", "4f4db6", "8dfa00", "1765aa", "6c37eb", -- game buttons
   "7a72d1", "bd95f5", "174390", "8c018b", "e5b23a", "ae485e", "a391ea", "722967", -- tile boards
-  "1403b9", -- kings bag
+  "11eb0a", -- kings bag
   "75dcb1", "edb838", "42f5a4", "92f52d" --[[, "83af19", "355eca"]] -- variants buttons
 }
 local temporarily_frozen = {

@@ -30,52 +30,16 @@ end
 
 function initialize(save_state)
   if save_state ~= "" then
-    local save = JSON.decode(save_state)
-
-    local decks = {}
-    for _, guid in ipairs(save.deck_guids) do
-      table.insert(decks, getObjectFromGUID(guid))
-    end
-    local buildings = {}
-    for _, guid in ipairs(save.building_guids) do
-      table.insert(buildings, getObjectFromGUID(guid))
-    end
-
-    turn = save.turn
-    game = {
-      decks = decks,
-      buildings = buildings,
-      settings = save.game_settings,
-    }
+    turn = JSON.decode(save_state).turn
+    game = JSON.decode(save_state).game
     Global.setTable("game", game)
   end
 end
 
 function onSave()
-  local deck_guids = {}
-  if game.decks then
-    for _, deck in ipairs(game.decks) do
-      table.insert(deck_guids, deck.guid)
-    end
-  end
-
-  local building_guids = {}
-  if game.buildings then
-    for _, deck in pairs(game.buildings) do
-      table.insert(building_guids, deck.guid)
-    end
-  end
-
-  local settings = {}
-  if game ~= nil then
-    settings = game.settings
-  end
-
   return JSON.encode({
     turn = turn,
-    deck_guids = deck_guids,
-    building_guids = building_guids,
-    game_settings = settings
+    game = game
   })
 end
 
@@ -106,14 +70,14 @@ function nextTurn()
   removedUnpickedTiles()
 
   for _, manager in pairs(game.buildings) do
-    manager.call("dealBuildings")
+    getObjectFromGUID(manager).call("dealBuildings")
   end
 
   if turn ~= 1 then
     moveZoneContents()
   end
 
-  local deck = game.decks[(turn - 1) % #game.decks + 1]
+  local deck = getObjectFromGUID(game.decks[(turn - 1) % #game.decks + 1])
   if deck ~= nil then
     deck.shuffle()
     deck.call("dealTiles")
