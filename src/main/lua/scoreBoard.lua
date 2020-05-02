@@ -54,24 +54,8 @@ local total_position = {
   column = 1
 }
 
-function onLoad(save_state)
-  if save_state ~= "" then
-    counters = JSON.decode(save_state).counters
-    total_counter_count = JSON.decode(save_state).total_counter_count
-    buttons_count = JSON.decode(save_state).buttons_count
-    total_counter = JSON.decode(save_state).total_counter
-  else
-    initButtons()
-  end
-end
-
-function onSave()
-  return JSON.encode({
-    counters = counters,
-    total_counter_count = total_counter_count,
-    buttons_count = buttons_count,
-    total_counter = total_counter
-  })
+function onLoad()
+  initButtons()
 end
 
 function getCounterCoordinates(row, sheet_column, subcolumn)
