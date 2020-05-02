@@ -39,15 +39,6 @@ local player_buttons_guids = {
 local game_master_color = "Black"
 local spectator_color = "Grey"
 
-local castle_positions = {
-  White = { position = { -21.00, 1.16, -11.00 }, yaw = 0 },
-  Orange = { position = { 21.00, 1.16, -11.00 }, yaw = 0 },
-  Purple = { position = { -21.00, 1.16, 11.00 }, yaw = 180 },
-  Red = { position = { 21.00, 1.16, 11.00 }, yaw = 180 },
-  Green = { position = { -31.00, 1.16, 1.00 }, yaw = 90 },
-  Pink = { position = { 31.00, 1.16, -1.00 }, yaw = 270 }
-}
-
 local local_players_enabled = false  -- Set this with setLocalPlayersEnabled only
 
 local castle_manager_guid = "9bb39a"
@@ -104,10 +95,22 @@ end
 function addPlayer(parameters)
   seated_players[parameters.seat_color] = true
   if not local_players_enabled then
-    Player[parameters.player_color].changeColor(parameters.seat_color)
+    if parameters.player_color == "Grey" then
+      getNextSpectator().changeColor(parameters.seat_color)
+    else
+      Player[parameters.player_color].changeColor(parameters.seat_color)
+    end
   end
   updateSeatedPlayers(seated_players)
   castle_manager.call("showCastle", parameters.seat_color)
+end
+
+function getNextSpectator()
+  for _, player in ipairs(Player.getPlayers()) do
+    if player.color == "Grey" then
+      return player
+    end
+  end
 end
 
 function removePlayer(seat_color)
@@ -123,8 +126,11 @@ function removePlayerColor(player)
   local target_color = game_master_color
   if Player[game_master_color].seated then
     target_color = spectator_color
+    if Player[player.color].seated then
+      broadcastToColor("You are now a spectator, pick a color with the top right menu.", player.color, { r = 1, g = 0, b = 0 })
+    end
   end
-  player.changeColor(game_master_color)
+  player.changeColor(target_color)
 end
 
 function setPlayerCount(target_player_count)
@@ -166,7 +172,6 @@ function removeAllLocalPlayers()
 end
 
 function onPlayerChangeColor(player_color)
-  makePlayerLookAtCastle(player_color)
   if not local_players_enabled and player_color ~= spectator_color and player_color ~= game_master_color
       and not seated_players[player_color] and Player[player_color].seated then
     addPlayer { player_color = player_color, seat_color = player_color }
@@ -191,26 +196,6 @@ function seatColoredPlayer()
         addPlayer { player_color = player.color, seat_color = player.color }
       end
     end
-  end
-end
-
-function makePlayerLookAtCastle(player_color)
-  if castle_positions[player_color] then
-    Player[player_color].lookAt({
-      position = castle_positions[player_color].position,
-      pitch = 30,
-      yaw = castle_positions[player_color].yaw + 25,
-      distance = 15,
-    })
-
-    Wait.frames(function()
-      Player[player_color].lookAt({
-        position = castle_positions[player_color].position,
-        pitch = 45,
-        yaw = castle_positions[player_color].yaw,
-        distance = 30,
-      })
-    end, 70)
   end
 end
 

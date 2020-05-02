@@ -1,0 +1,3 @@
+two_players_advanced: 7x7 kingdoms for 2 players!
+kingdomino_xl:  7x7 kingdoms for 3 or 4 players!
+random_quests: Play with quests from Age of Giants instead of the default ones.
