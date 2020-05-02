@@ -7,6 +7,9 @@ function validate(game_settings)
   if player_count < 2 then
     broadcastToAll("There should be at least two players to start a game", error_color)
     return false
+  elseif player_count < 3 and decks.queendomino and decks.kingdomino then
+    broadcastToAll("Royal Wedding requires at least 3 players", error_color)
+    return false
   elseif variants.kingdomino_xl
       and (player_count == 2 or player_count > 4) then
     broadcastToAll("Kingdomino XL is for 3 to 4 players only", error_color)
