@@ -2,6 +2,10 @@ local player_manager_guid = "31971b"
 local player_manager = {}
 local game_launcher_guid = "bb8090"
 local game_launcher = {}
+local deck_manager_guid = "180cbc"
+local deck_manager = {}
+local variant_manager_guid = "2c055b"
+local variant_manager = {}
 local configuration_validator_guid = "2a0d3f"
 local configuration_validator = {}
 
@@ -12,6 +16,8 @@ function onLoad(save_state)
   player_manager = getObjectFromGUID(player_manager_guid)
   game_launcher = getObjectFromGUID(game_launcher_guid)
   configuration_validator = getObjectFromGUID(configuration_validator_guid)
+  deck_manager = getObjectFromGUID(deck_manager_guid)
+  variant_manager = getObjectFromGUID(variant_manager_guid)
 end
 
 function displayWelcomeMessage()
@@ -23,7 +29,8 @@ end
 
 function quickSetup(target_player_count)
   player_manager.call("setPlayerCount", target_player_count)
-  startWithSettings(resolveForPlayerCount(target_player_count))
+  resolveForPlayerCount(target_player_count)
+  Wait.frames(startGame, 10)
 end
 
 function startGame()
@@ -49,17 +56,15 @@ end
 function resolveForPlayerCount(target_player_count)
   local game_settings = getGameSettings()
   if target_player_count == 5 then
-    game_settings.variants.kingdomino_xl = false
-    game_settings.variants.teamdomino = false
-    game_settings.variants.two_players_advanced = false
+    variant_manager.call("setVariantEnabled", { variant_name = "kingdomino_xl", is_enabled = false })
+    variant_manager.call("setVariantEnabled", { variant_name = "teamdomino", is_enabled = false })
+    variant_manager.call("setVariantEnabled", { variant_name = "two_players_advanced", is_enabled = false })
   elseif target_player_count == 6 then
-    game_settings.decks.kingdomino = true
-    game_settings.decks.queendomino = true
-    game_settings.decks.age_of_giants = false
-    game_settings.variants.kingdomino_xl = false
-    game_settings.variants.two_players_advanced = false
+    deck_manager.call("setDeckEnabled", { deck_name = "kingdomino", is_enabled = true })
+    deck_manager.call("setDeckEnabled", { deck_name = "queendomino", is_enabled = true })
+    deck_manager.call("setDeckEnabled", { deck_name = "age_of_giants", is_enabled = false })
+    variant_manager.call("setVariantEnabled", { variant_name = "kingdomino_xl", is_enabled = false })
+    variant_manager.call("setVariantEnabled", { variant_name = "two_players_advanced", is_enabled = false })
   end
-  Global.setTable("deck_enabled", game_settings.decks)
-  Global.setTable("variant_enabled", game_settings.variants)
   return game_settings
 end

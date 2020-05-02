@@ -145,20 +145,21 @@ function launchGame(new_game_settings)
   local decks = prepareMainDecks()
   local buildings = prepareBuildings()
 
-  if game_settings.seated_players.Green or game_settings.seated_players.Pink
-      or game_settings.variants.kingdomino_xl then
-    spaceOutPlayers()
-  end
-  if game_settings.decks.queendomino then
-    for color, seated in pairs(game_settings.seated_players) do
-      if seated then
-        takeCoins(color)
-      end
-    end
-  end
-
   destroyUnusedPieces()
   game_table.call("prepareTableForGame")
+  if game_settings.seated_players.Green or game_settings.seated_players.Pink
+      or game_settings.variants.kingdomino_xl then
+    Wait.frames(spaceOutPlayers, 5)
+  end
+  if game_settings.decks.queendomino then
+    Wait.frames(function()
+      for color, seated in pairs(game_settings.seated_players) do
+        if seated then
+          takeCoins(color)
+        end
+      end
+    end, 10)
+  end
 
   local next_turn_button = getObjectFromGUID(next_turn_button_guid)
   setNextTurnPosition(next_turn_button)
@@ -169,7 +170,7 @@ function launchGame(new_game_settings)
     settings = game_settings,
   }
   Global.setTable("game", new_game)
-  next_turn_button.call("firstTurn", new_game)
+  Wait.frames(function () next_turn_button.call("firstTurn", new_game) end, 20)
 
   getObjectFromGUID(start_button_guid).destroy()
 end
