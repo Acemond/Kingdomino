@@ -1,0 +1,172 @@
+This is a shortened version of the rules, you can find the rulebook on the left of the table.
+
+
+Object of the game
+----------------------
+
+Cleverly connect your dominoes in order to build your kingdom in a 5x5 grid (3 to 4 players) or a 7x7 grid (2 players) all the while scoring the most victory points with your territories and your wealth.
+
+
+Setting up the Game
+------------------------
+
+Queendomino is an independant extension that can be played without Kingdomino. Enable it by clicking on the Queendomino button before starting a game.
+
+
+Playing the game
+--------------------
+
+The playing order is determined by the positions of the kings on the dominoes line:
+if your king is placed on the first domino of the line (the one nearest to the "builders’"board), you start. You must take the following actions, in the outlined order (Note that only actions A and E are mandatory. The rest are optional):
+
+ - A. Add the chosen domino to your territory according to connection rules
+ - B. Send 1 or 2 knights to collect tax
+ - C. Construct a building
+ - D. Bribe a Dragon into burning down a main building
+ - E. Choose a new domino in the new line by placing your king on it
+
+Then, it is the turn of the player whose king is on the second domino to take these actions, and so on until the player posted on the last domino has played.
+
+(In a 2-player game, each player will take actions A and E twice, once for each of their kings)
+
+
+A - (Mandatory) Add the chosen domino to your territory:
+-------------------------------------------------------------------
+
+In order to place down your domino, you must follow 2 rules:
+ - The connection rule: the domino must be connected to another domino matching at least 1 of its landscapes (horizontally or vertically only). The starting domino can be considered as a wild domino, any landscape can be connected to this domino.
+ - The surface rule: All your dominoes must fit in a 5x5 grid (3- and 4-player) or a 7x7 grid (2 player).
+
+ Important: Any time you cannot add a domino to your territory according to those rules, it will be discarded and you will not get points for it (you are not allowed to discard a domino if it could have been of use according to those same rules). Anticipation skills are crucial if you want your Kingdom to be complete at the end of the game.
+
+
+B - (Optional) Send 1 or 2 knights to collect tax:
+-------------------------------------------------------
+
+If you still have knights (one given to you at the start the game plus those you may have claimed when constructing buildings) you may choose to collect tax right after connecting your domino to your kingdom:
+ - take a knight from your Guard and place it on the domino you just put down,
+ - immediately collect a coin value equal to the number of squares in the territory your knight was just placed on,
+ - the knight will stay on this square until the end of the game.
+
+You may place up to 2 knights during a round of game (one on each square of the domino).
+You may place a knight on a territory where other knights have been placed in the course of previous rounds.
+
+C - (Optional) Construct a Building:
+-----------------------------------------
+
+You need to have at least 1 "Town" square still in construction in order to construct a building, whether this is a square that was added to your territory during a previous round or the current one.
+ - Choose a building still available on the "builders" board (you cannot take one in the draw).
+ - Pay the bank the price listed for the chosen building.
+ - Add this building to the construction site of your choice, red side up.
+When a building is constructed, it leaves an empty spot on the "Builders" board for the duration of the round.
+
+Buildings
+-----------
+
+Upper left corner: Immediate effects
+On the grey side of some of the Building tiles, a picture on the upper left corner indicates which immediate effect the construction of this building will bring:
+Take the number of knights indicated on the tile and add them to your personal guard. You may use them to collect tax as soon as your next turn.
+Place the number of Towers indicated on the tile on the building you are constructing. As soon as your Kingdom has acquired the most Towers (even in the case of a tie with another player), the Queen rejoins it.
+
+The Queen: When the Queen joins your Kingdom, it lowers your building cost by 1 coin. At the end of a game, if you are the one to host her in your kingdom, you will place her on your most expansive territory (the largest set of same-type connecting squares: prairies, fields, forest, lake, marsh, mountain and town). She then counts as one extra crown.
+
+Lower left corner: Effects active during a game
+On the Lower left corner of some of the Building tiles, an additional effect indicated in a box applies during the whole game, once the building is constructed. This box is visible on both sides of the tile.
+
+Please refer to the rulebook to get the symbols on the tiles and their effect. Here is an attempt at replacing them with raw text.
+
++Coin / Knight
+Each time you collect tax, you immediately collect an ADDITIONAL coin value equal to the number of knights in your possession (kingdom and guard).
+
++Coin / Tower
+Each time you collect tax, you immediately collect an ADDITIONAL coin value equal to the number of Towers you have in your Kingdom.
+
+Upper right corner: Crowns
+A picture of a crown is on the upper right corner of some of the Building tiles. In that case, it appears on both sides of the tile. At the end of the game, each of your Town territories will be worth as much as the number of squares times the number of crowns in this territory.
+
+Lower right corner: Value of a building at the end of a game On some of the Building tiles, a picture indicates the number of Victory points they bring at the end of a game. In that case, it appears on both sides of the tile.
+
+Shield with a number: At the end of the game, write down the number of points it indicates.
+Shield with a 2 and a patch of land (Separate Territory points): You score 2 points for each separate territory in your kingdom at the end of the game, whatever the number of squares and crowns you own.
+Shield with a 1 / Tower (Tower points): You score 1 point for each tower in your kingdom at the end of the game.
+Shield with a 1 / Knight (Knight points): You score 1 point for each knight in your kingdom at the end of the game (Kingdom and Guard).
+
+
+D - (Optional) Bribe a Dragon into burning down a main building:
+----------------------------------------------------------------------------
+
+You can ONLY take this action when the Dragon is still hiding in its cave AND the Queen is not in your Kingdom.
+
+ - Choose any building still available on the “builders” board.
+ - Pay the bank one coin.
+ - Burn down the building: the tile is then withdrawn from the game and this building will never rise.
+ -  Put the Dragon Meeple in place of the burnt building.
+
+Only one player per round can use the dragon. You should play first to profit from its powers!
+
+
+E - (Mandatory) Choose a new domino in the new line by placing your king on it:
+----------------------------------------------------------------------------------------------
+
+Take your king meeple and place it on the domino of your choice, ready for the next round.
+
+
+End of turn
+-------------
+
+Once all the players have taken their actions from A to E, get ready for the next round:
+ - The dragon is sent back to its cave.
+ - Remaining buildings are all slid on the "builders" board towards the cheapest spots, and filled up the emptied spots with the first buildings from the draw.
+ - A new line of dominoes will appear (after permanently setting aside the domino left in case of a 3-player game): the first four dominoes are displayed.
+
+All those actions are executed automatically by the script, a new round can then start.
+A game will therefore take 12 rounds, whatever the number of players, and go through all the dominoes in the box.
+
+
+End of the game
+-------------------
+
+When the last dominoes are lined up, the players will take a last turn but they will only take actions A to D.
+
+Each player should have in front of them a 5x5 grid (for 3 to 4-player game) or a 7x7 grid (for 2-player game).
+
+Some kingdoms may not be complete if a player was forced to discard any domino (see above).
+
+If you are the player hosting the Queen, you should not forget to place her on your most expansive territory (towns included), where she will count as an extra crown.
+
+Then each player will calculate their Victory points for their kingdom in the following way:
+ - Wealth: 1 victory point for 3 coins. Check all points in thecorresponding box on the score pad.
+ - Basic territories (Wheat - Forest - Lake - Marsh - Mountain): A kingdom is composed of different TERRITORIES (groups of connected squares of the same type of landscape).
+
+Each territory will give you as many victory points as the NUMBER OF SQUARES multiplied by THE NUMBER OF CROWNS appearing on this territory.
+You can have multiple territories with the same type of landscape in the same kingdom.
+A territory without a crown will give you no points.
+Check your points in the corresponding box on the score pad for each type of territory.
+
+ - Special territories, Towns :
+It is easier to use a method to avoid errors when counting points related to towns:
+Pull your buildings from your kingdom one by one, adding victory points as you go along.
+
+Check your points total in the corresponding box on the score pad. Each player will add the total of their points in the last box of the pad, giving them their final score.
+The player with the highest score wins the game.
+In case of a tie, the player with the most expansive territory (the highest number of the same type of squares connecting together) wins the game.
+If there is still a tie, the players share the victory.
+
+
+Score Sheets
+---------------
+
+There are special score sheets with this mod, details are at the end of the "Start Here!" page.
+
+
+Royal Wedding variant
+---------------------------
+
+You can check both Kingdomino and Queendomino buttons to play the Royal Wedding variant.
+
+ - In a 3 to 4-player game, build 7x7 grids ! With 3 players, discard the remaining domino at the end of each round, and then form a new line.
+ - In a 5 to 6-player game, build 5x5 grids! At the beginning of each round, form a line of 8 dominoes. At the end of each round, discard the remaining dominoes and form a new line of 8 dominoes.
+
+The first line of dominoes will always come from the Queendomino box.
+The next one will be taken from the Kingdomino box.
+The two domino piles keep alternating until they are all distributed.
