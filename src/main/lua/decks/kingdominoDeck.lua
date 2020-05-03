@@ -83,7 +83,7 @@ function dealTiles()
       if game.settings.player_count == 3 and (index == 2 or index == 4) then
         trashTile(guid, targetDealingPositions[index])
       elseif game.settings.decks.age_of_giants
-          and (game.settings.player_count == 2 or game.settings.player_count > 3) and index == 3 then
+          and (game.settings.player_count == 2 or game.settings.player_count == 4) and index == 3 then
         trashTile(guid, targetDealingPositions[index])
       else
         dealTile(guid, targetDealingPositions[index])
