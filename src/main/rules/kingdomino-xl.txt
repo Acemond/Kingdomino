@@ -1,0 +1,10 @@
+This is a shortened version of the rules, you can find the rulebook on the left of the table.
+
+
+This game mode uses two Kingdomino decks to enlarge the maximum kingdom size of 3 and 4 players game to a 7x7 square (instead of 5x5).
+
+The script will automatically altern between the two decks at every turn.
+All the rules of Kingdomino are unchanged.
+
+Be aware that the mod uses the 3p player variant recommended by the author in a blog post:
+ - In a 3p game, 4 dominos are dealt and the one left unpicked is discarded.

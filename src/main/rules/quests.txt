@@ -1,0 +1,16 @@
+In the Kingdomino game, players can choose to play with the following additional rules: "The Middle Kingdom" (10 additional points if your castle is in the center of your kingdom) and/or "Harmony" (5 additional points if your territory is complete and no domino has been discarded).
+
+These two additional rules are now two Quest tiles among the 17 tiles in the quests deck. At the beginning of each game, two of the 17 tiles are randomly drawn and uncovered for all to see. Each tile shows a specific way to score bonus point at the end of a game. This makes all of your games unique!
+
+You can get the details of each quests by hovering them with your mouse for 2 seconds.
+
+
+They are also all listed here, should you need it:
+
+ - Local business: Each square located around your castle , both along each side and diagonally and matching the type of land required, wins 5 extra points.
+ - The four corners of the kingdom: Each square located at the 4 corners of your kingdom and matching the type of land required, wins 5 extra points.
+ - Harmony: Win 5 extra points if your Kingdom is complete (no discarded domino).
+ - The Middle Kingdom: Win 10 extra points if your castle is in the middle of your kingdom (even if your kingdom is incomplete).
+ - The lost corner: Win 20 extra points if your Castle is located on one of the 4 corners of your kingdom.
+ - "La folie des grandeurs": Win 10 extra points whenever at least 3 squares with a crown are aligned, vertically, horizontally or diagonally. Crowns can be on different types of lands.
+ - Bleak king: Win 10 extra points for each 5-square property of Wheat, Forest, Lake or Grassland with no crown on it.

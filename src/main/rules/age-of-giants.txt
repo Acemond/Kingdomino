@@ -1,0 +1,50 @@
+This is a shortened version of the rules, you can find the rulebook on the left of the table.
+
+
+Introduction
+--------------
+
+Watch out! The Giants are charging down the mountains!
+They are loud and boisterous!!!
+They too want their share of the kingdoms under construction... and it’s going to cost you!
+
+
+Set-up
+---------
+
+Age of Giants requires Kingdomino to be picked in order to work.
+If you pick this extension, 12 new tiles are going to be shuffled with the Kingdomino tiles.
+
+
+Playing the game
+--------------------
+
+How players select their domino each round and then connect it to other dominoes in their kingdom is done exactly the same way as in both kingdomino and Queendomino games. If you need to, refer to the rules book of these games.
+The following rules only outline the specific rules brought on with the new dominoes:
+ - When playing with 2 or 3 players, 2 and 1 domino will be discarded automatically respectively to the amount of players in the game.
+
+
+Arrival of the Giants:
+--------------------------
+
+Important reminder: you cannot discard a domino if there is at least one way to connect it to your kingdom according the the game’s rules.
+
+Dominoes with letters make a giant appear, which can be easily spotted on the illustrated side of the domino.
+Any player who adds such a domino to their kingdom MUST take a Giant meeple, choose a crown in their kingdom and position the Giant over that crown, to cover it (if there are no crowns in the kingdom at the time the domino is picked, then the effect is simply dismissed).
+
+At the end of the game, a crown covered by a Giant does not score.
+
+
+To get rid of the Giants:
+------------------------------
+Dominoes numbered 49 to 54 have footsteps on their illustrated side.
+Any player who add such a domino to their kingdom can then move a Giant by choosing one present in their own kingdom...and sending it to the kingdom of any opponent! This opponent is going to have to choose a crown in their kingdom to place the Giant on. (if there are no Giants in the players’ kingdom at the time such a domino is picked, then the effect is simply dismissed).
+
+
+Quests:
+---------
+
+Age of Giants introduced the new quests that vary from the default Middle Kingdom and Harmony.
+This expansion has been designed with Random Quests enabled in mind you should enable Random Quests when playing Age of Giants.
+
+Please refer to the section "Quests" for more details.
