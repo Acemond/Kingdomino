@@ -164,7 +164,7 @@ Royal Wedding variant
 
 You can check both Kingdomino and Queendomino buttons to play the Royal Wedding variant.
 
- - In a 3 to 4-player game, build 7x7 grids ! With 3 players, discard the remaining domino at the end of each round, and then form a new line.
+ - In a 3 to 4-player game, build 7x7 grids! With 3 players, discard the remaining domino at the end of each round, and then form a new line.
  - In a 5 to 6-player game, build 5x5 grids! At the beginning of each round, form a line of 8 dominoes. At the end of each round, discard the remaining dominoes and form a new line of 8 dominoes.
 
 The first line of dominoes will always come from the Queendomino box.
