@@ -165,13 +165,21 @@ function launchGame(new_game_settings)
   local next_turn_button = getObjectFromGUID(next_turn_button_guid)
   setNextTurnPosition(next_turn_button)
 
-  local new_game = {
-    decks = decks,
-    buildings = buildings,
-    settings = game_settings,
-  }
-  Global.setTable("game", new_game)
-  Wait.frames(function () next_turn_button.call("firstTurn", new_game) end, 20)
+  Wait.frames(function()
+    -- Cloned decks get their GUID after about 1 or 2 frames...
+    local deck_guids = {}
+    for _, deck in pairs(decks) do
+      table.insert(deck_guids, deck.getGUID())
+    end
+
+    local new_game = {
+      decks = deck_guids,
+      buildings = buildings,
+      settings = game_settings,
+    }
+    Global.setTable("game", new_game)
+    next_turn_button.call("firstTurn", new_game)
+  end, 20)
 
   getObjectFromGUID(start_button_guid).destroy()
 end
@@ -262,7 +270,7 @@ function prepareMainDecks()
 
   local indexedDeck = {}
   for _, deck in pairs(decks) do
-    table.insert(indexedDeck, deck.guid)
+    table.insert(indexedDeck, deck)
   end
   return indexedDeck
 end
