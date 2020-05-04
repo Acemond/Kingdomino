@@ -1,31 +1,31 @@
 local deck_button_visible = {
-  kingdomino = true,
   queendomino = true,
+  kingdomino = true,
   age_of_giants = true,
   the_court = true,
 }
 local deck_enabled = {
-  kingdomino = true,
   queendomino = false,
+  kingdomino = true,
   age_of_giants = false,
   the_court = false,
 }
 local deck_visible = {
-  kingdomino = true,
   queendomino = false,
+  kingdomino = true,
   age_of_giants = true,
   the_court = false,
 }
 local deck_buttons_guids = {
   enable = {
-    kingdomino = "9f4a39",
     queendomino = "69cbda",
+    kingdomino = "9f4a39",
     age_of_giants = "df1760",
     the_court = "6ff70f"
   },
   disable = {
-    kingdomino = "697d5b",
     queendomino = "d64709",
+    kingdomino = "697d5b",
     age_of_giants = "6a25ff",
     the_court = "2c22ed"
   }

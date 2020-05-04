@@ -162,26 +162,39 @@ function launchGame(new_game_settings)
     end, 10)
   end
 
+  Wait.frames(function() firstTurn(decks, buildings) end, 20)
+
+  getObjectFromGUID(start_button_guid).destroy()
+end
+
+function firstTurn(decks, building_guids)
   local next_turn_button = getObjectFromGUID(next_turn_button_guid)
   setNextTurnPosition(next_turn_button)
 
-  Wait.frames(function()
-    -- Cloned decks get their GUID after about 1 or 2 frames...
-    local deck_guids = {}
-    for _, deck in pairs(decks) do
-      table.insert(deck_guids, deck.getGUID())
+  -- Cloned decks get their GUID after about 1 or 2 frames...
+  local deck_guids = {}
+  for _, deck in pairs(decks) do
+    table.insert(deck_guids, deck.getGUID())
+  end
+
+  local new_game = {
+    decks = deck_guids,
+    buildings = building_guids,
+    settings = game_settings,
+    castles = getCastles()
+  }
+  Global.setTable("game", new_game)
+  next_turn_button.call("firstTurn", new_game)
+end
+
+function getCastles()
+  local castles= {}
+  for color, playing in pairs(game_settings.seated_players) do
+    if playing then
+      castles[color] = player_pieces_guids[color].castle
     end
-
-    local new_game = {
-      decks = deck_guids,
-      buildings = buildings,
-      settings = game_settings,
-    }
-    Global.setTable("game", new_game)
-    next_turn_button.call("firstTurn", new_game)
-  end, 20)
-
-  getObjectFromGUID(start_button_guid).destroy()
+  end
+  return castles
 end
 
 function setNextTurnPosition(button)

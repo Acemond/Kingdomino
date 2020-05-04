@@ -14,6 +14,7 @@ local kingsGuid = {
   "9dc643", "0dba70", -- Pink
 }
 local game = {}
+local player_ready = {}
 
 function onLoad(save_state)
   initialize(save_state)
@@ -33,6 +34,9 @@ function initialize(save_state)
     turn = JSON.decode(save_state).turn
     game = JSON.decode(save_state).game
     Global.setTable("game", game)
+    if game and game.castles then
+      resetCastles(game.castles)
+    end
   end
 end
 
@@ -61,10 +65,36 @@ function firstTurn(new_game)
   nextTurn()
 end
 
+function resetCastles(castle_guids)
+  for color, guid in pairs(castle_guids) do
+    getObjectFromGUID(guid).call("reset")
+    player_ready[color] = false
+  end
+end
+
+function setPlayerReady(parameters)
+  player_ready[parameters.player_color] = parameters.is_ready
+  if checkAllPlayersReady() then
+    temporarilyDisableButtons()
+    nextTurn()
+  end
+end
+
+function checkAllPlayersReady()
+  for _, is_ready in pairs(player_ready) do
+    if not is_ready then
+      return false
+    end
+  end
+  return true
+end
+
 function nextTurn()
   if not pcall(checkZones) then
     return
   end
+
+  resetCastles(game.castles)
 
   turn = turn + 1
   removedUnpickedTiles()
