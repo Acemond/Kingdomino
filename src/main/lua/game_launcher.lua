@@ -155,6 +155,7 @@ function launchGame(new_game_settings)
   game_table.call("prepareTableForGame")
   if game_settings.seated_players.Green or game_settings.seated_players.Pink
       or game_settings.variants.kingdomino_xl
+      or game_settings.variants.two_players_advanced
       or (game_settings.decks.kingdomino and game_settings.decks.queendomino) then
     Wait.frames(spaceOutPlayers, 5)
   end
@@ -444,16 +445,16 @@ end
 
 function spaceOutPlayers()
   if game_settings.seated_players.White then
-    movePlayerPieces("White", { 0, 0, -8 })
+    movePlayerPieces("White", { -2, 0, -8 })
   end
   if game_settings.seated_players.Orange then
-    movePlayerPieces("Orange", { 0, 0, -8 })
+    movePlayerPieces("Orange", { 2, 0, -8 })
   end
   if game_settings.seated_players.Purple then
-    movePlayerPieces("Purple", { 0, 0, 8 })
+    movePlayerPieces("Purple", { -2, 0, 8 })
   end
   if game_settings.seated_players.Red then
-    movePlayerPieces("Red", { 0, 0, 8 })
+    movePlayerPieces("Red", { 2, 0, 8 })
   end
 end
 
