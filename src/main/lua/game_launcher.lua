@@ -3,36 +3,42 @@ local player_pieces_guids = {
     hand_zone = "96929a",
     castle_tile = "9ab771",
     castle = "768b9c",
+    flag = "6cfdbd",
     kings = { "4d2d92", "5e6289" }
   },
   Purple = {
     hand_zone = "6ea086",
     castle_tile = "7db35a",
     castle = "a1e204",
+    flag = "137a90",
     kings = { "7dd59a", "e44a70" }
   },
   Red = {
     hand_zone = "31279b",
     castle_tile = "f6948c",
     castle = "ae130d",
+    flag = "d99107",
     kings = { "24345c", "2837e9" }
   },
   White = {
     hand_zone = "f85ea1",
     castle_tile = "537260",
     castle = "fd4160",
+    flag = "e0aed1",
     kings = { "86f4c2", "61259d" }
   },
   Green = {
     hand_zone = "352048",
     castle_tile = "8c9612",
     castle = "b5c1bc",
+    flag = "37748e",
     kings = { "526c31", "f2cd83" }
   },
   Pink = {
     hand_zone = "49989f",
     castle_tile = "a5aad1",
     castle = "a407fb",
+    flag = "43d6e5",
     kings = { "9dc643", "0dba70" }
   }
 }
@@ -407,6 +413,7 @@ local castle_tile_positions = {
 function movePlayerPieces(color, offset_vector)
   local castle_tile = getObjectFromGUID(player_pieces_guids[color].castle_tile)
   local hand_zone = getObjectFromGUID(player_pieces_guids[color].hand_zone)
+  local flag = getObjectFromGUID(player_pieces_guids[color].flag)
 
   hand_zone.setPosition({
     hand_zone.getPosition().x + offset_vector[1],
@@ -420,6 +427,11 @@ function movePlayerPieces(color, offset_vector)
       castle_y + offset_vector[2],
       castle_tile_positions[color].z + offset_vector[3]
     }
+  })
+  flag.setPosition({
+    castle_tile_positions[color].x + offset_vector[1],
+    flag.getPosition().y,
+    castle_tile_positions[color].z + offset_vector[3]
   })
   castle_tile.setPositionSmooth({
     castle_tile_positions[color].x + offset_vector[1],

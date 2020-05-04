@@ -65,6 +65,18 @@ function firstTurn(new_game)
   nextTurn()
 end
 
+function temporarilyDisableCastles()
+  for _, guid in pairs(game.castles) do
+    getObjectFromGUID(guid).call("temporarilyDisable")
+  end
+end
+
+function disableCastles()
+  for _, guid in pairs(game.castles) do
+    getObjectFromGUID(guid).call("removeButton")
+  end
+end
+
 function resetCastles(castle_guids)
   for color, guid in pairs(castle_guids) do
     getObjectFromGUID(guid).call("reset")
@@ -76,6 +88,7 @@ function setPlayerReady(parameters)
   player_ready[parameters.player_color] = parameters.is_ready
   if checkAllPlayersReady() then
     temporarilyDisableButtons()
+    temporarilyDisableCastles()
     nextTurn()
   end
 end
@@ -94,8 +107,6 @@ function nextTurn()
     return
   end
 
-  resetCastles(game.castles)
-
   turn = turn + 1
   removedUnpickedTiles()
 
@@ -107,11 +118,16 @@ function nextTurn()
     moveZoneContents()
   end
 
+  Wait.frames(function()
+    resetCastles(game.castles)
+  end, 100)
+
   local deck = getObjectFromGUID(game.decks[(turn - 1) % #game.decks + 1])
   if deck ~= nil then
     deck.shuffle()
     deck.call("dealTiles")
   else
+    disableCastles()
     broadcastToAll("Last turn! Score sheets are on the compass.", { r = 1, g = 1, b = 1 })
     Player.getPlayers()[1].pingTable({ 36.99, 3, -28.38 })
     self.destroy()
