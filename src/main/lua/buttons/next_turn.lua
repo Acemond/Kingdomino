@@ -35,6 +35,7 @@ function initialize(save_state)
     game = JSON.decode(save_state).game
     Global.setTable("game", game)
     if game and game.castles then
+      initializeCastles(game.castles)
       resetCastles(game.castles)
     end
   end
@@ -57,11 +58,13 @@ end
 
 function onClick()
   temporarilyDisableButtons()
+  temporarilyDisableCastles()
   nextTurn()
 end
 
 function firstTurn(new_game)
   game = new_game
+  initializeCastles(game.castles)
   nextTurn()
 end
 
@@ -73,7 +76,13 @@ end
 
 function disableCastles()
   for _, guid in pairs(game.castles) do
-    getObjectFromGUID(guid).call("removeButton")
+    getObjectFromGUID(guid).call("removeReadyButton")
+  end
+end
+
+function initializeCastles(castle_guids)
+  for _, guid in pairs(castle_guids) do
+    getObjectFromGUID(guid).call("initialize")
   end
 end
 

@@ -33,27 +33,26 @@ function onLoad()
   hideFlag(true)
 end
 
+function initialize()
+  self.createButton({
+    click_function = "toggleReady",
+    function_owner = self,
+    label = "",
+    position = { 0, 0, 0 },
+    color = { 0, 0, 0, 0 },
+    width = 1300,
+    tooltip = ready_tooltip,
+    height = 1300
+  })
+end
+
 function reset()
-  if not self.getButtons() or #self.getButtons() < 1 then
-    self.createButton({
-      click_function = "toggleReady",
-      function_owner = self,
-      label = "",
-      position = { 0, 0, 0 },
-      color = { 0, 0, 0, 0 },
-      width = 1300,
-      tooltip = ready_tooltip,
-      height = 1300
-    })
-  end
   hideFlag()
   is_ready = false
 end
 
-function removeButton()
-  if self.getButtons() and #self.getButtons() > 0 then
-    self.removeButton(0)
-  end
+function removeReadyButton()
+  self.removeButton(0)
 end
 
 function toggleReady()
@@ -108,7 +107,9 @@ function temporarilyDisable()
   if self.getButtons() and #self.getButtons() > 0 then
     self.editButton({ index = 0, scale = { 0, 0, 0 } })
     Wait.frames(function()
-      self.editButton({ index = 0, scale = { 1, 1, 1 } })
+      if self.getButtons() and #self.getButtons() > 0 then
+        self.editButton({ index = 0, scale = { 1, 1, 1 } })
+      end
     end, 120)
   end
 end
