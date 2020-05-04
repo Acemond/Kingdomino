@@ -146,7 +146,7 @@ end
 function removedUnpickedTiles()
   for _, zoneGuid in pairs(tileCheckZones) do
     local zone = getObjectFromGUID(zoneGuid)
-    if #zone.getObjects() == 3 then
+    if zone ~= nil and #zone.getObjects() == 3 then
       trashTile(zone)
     end
   end
@@ -187,7 +187,10 @@ function checkRightZone()
     error()
   end
   for _, zoneGuid in pairs(tileCheckZones) do
-    checkTileZone(getObjectFromGUID(zoneGuid))
+    local zone = getObjectFromGUID(zoneGuid)
+    if zone ~= nil then
+      checkTileZone()
+    end
   end
 end
 

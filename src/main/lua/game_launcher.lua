@@ -42,6 +42,9 @@ local player_pieces_guids = {
     kings = { "9dc643", "0dba70" }
   }
 }
+local tile_check_zones = {
+  "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
+}
 
 local start_button_guid = "af7bb2"
 
@@ -151,6 +154,7 @@ function launchGame(new_game_settings)
   local decks = prepareMainDecks()
   local buildings = prepareBuildings()
 
+  removeCheckZones()
   destroyUnusedPieces()
   game_table.call("prepareTableForGame")
   if game_settings.seated_players.Green or game_settings.seated_players.Pink
@@ -174,6 +178,12 @@ function launchGame(new_game_settings)
   end, 20)
 
   getObjectFromGUID(start_button_guid).destroy()
+end
+
+function removeCheckZones()
+  for i = #tile_check_zones, game_settings.tile_deal_count + 1, -1 do
+    getObjectFromGUID(tile_check_zones[i]).destroy()
+  end
 end
 
 function firstTurn(decks, building_guids)
