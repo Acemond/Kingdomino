@@ -168,7 +168,9 @@ function launchGame(new_game_settings)
     end, 10)
   end
 
-  Wait.frames(function() firstTurn(decks, buildings) end, 20)
+  Wait.frames(function()
+    firstTurn(decks, buildings)
+  end, 20)
 
   getObjectFromGUID(start_button_guid).destroy()
 end

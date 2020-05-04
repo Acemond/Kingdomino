@@ -13,5 +13,17 @@ function onLoad()
 end
 
 function onClick()
+  self.setPositionSmooth({
+    self.getPosition().x,
+    0.9,
+    self.getPosition().z,
+  }, false, true)
+  Wait.frames(function ()
+    self.setPositionSmooth({
+      self.getPosition().x,
+      1.05,
+      self.getPosition().z,
+    }, false, true)
+  end, 20)
   Global.call("quickSetup", player_count)
 end
