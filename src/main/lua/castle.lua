@@ -29,6 +29,7 @@ function onLoad()
     reset()
   end
   flag = getObjectFromGUID(flag_guids[color])
+  flag.interactable = false
   next_turn_button = getObjectFromGUID(next_turn_button_guid)
   hideFlag(true)
 end
