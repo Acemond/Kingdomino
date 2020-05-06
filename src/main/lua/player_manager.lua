@@ -217,7 +217,7 @@ function onPlayerConnect(person)
 end
 
 function onPlayerDisconnect(person)
-  if not local_players_enabled and seated_players[person.color] then
+  if not local_players_enabled and seated_players[person.color] and #Player.getPlayers() > 0 then
     removePlayer(person.color)
   end
 end
