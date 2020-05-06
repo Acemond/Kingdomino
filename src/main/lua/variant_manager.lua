@@ -3,14 +3,12 @@ local variant_visible = {
   three_players_variant = false,
   random_quests = true,
   kingdomino_xl = true,
-  teamdomino = true,
 }
 local variant_enabled = {
   two_players_advanced = false,
   three_players_variant = true,
   random_quests = false,
   kingdomino_xl = false,
-  teamdomino = false,
 }
 
 local variant_buttons_guids = {
@@ -19,20 +17,17 @@ local variant_buttons_guids = {
     three_players_variant = "",
     randomn_quests = "75dcb1",
     kingdomino_xl = "42f5a4",
-    teamdomino = "83af19"
   },
   disable = {
     two_players_advanced = "02322f",
     three_players_variant = "",
     randomn_quests = "edb838",
     kingdomino_xl = "92f52d",
-    teamdomino = "355eca"
   }
 }
 
 local variant_interaction = {
   kingdomino_xl = { dependency = "kingdomino", incompatibility = "queendomino" },
-  teamdomino = { dependency = "kingdomino", incompatibility = "queendomino" },
   two_players_advanced = { dependency = "kingdomino", incompatibility = "queendomino" }
 }
 

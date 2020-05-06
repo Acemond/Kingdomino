@@ -62,7 +62,6 @@ function resolveForPlayerCount(target_player_count)
   local game_settings = getGameSettings()
   if target_player_count == 5 then
     variant_manager.call("setVariantEnabled", { variant_name = "kingdomino_xl", is_enabled = false })
-    variant_manager.call("setVariantEnabled", { variant_name = "teamdomino", is_enabled = false })
     variant_manager.call("setVariantEnabled", { variant_name = "two_players_advanced", is_enabled = false })
   elseif target_player_count == 6 then
     deck_manager.call("setDeckEnabled", { deck_name = "kingdomino", is_enabled = true })

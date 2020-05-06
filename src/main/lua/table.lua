@@ -31,7 +31,7 @@ local non_interactable_guids = {
   start_button_guid, "31971b", "4a6126", "46971b", "4f4db6", "8dfa00", "1765aa", "6c37eb", -- game buttons
   "7a72d1", "bd95f5", "174390", "8c018b", "e5b23a", "ae485e", "a391ea", "722967", -- tile boards
   "11eb0a", -- kings bag
-  "75dcb1", "edb838", "42f5a4", "92f52d" --[[, "83af19", "355eca"]] -- variants buttons
+  "75dcb1", "edb838", "42f5a4", "92f52d"  -- variants buttons
 }
 local temporarily_frozen = {
   "b972db", -- king
@@ -73,8 +73,6 @@ local buttons_to_remove = {
   randomn_quests_disable = "edb838",
   kingdomino_xl_enable = "42f5a4",
   kingdomino_xl_disable = "92f52d",
-  teamdomino_enable = "83af19",
-  teamdomino_disable = "355eca",
   local_players_enable = "4f044d",
   local_players_disable = "d1e47c"
 }
