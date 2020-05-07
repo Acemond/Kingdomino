@@ -88,7 +88,7 @@ local game_objects_guid = {
 }
 local deck_size_modifiers = {
   two_players_basic = 0.5,
-  three_players_classic = 0.75
+  three_players_classic = 0.25
 }
 local castle_tile_y = 0.95
 local castle_y = 1.16
@@ -207,7 +207,7 @@ function firstTurn(decks, building_guids)
 end
 
 function getCastles()
-  local castles= {}
+  local castles = {}
   for color, playing in pairs(game_settings.seated_players) do
     if playing then
       castles[color] = player_pieces_guids[color].castle
@@ -296,6 +296,7 @@ end
 
 function prepareMainDecks()
   local decks = getMainDecks()
+  shuffleDecks(decks)
   resizeDecks(decks)
   local positions = getMainDecksPosition(decks)
   readyDecks(decks, positions)
@@ -327,6 +328,12 @@ function prepareBuildings()
   return building_managers
 end
 
+function shuffleDecks(decks)
+  for _, deck in pairs(decks) do
+    deck.shuffle()
+  end
+end
+
 function readyDecks(decks, positions)
   for name, deck in pairs(decks) do
     deck.setPositionSmooth(positions[name])
@@ -334,38 +341,25 @@ function readyDecks(decks, positions)
   end
 end
 
-function mergeAgeOfGiants(decks)
-  local merged_decks = {}
-  for name, deck in pairs(decks) do
-    if name == "age_of_giants" then
-      if game_settings.variants.kingdomino_xl then
-        local age_of_giants_clone = deck.clone({ position = { deck.getPosition().x, -2.5, deck.getPosition().z } })
-        Wait.frames(function()
-          decks["kingdomino_xl"].call("mergeDeck", age_of_giants_clone)
-        end, 1)
-      end
-      decks["kingdomino"].call("mergeDeck", deck)
-    else
-      merged_decks[name] = deck
-    end
-  end
-
-  return merged_decks
-end
-
 function getMainDecks()
   local decks = {}
   for mode, enabled in pairs(game_settings.decks) do
     if enabled and game_objects_guid[mode].deck then
-      local deck = getObjectFromGUID(game_objects_guid[mode].deck)
-      decks[mode] = deck
-      if game_settings.variants.kingdomino_xl and mode == "kingdomino" then
-        local kingdomino_xl_deck = deck.clone({ position = { deck.getPosition().x, -2.5, deck.getPosition().z } })
-        decks["kingdomino_xl"] = kingdomino_xl_deck
-      end
+      decks[mode] = getObjectFromGUID(game_objects_guid[mode].deck)
     end
   end
-  return mergeAgeOfGiants(decks)
+
+  if game_settings.decks.age_of_giants then
+    decks.kingdomino.call("mergeDeck", decks.age_of_giants)
+    decks.age_of_giants = nil
+  end
+  if game_settings.variants.kingdomino_xl then
+    local position = decks.kingdomino.getPosition()
+    position.y = -2.5
+    decks.kingdomino_xl = decks.kingdomino.clone({ position = position })
+  end
+
+  return decks
 end
 
 function getMainDecksPosition(decks)
@@ -392,12 +386,17 @@ end
 function resizeDecks(decks)
   if game_settings.decks.kingdomino and not game_settings.decks.queendomino then
     if game_settings.player_count == 2 and not game_settings.variants.two_players_advanced then
-      decks.kingdomino.shuffle()
       cutDeck(decks.kingdomino, deck_size_modifiers.two_players_basic)
     end
     if game_settings.player_count == 3 and not game_settings.variants.three_players_variant then
-      decks.kingdomino.shuffle()
       cutDeck(decks.kingdomino, deck_size_modifiers.three_players_classic)
+      if decks.kingdomino_xl and decks.kingdomino_xl ~= nil then
+        Wait.condition(function()
+          cutDeck(decks.kingdomino_xl, deck_size_modifiers.three_players_classic)
+        end, function()
+          return decks.kingdomino.guid ~= decks.kingdomino_xl.guid
+        end)
+      end
     end
   end
 end

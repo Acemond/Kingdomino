@@ -1,4 +1,5 @@
 --local variant_name = "two_players_advanced"
+--local tooltip = ""
 
 local variant_manager_guid = "2c055b"
 local variant_manager = {}
@@ -8,7 +9,7 @@ function onLoad()
     click_function = "onClick",
     function_owner = self,
     label = "",
-    tooltip = "7x7 kingdoms for 2 players!",
+    tooltip = tooltip,
     position = { 0, 0.05, 0 },
     color = { 0, 0, 0, 0 },
     width = 2400,

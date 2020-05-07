@@ -1,26 +1,32 @@
 local variant_visible = {
   two_players_advanced = true,
-  three_players_variant = false,
+  three_players_variant = true,
   random_quests = true,
   kingdomino_xl = true,
 }
-local variant_enabled = {
+local variant_defaults = {
   two_players_advanced = false,
   three_players_variant = true,
   random_quests = false,
   kingdomino_xl = false,
 }
+local variant_enabled = {
+  two_players_advanced = variant_defaults.two_players_advanced,
+  three_players_variant = variant_defaults.three_players_variant,
+  random_quests = variant_defaults.random_quests,
+  kingdomino_xl = variant_defaults.kingdomino_xl,
+}
 
 local variant_buttons_guids = {
   enable = {
     two_players_advanced = "823bca",
-    three_players_variant = "",
+    three_players_variant = "f8c7d6",
     randomn_quests = "75dcb1",
     kingdomino_xl = "42f5a4",
   },
   disable = {
     two_players_advanced = "02322f",
-    three_players_variant = "",
+    three_players_variant = "02c336",
     randomn_quests = "edb838",
     kingdomino_xl = "92f52d",
   }
@@ -28,6 +34,7 @@ local variant_buttons_guids = {
 
 local variant_interaction = {
   kingdomino_xl = { dependency = "kingdomino", incompatibility = "queendomino" },
+  three_players_variant = { dependency = "kingdomino", incompatibility = "queendomino" },
   two_players_advanced = { dependency = "kingdomino", incompatibility = "queendomino" }
 }
 
@@ -66,11 +73,12 @@ end
 
 function checkInteractions()
   for variant_name, interaction in pairs(variant_interaction) do
-    if checkDependency(interaction) and checkIncompatibility(interaction) then
+    if not variant_visible[variant_name] and checkDependency(interaction) and checkIncompatibility(interaction) then
       showButtonIfExists(variant_buttons_guids.enable[variant_name])
       showButtonIfExists(variant_buttons_guids.disable[variant_name])
       variant_visible[variant_name] = true
-    else
+      setVariantEnabled { variant_name = variant_name, is_enabled = variant_defaults[variant_name] }
+    elseif variant_visible[variant_name] and not (checkDependency(interaction) and checkIncompatibility(interaction)) then
       hideObjectIfExists(variant_buttons_guids.enable[variant_name])
       hideObjectIfExists(variant_buttons_guids.disable[variant_name])
       variant_visible[variant_name] = false
