@@ -1,3 +1,5 @@
+require("util/table")
+
 local player_pieces_guids = {
   Orange = {
     hand_zone = "96929a",
@@ -301,11 +303,7 @@ function prepareMainDecks()
   local positions = getMainDecksPosition(decks)
   readyDecks(decks, positions)
 
-  local indexedDeck = {}
-  for _, deck in pairs(decks) do
-    table.insert(indexedDeck, deck)
-  end
-  return indexedDeck
+  return table.collectValues(decks)
 end
 
 function getBuildingsManagers()
@@ -364,7 +362,7 @@ end
 
 function getMainDecksPosition(decks)
   local decks_target_position = {}
-  local size = getSize(decks)
+  local size = table.size(decks)
   local i = 1
 
   local actual_decks_positions = decks_positions.main_deck
@@ -403,14 +401,6 @@ end
 
 function cutDeck(deck, size_modifier)
   deck.cut(#deck.getObjects() * size_modifier)[2].destroy()
-end
-
-function getSize(t)
-  size = 0
-  for _, _ in pairs(t) do
-    size = size + 1
-  end
-  return size
 end
 
 local castle_tile_positions = {

@@ -52,7 +52,7 @@ function takeKings(game_settings)
   if game_settings.player_count == 2 then
     math.randomseed(os.time())
     local firstPlayerIndex = math.random(2)
-    local colors = getTableKeys(game_settings.seated_players)
+    local colors = getSeatedPlayers(game_settings.seated_players)
     local firstPlayer = player_pieces_guids[colors[firstPlayerIndex]]
     local otherPlayer = player_pieces_guids[colors[3 - firstPlayerIndex]]
 
@@ -69,7 +69,7 @@ function takeKings(game_settings)
   self.destroy()
 end
 
-function getTableKeys(seated_players)
+function getSeatedPlayers(seated_players)
   local colors = {}
   for color, is_seated in pairs(seated_players) do
     if is_seated then
