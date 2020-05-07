@@ -100,11 +100,11 @@ end
 
 function checkInteractions()
   for deck_name, interaction in pairs(deck_interaction) do
-    if checkDependency(interaction) and checkIncompatibility(interaction) then
+    if not deck_button_visible[deck_name] and checkDependency(interaction) and checkIncompatibility(interaction) then
       showButtonIfExists(deck_buttons_guids.enable[deck_name])
       showButtonIfExists(deck_buttons_guids.disable[deck_name])
       deck_button_visible[deck_name] = true
-    else
+    elseif deck_button_visible[deck_name] and not (checkDependency(interaction) and checkIncompatibility(interaction)) then
       hideObjectIfExists(deck_buttons_guids.enable[deck_name])
       hideObjectIfExists(deck_buttons_guids.disable[deck_name])
       deck_button_visible[deck_name] = false
