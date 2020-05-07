@@ -124,7 +124,6 @@ function checkAllPlayersReady()
 end
 
 function nextTurn()
-  checkZones()
   if not pcall(checkZones) then
     return
   end
