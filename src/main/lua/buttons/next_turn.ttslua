@@ -1,3 +1,5 @@
+require("util/table")
+
 local leftZoneGuid = "38ed1c"
 local rightZoneGuid = "358f4e"
 local rightBoardsGuids = { "e5b23a", "7a72d1", "174390", "722967" }
@@ -122,6 +124,7 @@ function checkAllPlayersReady()
 end
 
 function nextTurn()
+  checkZones()
   if not pcall(checkZones) then
     return
   end
@@ -147,9 +150,26 @@ function nextTurn()
     deck.call("dealTiles")
   else
     disableCastles()
-    broadcastToAll("Last turn! Score sheets are on the compass.", { r = 1, g = 1, b = 1 })
-    Player.getPlayers()[1].pingTable({ 36.99, 3, -28.38 })
+    setupPing()
     self.destroy()
+  end
+end
+
+function setupPing()
+  local score_sheets_bag = getObjectFromGUID("7e5454")
+  if score_sheets_bag ~= nil then
+    Wait.condition(function()
+      Wait.condition(function()
+        broadcastToAll("Game over! Score sheets next to the compass.", { r = 1, g = 1, b = 1 })
+        local position = score_sheets_bag.getPosition()
+        position.y = 3
+        Player.getPlayers()[1].pingTable(position)
+      end, function()
+        return #getObjectFromGUID(leftZoneGuid).getObjects() - getKingCount(leftZoneGuid) < 3
+      end)
+    end, function()
+      return #getObjectFromGUID(leftZoneGuid).getObjects() > 2
+    end)
   end
 end
 
@@ -165,7 +185,7 @@ end
 function trashTile(zone)
   for _, object in pairs(zone.getObjects()) do
     local unpickedTilesBag = getObjectFromGUID(unpickedTilesBagGuid)
-    if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid then
+    if not table.contains(rightBoardsGuids, object.guid) and object.guid ~= tableGuid then
       if unpickedTilesBag then
         getObjectFromGUID(unpickedTilesBagGuid).putObject(object)
       else
@@ -192,7 +212,7 @@ function getExpectedKings()
 end
 
 function checkRightZone()
-  if getKingCount() ~= getExpectedKings() then
+  if getKingCount(rightZoneGuid) ~= getExpectedKings() then
     broadcastToAll("Pick dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
     error()
   end
@@ -204,10 +224,10 @@ function checkRightZone()
   end
 end
 
-function getKingCount()
+function getKingCount(zone_guid)
   local count = 0
-  for _, object in pairs(getObjectFromGUID(rightZoneGuid).getObjects()) do
-    if isObjectIn(object.guid, kingsGuid) then
+  for _, object in pairs(getObjectFromGUID(zone_guid).getObjects()) do
+    if table.contains(kingsGuid, object.guid) then
       count = count + 1
     end
   end
@@ -218,11 +238,11 @@ function checkTileZone(zone)
   local kingCount = 0
   local tileCount = 0
   for _, object in pairs(zone.getObjects()) do
-    if not isObjectIn(object.guid, rightBoardsGuids) and object.guid ~= tableGuid then
-      if isObjectIn(object.guid, kingsGuid) then
+    if not table.contains(rightBoardsGuids, object.guid) and object.guid ~= tableGuid then
+      if table.contains(kingsGuid, object.guid) then
         kingCount = kingCount + 1
       end
-      if not isObjectIn(object.guid, kingsGuid) then
+      if not table.contains(kingsGuid, object.guid) then
         tileCount = tileCount + 1
       end
     end
@@ -244,22 +264,13 @@ end
 function moveZoneContents()
   local rightZone = getObjectFromGUID(rightZoneGuid)
   for _, obj in ipairs(rightZone.getObjects()) do
-    if not isObjectIn(obj.guid, rightBoardsGuids) and obj.guid ~= tableGuid then
+    if not table.contains(rightBoardsGuids, obj.guid) and obj.guid ~= tableGuid then
       obj.unlock()
       obj.setPositionSmooth({
         obj.getPosition().x - 11,
-        obj.getPosition().y + 2,
+        obj.getPosition().y + 1.5,
         obj.getPosition().z
       }, false)
     end
   end
-end
-
-function isObjectIn(objectGuid, list)
-  for _, guid in pairs(list) do
-    if objectGuid == guid then
-      return true
-    end
-  end
-  return false
 end
