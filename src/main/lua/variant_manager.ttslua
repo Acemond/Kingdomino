@@ -1,3 +1,5 @@
+require("util/table")
+
 local variant_visible = {
   two_players_advanced = true,
   three_players_variant = true,
@@ -33,9 +35,9 @@ local variant_buttons_guids = {
 }
 
 local variant_interaction = {
-  kingdomino_xl = { dependency = "kingdomino", incompatibility = "queendomino" },
-  three_players_variant = { dependency = "kingdomino", incompatibility = "queendomino" },
-  two_players_advanced = { dependency = "kingdomino", incompatibility = "queendomino" }
+  kingdomino_xl = { dependency = "kingdomino", incompatibilities = { "queendomino" } },
+  three_players_variant = { dependency = "kingdomino", incompatibilities = { "queendomino", "age_of_giants" } },
+  two_players_advanced = { dependency = "kingdomino", incompatibilities = { "queendomino" } }
 }
 
 local deck_manager_guid = "180cbc"
@@ -90,7 +92,7 @@ end
 function checkIncompatibility(interaction)
   local deck_enabled = Global.getTable("deck_enabled")
   for deck, is_enabled in pairs(deck_enabled) do
-    if deck == interaction.incompatibility and is_enabled then
+    if table.contains(interaction.incompatibilities, deck) and is_enabled then
       return false
     end
   end
