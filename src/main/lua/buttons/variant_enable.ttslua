@@ -1,4 +1,4 @@
-local variant_name = "two_players_advanced"
+--local variant_name = "two_players_advanced"
 
 local variant_manager_guid = "2c055b"
 local variant_manager = {}

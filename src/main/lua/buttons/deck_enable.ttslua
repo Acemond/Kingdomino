@@ -1,4 +1,4 @@
-local deck_name = "kingdomino"
+--local deck_name = "kingdomino"
 
 local deck_manager = {}
 local deck_manager_guid = "180cbc"
