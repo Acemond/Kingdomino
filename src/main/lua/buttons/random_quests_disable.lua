@@ -1,6 +1,6 @@
 local variant_name = "random_quests"
 local quests_deck_guid = "fd8a62"
-local default_quests_guid = { "e29f53", "e865f4" }
+local default_quests_guid = { "7f87c8", "ddd8f4" }
 
 local variant_manager_guid = "2c055b"
 local variant_manager = {}

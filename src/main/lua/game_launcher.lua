@@ -116,7 +116,7 @@ local quests_positions_5p = {
   { 3.00, 1.03, -29.00 }
 }
 
-local default_quests_guid = { "e29f53", "e865f4" }
+local default_quests_guid = { "7f87c8", "ddd8f4" }
 
 local game_settings = {}
 
