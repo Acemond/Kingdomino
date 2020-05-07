@@ -466,22 +466,3 @@ function spaceOutPlayers()
     movePlayerPieces("Red", { 2, 0, 8 })
   end
 end
-
--- Utility functions
-function isInValues(value_to_test, list)
-  for _, value in pairs(list) do
-    if value == value_to_test then
-      return true
-    end
-  end
-  return false
-end
-
-function isInKeys(key_to_test, list)
-  for key, _ in pairs(list) do
-    if key == key_to_test then
-      return true
-    end
-  end
-  return false
-end

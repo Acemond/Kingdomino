@@ -136,15 +136,6 @@ function hideObjectIfExists(guid)
   end
 end
 
-function isInKeys(key_to_test, list)
-  for key, _ in pairs(list) do
-    if key == key_to_test then
-      return true
-    end
-  end
-  return false
-end
-
 function updateButtonsState()
   for variant_name, visible in pairs(variant_visible) do
     if visible and variant_enabled[variant_name] then
