@@ -1,0 +1,165 @@
+require("util/table")
+
+local zone_guid = "f9209b"
+local tile_guid = "9ab771"
+
+local table_guid = "0f8757"
+local castle_guid = "768b9c"
+local ready_token_guid = "6cfdbd"
+local add_player_guid = "8d17b0"
+local remove_player_guid = "fa1b7c"
+
+local not_tiles = {
+  castle_guid, ready_token_guid, table_guid, add_player_guid, remove_player_guid
+}
+
+local current_kingdom_objects = {}
+local pending_movement
+local pending_function
+
+function onUpdate()
+  local zone = getObjectFromGUID(zone_guid)
+
+  local kingdom_objects = {}
+  local held_objects = getPlayersObjects()
+  for _, object in pairs(zone.getObjects()) do
+    if not table.contains(held_objects, object) and not table.contains(not_tiles, object.guid) then
+      table.insert(kingdom_objects, object)
+    end
+  end
+
+  if pending_movement and table.containsOne(zone.getObjects(), held_objects) then
+    restartAnimation(10)
+  end
+
+  if not table.containsOnly(current_kingdom_objects, kingdom_objects) then
+    current_kingdom_objects = kingdom_objects
+
+    pending_function = function ()
+      local max_x_pos = getMaxPos(kingdom_objects, "x")
+      local min_x_pos = getMinPos(kingdom_objects, "x")
+      local max_z_pos = getMaxPos(kingdom_objects, "z")
+      local min_z_pos = getMinPos(kingdom_objects, "z")
+
+      local x_pos = -(min_x_pos + max_x_pos) / 2
+      local z_pos = -(min_z_pos + max_z_pos) / 2
+
+      shiftKingdom(kingdom_objects, x_pos, z_pos)
+    end
+    restartAnimation(10)
+  end
+end
+
+function stopAnimation()
+  if pending_movement ~= nil then
+    Wait.stop(pending_movement)
+    pending_movement = nil
+  end
+end
+
+function restartAnimation(delay)
+  stopAnimation()
+  pending_movement = Wait.frames(pending_function, delay)
+end
+
+function getMaxPos(objects, axis)
+  local zone = getObjectFromGUID(zone_guid)
+
+  local max
+  for _, object in pairs(objects) do
+    local world_position = object.getPosition()
+    if object.guid ~= tile_guid then
+      world_position = getDominoMaxBoundaries(object)
+    end
+
+    local local_position = zone.positionToLocal(world_position)[axis]
+    if max == nil or local_position > max then
+      max = local_position
+    end
+  end
+  return max
+end
+
+function getMinPos(objects, axis)
+  local zone = getObjectFromGUID(zone_guid)
+
+  local min
+  for _, object in pairs(objects) do
+    local world_position = object.getPosition()
+    if object.guid ~= tile_guid then
+      world_position = getDominoMinBoundaries(object)
+    end
+
+    local local_position = zone.positionToLocal(world_position)[axis]
+    if min == nil or local_position < min then
+      min = local_position
+    end
+  end
+  return min
+end
+
+function getDominoMaxBoundaries(domino)
+  local rotation = domino.getRotation().y
+  local world_position = domino.getPosition()
+  if (rotation > -45 and rotation < 45) or (rotation > 135 and rotation < 225) or (rotation > 315) then
+    world_position = {
+      world_position.x + 1,
+      world_position.y,
+      world_position.z
+    }
+  else
+    world_position = {
+      world_position.x,
+      world_position.y,
+      world_position.z + 1
+    }
+  end
+
+  return world_position
+end
+
+function getDominoMinBoundaries(domino)
+  local rotation = domino.getRotation().y
+  local world_position = domino.getPosition()
+  if (rotation > -45 and rotation < 45) or (rotation > 135 and rotation < 225) or (rotation > 315) then
+    world_position = {
+      world_position.x - 1,
+      world_position.y,
+      world_position.z
+    }
+  else
+    world_position = {
+      world_position.x,
+      world_position.y,
+      world_position.z - 1
+    }
+  end
+
+  return world_position
+end
+
+function getPlayersObjects()
+  local all_objects = {}
+  for _, player in pairs(Player.getPlayers()) do
+    if player.getHoldingObjects() ~= nil then
+      for _, object in pairs(player.getHoldingObjects()) do
+        table.insert(all_objects, object)
+      end
+    end
+  end
+  return all_objects
+end
+
+function shiftKingdom(kingdom_objects, x_pos, z_pos)
+  local zone = getObjectFromGUID(zone_guid)
+
+  for _, object in pairs(kingdom_objects) do
+    local local_position = zone.positionToLocal(object.getPosition())
+    local target_local_position = {
+      x = local_position.x + x_pos,
+      y = local_position.y,
+      z = local_position.z + z_pos
+    }
+    object.setPositionSmooth(zone.positionToWorld(target_local_position), false, true)
+  end
+end

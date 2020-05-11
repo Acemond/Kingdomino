@@ -22,3 +22,25 @@ function table.collectValues(tbl)
   end
   return result
 end
+
+function table.containsAll(tbl, other)
+  for _, obj in pairs(other) do
+    if not table.contains(tbl, obj) then
+      return false
+    end
+  end
+  return true
+end
+
+function table.containsOnly(tbl, other)
+  return table.containsAll(tbl, other) and table.containsAll(other, tbl)
+end
+
+function table.containsOne(tbl, other)
+  for _, obj in pairs(other) do
+    if table.contains(tbl, obj) then
+      return true
+    end
+  end
+  return false
+end
