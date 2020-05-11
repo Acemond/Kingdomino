@@ -32,7 +32,7 @@ function onUpdate()
   end
 
   if pending_movement and table.containsOne(zone.getObjects(), held_objects) then
-    restartAnimation()
+    restartAnimation(5)
   end
 
   if not table.containsOnly(current_kingdom_objects, kingdom_objects) then
@@ -55,7 +55,7 @@ function onUpdate()
 
       shiftKingdom(kingdom_objects, x_pos, z_pos)
     end
-    restartAnimation()
+    restartAnimation(5)
   end
 end
 

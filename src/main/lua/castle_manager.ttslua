@@ -9,22 +9,22 @@ local castles = {
 
 local castle_positions = {
   White = {
-    position = { x = -21.00, y = 1.16, z = -11.00 },
+    position = { x = -17.01, y = 1.16, z = -9.00 },
     yaw = 0 },
   Orange = {
-    position = { x = 21.00, y = 1.16, z = -11.00 },
+    position = { x = 16.95, y = 1.16, z = -9.00 },
     yaw = 0 },
   Purple = {
-    position = { x = -21.00, y = 1.16, z = 11.00 },
+    position = { x = -17.01, y = 1.16, z = 15.00 },
     yaw = 180 },
   Red = {
-    position = { x = 21.00, y = 1.16, z = 11.00 },
+    position = { x = 16.95, y = 1.16, z = 15.00 },
     yaw = 180 },
   Green = {
-    position = { x = -31.00, y = 1.16, z = 1.00 },
+    position = { x = -21.01, y = 1.16, z = 3.00 },
     yaw = 90 },
   Pink = {
-    position = { x = 31.00, y = 1.16, z = -1.00 },
+    position = { x = 20.95, y = 1.16, z = 3.00 },
     yaw = 270 }
 }
 
