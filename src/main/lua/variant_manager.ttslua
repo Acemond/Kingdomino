@@ -84,7 +84,7 @@ function checkInteractions()
       hideObjectIfExists(variant_buttons_guids.enable[variant_name])
       hideObjectIfExists(variant_buttons_guids.disable[variant_name])
       variant_visible[variant_name] = false
-      setVariantEnabled { variant_name = variant_name, is_enabled = false }
+      setVariantEnabled { variant_name = variant_name, is_enabled = variant_defaults[variant_name] }  -- FIXME: Quickfix
     end
   end
 end
