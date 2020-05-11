@@ -9,11 +9,14 @@ local ready_token_guid = "6cfdbd"
 local add_player_guid = "8d17b0"
 local remove_player_guid = "fa1b7c"
 
-local not_tiles = {
-  castle_guid, ready_token_guid, table_guid, add_player_guid, remove_player_guid
+local not_kingdom = {
+  table_guid, add_player_guid, remove_player_guid
+}
+local not_tile_or_domino = {
+  castle_guid, ready_token_guid
 }
 
-local current_kingdom_objects = {}
+local current_kingdom_objects = { castle_guid, ready_token_guid, tile_guid }
 local pending_movement
 local pending_function
 
@@ -23,30 +26,36 @@ function onUpdate()
   local kingdom_objects = {}
   local held_objects = getPlayersObjects()
   for _, object in pairs(zone.getObjects()) do
-    if not table.contains(held_objects, object) and not table.contains(not_tiles, object.guid) then
+    if not table.contains(held_objects, object) and not table.contains(not_kingdom, object.guid) then
       table.insert(kingdom_objects, object)
     end
   end
 
   if pending_movement and table.containsOne(zone.getObjects(), held_objects) then
-    restartAnimation(10)
+    restartAnimation()
   end
 
   if not table.containsOnly(current_kingdom_objects, kingdom_objects) then
     current_kingdom_objects = kingdom_objects
+    local tiles = {}
+    for _, object in pairs(kingdom_objects) do
+      if not table.contains(not_tile_or_domino, object.guid) then
+        table.insert(tiles, object)
+      end
+    end
 
     pending_function = function ()
-      local max_x_pos = getMaxPos(kingdom_objects, "x")
-      local min_x_pos = getMinPos(kingdom_objects, "x")
-      local max_z_pos = getMaxPos(kingdom_objects, "z")
-      local min_z_pos = getMinPos(kingdom_objects, "z")
+      local max_x_pos = getMaxPos(tiles, "x")
+      local min_x_pos = getMinPos(tiles, "x")
+      local max_z_pos = getMaxPos(tiles, "z")
+      local min_z_pos = getMinPos(tiles, "z")
 
       local x_pos = -(min_x_pos + max_x_pos) / 2
       local z_pos = -(min_z_pos + max_z_pos) / 2
 
       shiftKingdom(kingdom_objects, x_pos, z_pos)
     end
-    restartAnimation(10)
+    restartAnimation()
   end
 end
 
