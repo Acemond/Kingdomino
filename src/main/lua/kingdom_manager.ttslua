@@ -159,11 +159,11 @@ function getDominoMaxBoundaries(domino)
     world_position = {
       world_position.x + 1,
       world_position.y,
-      world_position.z - 1
+      world_position.z
     }
   else
     world_position = {
-      world_position.x - 1,
+      world_position.x,
       world_position.y,
       world_position.z + 1
     }
@@ -179,11 +179,11 @@ function getDominoMinBoundaries(domino)
     world_position = {
       world_position.x - 1,
       world_position.y,
-      world_position.z + 1
+      world_position.z
     }
   else
     world_position = {
-      world_position.x + 1,
+      world_position.x,
       world_position.y,
       world_position.z - 1
     }
