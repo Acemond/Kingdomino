@@ -2,12 +2,12 @@ require("util/table")
 
 local zone_guid = "f9209b"
 local tile_guid = "9ab771"
-
-local table_guid = "0f8757"
 local castle_guid = "768b9c"
 local ready_token_guid = "6cfdbd"
 local add_player_guid = "8d17b0"
 local remove_player_guid = "fa1b7c"
+
+local table_guid = "0f8757"
 
 local not_kingdom = {
   table_guid, add_player_guid, remove_player_guid
@@ -66,9 +66,9 @@ function getShiftKingdom(kingdom_objects, domino, axis)
   local domino_local_position = getObjectFromGUID(zone_guid).positionToLocal(domino.getPosition())
 
   local shift = tile_size * domino_size
-  if domino_local_position[axis] > grid * (kingdom_size - domino_size - 1) then
+  if domino_local_position[axis] > grid * (kingdom_size - 1) then
     return getPossibleShift(min_kingdom, max_kingdom, -shift)
-  elseif domino_local_position[axis] < -grid * (kingdom_size - domino_size - 1)then
+  elseif domino_local_position[axis] < -grid * (kingdom_size - 1) then
     return getPossibleShift(min_kingdom, max_kingdom, shift)
   end
 
