@@ -22,6 +22,9 @@ local pending_function
 local current_kingdom_x = 0
 local current_offset_x = 0
 
+local logged = 0
+local previous = {}
+
 function onUpdate()
   local zone = getObjectFromGUID(zone_guid)
 
@@ -39,6 +42,12 @@ function onUpdate()
   local min_x_kingdom, max_x_kingdom = getBoundaries(kingdom_objects)
   local min_x_zone, max_x_zone = getBoundaries(zone_objects)
 
+  if min_x_kingdom == max_x_kingdom then
+    current_kingdom_x = 0
+  elseif current_offset_x == 0 then
+    current_kingdom_x = current_kingdom_x - (min_x_kingdom + max_x_kingdom) / 2
+  end
+
   local step = 0.2
   if max_x_zone > max_x_kingdom then
     current_offset_x = -step
@@ -46,17 +55,10 @@ function onUpdate()
     current_offset_x = step
   else
     if current_offset_x ~= 0 then
-      current_kingdom_x = current_offset_x
+      current_kingdom_x = current_kingdom_x + current_offset_x
       current_offset_x = 0
     end
   end
-
-  if min_x_kingdom == max_x_kingdom then
-    current_kingdom_x = 0
-  else
-    current_kingdom_x = current_kingdom_x - (min_x_kingdom + max_x_kingdom) / 2
-  end
-
   moveKingdom(kingdom_objects, current_kingdom_x + current_offset_x, 0)
 end
 
