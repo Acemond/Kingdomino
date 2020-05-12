@@ -18,6 +18,10 @@ local not_tile_or_domino = {
 
 local pending_movement
 
+local kingdom_size = 5
+local grid = 0.1
+local step = 2 * grid
+local max_pos = (kingdom_size - 1) * grid
 local current_position = {
   x = 0,
   z = 0
@@ -69,16 +73,19 @@ function updatePosition(zone_held_objects, kingdom_objects, axis)
   local min_kingdom, max_kingdom = getBoundaries(kingdom_objects, axis)
   local min_held, max_held = getBoundaries(zone_held_objects, axis)
 
+  if max_kingdom - min_kingdom >= kingdom_size * grid then
+    return current_position[axis] + current_offset[axis]
+  end
+
   if min_kingdom == max_kingdom then
     current_position[axis] = 0
   elseif current_offset[axis] == 0 then
     current_position[axis] = current_position[axis] - (min_kingdom + max_kingdom) / 2
   end
 
-  local step = 0.2
-  if max_held > max_kingdom + 0.2 then
+  if max_held > max_kingdom + step then
     current_offset[axis] = -step
-  elseif min_held < min_kingdom - 0.2 then
+  elseif min_held < min_kingdom - step then
     current_offset[axis] = step
   else
     if current_offset[axis] ~= 0 then
@@ -126,7 +133,7 @@ function getMaxPos(objects, axis)
   if max == nil then
     return 0
   else
-    return math.floor(max * 10 + 0.5) / 10
+    return math.floor(max * (1 / grid) + 0.5) / (1 / grid)
   end
 end
 
@@ -148,7 +155,7 @@ function getMinPos(objects, axis)
   if min == nil then
     return 0
   else
-    return math.floor(min * 10 + 0.5) / 10
+    return math.floor(min * (1 / grid) + 0.5) / (1 / grid)
   end
 end
 
