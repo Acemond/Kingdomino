@@ -20,13 +20,8 @@ local pending_movement
 
 local kingdom_size = 5
 local grid = 0.1
-local step = 2 * grid
-local max_pos = (kingdom_size - 1) * grid
+local tile_size = grid * 2
 local current_position = {
-  x = 0,
-  z = 0
-}
-local current_offset = {
   x = 0,
   z = 0
 }
@@ -40,6 +35,7 @@ function onUpdate()
 
   local zone_held_objects, kingdom_objects = {}, {}
   local held_objects = getPlayersObjects()
+  local shift = { x = 0, z = 0 }
   for _, object in pairs(zone.getObjects()) do
     if not table.contains(not_kingdom, object.guid) then
       if not table.contains(held_objects, object) then
@@ -50,51 +46,51 @@ function onUpdate()
     end
   end
 
-  local old_position = {
-    x = current_position.x + current_offset.x,
-    z = current_position.z + current_offset.z,
+  for _, domino in pairs(zone_held_objects) do
+    shift.x = getShiftKingdom(kingdom_objects, domino, "x")
+    shift.z = getShiftKingdom(kingdom_objects, domino, "z")
+  end
+
+  current_position = {
+    x = current_position.x + shift.x,
+    z = current_position.z + shift.z,
   }
-
-  -- TODO: Reset position on X if domino rotated, on Z if not
-  updatePosition(zone_held_objects, kingdom_objects, "x")
-  updatePosition(zone_held_objects, kingdom_objects, "z")
-
-  local new_position = {
-    x = current_position.x + current_offset.x,
-    z = current_position.z + current_offset.z,
-  }
-
-  if not table.equal(old_position, new_position) then
-    launchAnimation(kingdom_objects, new_position)
+  if not table.equal(shift, { x = 0, z = 0 }) then
+    launchAnimation(kingdom_objects, current_position)
   end
 end
 
-function updatePosition(zone_held_objects, kingdom_objects, axis)
+function getShiftKingdom(kingdom_objects, domino, axis)
   local min_kingdom, max_kingdom = getBoundaries(kingdom_objects, axis)
-  local min_held, max_held = getBoundaries(zone_held_objects, axis)
+  local domino_size = getDominoSize(domino, axis)
+  local domino_local_position = getObjectFromGUID(zone_guid).positionToLocal(domino.getPosition())
 
-  if max_kingdom - min_kingdom >= kingdom_size * grid then
-    return current_position[axis] + current_offset[axis]
+  local shift = tile_size * domino_size
+  if domino_local_position[axis] > grid * (kingdom_size - domino_size - 1) then
+    return getPossibleShift(min_kingdom, max_kingdom, -shift)
+  elseif domino_local_position[axis] < -grid * (kingdom_size - domino_size - 1)then
+    return getPossibleShift(min_kingdom, max_kingdom, shift)
   end
 
-  if min_kingdom == max_kingdom then
-    current_position[axis] = 0
-  elseif current_offset[axis] == 0 then
-    current_position[axis] = current_position[axis] - (min_kingdom + max_kingdom) / 2
-  end
+  return 0
+end
 
-  if max_held > max_kingdom + step then
-    current_offset[axis] = -step
-  elseif min_held < min_kingdom - step then
-    current_offset[axis] = step
+function getPossibleShift(min_kingdom, max_kingdom, space_needed)
+  local kingdom_limit = grid * (kingdom_size - 1)
+  if space_needed < 0 then
+    local shift = space_needed + kingdom_limit - max_kingdom
+    if kingdom_limit - max_kingdom < math.abs(space_needed)
+        and math.abs(-kingdom_limit - min_kingdom) >= math.abs(shift) then
+      return shift
+    end
   else
-    if current_offset[axis] ~= 0 then
-      current_position[axis] = current_position[axis] + current_offset[axis]
-      current_offset[axis] = 0
+    local shift = space_needed - math.abs(-kingdom_limit - min_kingdom)
+    if math.abs(-kingdom_limit - min_kingdom) < space_needed
+        and kingdom_limit - max_kingdom >= shift then
+      return shift
     end
   end
-
-  return current_position[axis] + current_offset[axis]
+  return 0
 end
 
 function getBoundaries(objects, axis)
@@ -177,6 +173,23 @@ function getDominoMaxBoundaries(domino)
   end
 
   return world_position
+end
+
+function getDominoSize(domino, axis)
+  local rotation_y = domino.getRotation().y
+  if (rotation_y > -45 and rotation_y < 45) or (rotation_y > 135 and rotation_y < 225) or (rotation_y > 315) then
+    if axis == "x" then
+      return 2
+    else
+      return 1
+    end
+  else
+    if axis == "x" then
+      return 1
+    else
+      return 2
+    end
+  end
 end
 
 function getDominoMinBoundaries(domino)

@@ -107,10 +107,10 @@ function onLoad(save_state)
   end
 
   self.interactable = false
-  updateFreezeState(decoyButtons, true)
-  updateFreezeState(script_holders, true)
-  updateFreezeState(non_interactable_guids, true)
-  updateFreezeState(temporarily_frozen, frozen)
+  --updateFreezeState(decoyButtons, true)
+  --updateFreezeState(script_holders, true)
+  --updateFreezeState(non_interactable_guids, true)
+  --updateFreezeState(temporarily_frozen, frozen)
 end
 
 function onSave()
