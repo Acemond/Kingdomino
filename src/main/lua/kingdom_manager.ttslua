@@ -16,47 +16,59 @@ local not_tile_or_domino = {
   castle_guid, ready_token_guid
 }
 
-local current_kingdom_objects = { castle_guid, ready_token_guid, tile_guid }
 local pending_movement
 local pending_function
+
+local current_kingdom_x = 0
+local current_offset_x = 0
 
 function onUpdate()
   local zone = getObjectFromGUID(zone_guid)
 
-  local kingdom_objects = {}
+  local zone_objects, kingdom_objects = {}, {}
   local held_objects = getPlayersObjects()
   for _, object in pairs(zone.getObjects()) do
-    if not table.contains(held_objects, object) and not table.contains(not_kingdom, object.guid) then
-      table.insert(kingdom_objects, object)
-    end
-  end
-
-  if pending_movement and table.containsOne(zone.getObjects(), held_objects) then
-    restartAnimation(5)
-  end
-
-  if not table.containsOnly(current_kingdom_objects, kingdom_objects) then
-    current_kingdom_objects = kingdom_objects
-    local tiles = {}
-    for _, object in pairs(kingdom_objects) do
-      if not table.contains(not_tile_or_domino, object.guid) then
-        table.insert(tiles, object)
+    if not table.contains(not_kingdom, object.guid) then
+      if not table.contains(held_objects, object) then
+        table.insert(kingdom_objects, object)
       end
+      table.insert(zone_objects, object)
     end
-
-    pending_function = function ()
-      local max_x_pos = getMaxPos(tiles, "x")
-      local min_x_pos = getMinPos(tiles, "x")
-      local max_z_pos = getMaxPos(tiles, "z")
-      local min_z_pos = getMinPos(tiles, "z")
-
-      local x_pos = -(min_x_pos + max_x_pos) / 2
-      local z_pos = -(min_z_pos + max_z_pos) / 2
-
-      shiftKingdom(kingdom_objects, x_pos, z_pos)
-    end
-    restartAnimation(5)
   end
+
+  local min_x_kingdom, max_x_kingdom = getBoundaries(kingdom_objects)
+  local min_x_zone, max_x_zone = getBoundaries(zone_objects)
+
+  local step = 0.2
+  if max_x_zone > max_x_kingdom then
+    current_offset_x = -step
+  elseif min_x_zone < min_x_kingdom then
+    current_offset_x = step
+  else
+    if current_offset_x ~= 0 then
+      current_kingdom_x = current_offset_x
+      current_offset_x = 0
+    end
+  end
+
+  if min_x_kingdom == max_x_kingdom then
+    current_kingdom_x = 0
+  else
+    current_kingdom_x = current_kingdom_x - (min_x_kingdom + max_x_kingdom) / 2
+  end
+
+  moveKingdom(kingdom_objects, current_kingdom_x + current_offset_x, 0)
+end
+
+function getBoundaries(objects)
+  local tiles = {}
+  for _, object in pairs(objects) do
+    if not table.contains(not_tile_or_domino, object.guid) then
+      table.insert(tiles, object)
+    end
+  end
+
+  return getMinPos(tiles, "x"), getMaxPos(tiles, "x")
 end
 
 function stopAnimation()
@@ -86,7 +98,11 @@ function getMaxPos(objects, axis)
       max = local_position
     end
   end
-  return max
+  if max == nil then
+    return 0
+  else
+    return math.floor(max * 10 + 0.5) / 10
+  end
 end
 
 function getMinPos(objects, axis)
@@ -104,7 +120,11 @@ function getMinPos(objects, axis)
       min = local_position
     end
   end
-  return min
+  if min == nil then
+    return 0
+  else
+    return math.floor(min * 10 + 0.5) / 10
+  end
 end
 
 function getDominoMaxBoundaries(domino)
@@ -157,6 +177,31 @@ function getPlayersObjects()
     end
   end
   return all_objects
+end
+
+function moveKingdom(kingdom_objects, x_pos, z_pos)
+  local zone = getObjectFromGUID(zone_guid)
+  local tile = getObjectFromGUID(tile_guid)
+
+  local tile_local_pos = zone.positionToLocal(tile.getPosition())
+
+  local target_local_position = {
+    x = x_pos,
+    y = tile_local_pos.y,
+    z = z_pos
+  }
+
+  tile.setPositionSmooth(zone.positionToWorld(target_local_position), false, true)
+
+  for _, object in pairs(kingdom_objects) do
+    local object_local_position = zone.positionToLocal(object.getPosition())
+    local object_target_position = {
+      target_local_position.x + (object_local_position.x - tile_local_pos.x),
+      object_local_position.y,
+      target_local_position.z + (object_local_position.z - tile_local_pos.z),
+    }
+    object.setPosition(zone.positionToWorld(object_target_position), false, true)
+  end
 end
 
 function shiftKingdom(kingdom_objects, x_pos, z_pos)
