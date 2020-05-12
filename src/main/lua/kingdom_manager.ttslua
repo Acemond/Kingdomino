@@ -17,15 +17,21 @@ local not_tile_or_domino = {
 }
 
 local pending_movement
-local pending_function
 
-local current_kingdom_x = 0
-local current_offset_x = 0
-
-local logged = 0
-local previous = {}
+local current_position = {
+  x = 0,
+  z = 0
+}
+local current_offset = {
+  x = 0,
+  z = 0
+}
 
 function onUpdate()
+  if pending_movement then
+    return
+  end
+
   local zone = getObjectFromGUID(zone_guid)
 
   local zone_objects, kingdom_objects = {}, {}
@@ -39,30 +45,47 @@ function onUpdate()
     end
   end
 
-  local min_x_kingdom, max_x_kingdom = getBoundaries(kingdom_objects)
-  local min_x_zone, max_x_zone = getBoundaries(zone_objects)
+  local old_position = {
+    x = current_position.x + current_offset.x,
+    z = current_position.z + current_offset.z,
+  }
+  local new_position = {
+    x = updatePosition(zone_objects, kingdom_objects, "x"),
+    z = updatePosition(zone_objects, kingdom_objects, "z")
+  }
 
-  if min_x_kingdom == max_x_kingdom then
-    current_kingdom_x = 0
-  elseif current_offset_x == 0 then
-    current_kingdom_x = current_kingdom_x - (min_x_kingdom + max_x_kingdom) / 2
+  if not table.equal(old_position, new_position) then
+    launchAnimation(kingdom_objects, new_position)
+  end
+end
+
+function updatePosition(zone_objects, kingdom_objects, axis)
+  local min_kingdom, max_kingdom = getBoundaries(kingdom_objects, axis)
+  local min_zone, max_zone = getBoundaries(zone_objects, axis)
+
+  if min_kingdom == max_kingdom then
+    current_position[axis] = 0
+  elseif current_offset[axis] == 0 then
+    current_position[axis] = current_position[axis] - (min_kingdom + max_kingdom) / 2
   end
 
   local step = 0.2
-  if max_x_zone > max_x_kingdom then
-    current_offset_x = -step
-  elseif min_x_zone < min_x_kingdom then
-    current_offset_x = step
+  -- TODO: change offset starting point to avoid undesired offset
+  if max_zone > max_kingdom then
+    current_offset[axis] = -step
+  elseif min_zone < min_kingdom then
+    current_offset[axis] = step
   else
-    if current_offset_x ~= 0 then
-      current_kingdom_x = current_kingdom_x + current_offset_x
-      current_offset_x = 0
+    if current_offset[axis] ~= 0 then
+      current_position[axis] = current_position[axis] + current_offset[axis]
+      current_offset[axis] = 0
     end
   end
-  moveKingdom(kingdom_objects, current_kingdom_x + current_offset_x, 0)
+
+  return current_position[axis] + current_offset[axis]
 end
 
-function getBoundaries(objects)
+function getBoundaries(objects, axis)
   local tiles = {}
   for _, object in pairs(objects) do
     if not table.contains(not_tile_or_domino, object.guid) then
@@ -70,19 +93,14 @@ function getBoundaries(objects)
     end
   end
 
-  return getMinPos(tiles, "x"), getMaxPos(tiles, "x")
+  return getMinPos(tiles, axis), getMaxPos(tiles, axis)
 end
 
-function stopAnimation()
-  if pending_movement ~= nil then
-    Wait.stop(pending_movement)
-    pending_movement = nil
-  end
-end
-
-function restartAnimation(delay)
-  stopAnimation()
-  pending_movement = Wait.frames(pending_function, delay)
+function launchAnimation(objects, new_position)
+  -- Waiting 1 frame for tile snap to grid
+  pending_movement = Wait.frames(function()
+    moveKingdom(objects, new_position)
+  end, 1)
 end
 
 function getMaxPos(objects, axis)
@@ -181,19 +199,17 @@ function getPlayersObjects()
   return all_objects
 end
 
-function moveKingdom(kingdom_objects, x_pos, z_pos)
+function moveKingdom(kingdom_objects, new_position)
   local zone = getObjectFromGUID(zone_guid)
   local tile = getObjectFromGUID(tile_guid)
 
   local tile_local_pos = zone.positionToLocal(tile.getPosition())
 
   local target_local_position = {
-    x = x_pos,
+    x = new_position.x,
     y = tile_local_pos.y,
-    z = z_pos
+    z = new_position.z
   }
-
-  tile.setPositionSmooth(zone.positionToWorld(target_local_position), false, true)
 
   for _, object in pairs(kingdom_objects) do
     local object_local_position = zone.positionToLocal(object.getPosition())
@@ -202,20 +218,14 @@ function moveKingdom(kingdom_objects, x_pos, z_pos)
       object_local_position.y,
       target_local_position.z + (object_local_position.z - tile_local_pos.z),
     }
-    object.setPosition(zone.positionToWorld(object_target_position), false, true)
+    object.setPositionSmooth(zone.positionToWorld(object_target_position), false, true)
   end
-end
 
-function shiftKingdom(kingdom_objects, x_pos, z_pos)
-  local zone = getObjectFromGUID(zone_guid)
-
-  for _, object in pairs(kingdom_objects) do
-    local local_position = zone.positionToLocal(object.getPosition())
-    local target_local_position = {
-      x = local_position.x + x_pos,
-      y = local_position.y,
-      z = local_position.z + z_pos
-    }
-    object.setPositionSmooth(zone.positionToWorld(target_local_position), false, true)
-  end
+  pending_movement = Wait.condition(function()
+    pending_movement = nil
+  end, function()
+    return math.abs(tile.getPosition().x - zone.positionToWorld(target_local_position).x) < 0.01
+        and math.abs(tile.getPosition().y - zone.positionToWorld(target_local_position).y) < 0.01
+        and math.abs(tile.getPosition().z - zone.positionToWorld(target_local_position).z) < 0.01
+  end)
 end
