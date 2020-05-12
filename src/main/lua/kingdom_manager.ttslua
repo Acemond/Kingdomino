@@ -34,14 +34,15 @@ function onUpdate()
 
   local zone = getObjectFromGUID(zone_guid)
 
-  local zone_objects, kingdom_objects = {}, {}
+  local zone_held_objects, kingdom_objects = {}, {}
   local held_objects = getPlayersObjects()
   for _, object in pairs(zone.getObjects()) do
     if not table.contains(not_kingdom, object.guid) then
       if not table.contains(held_objects, object) then
         table.insert(kingdom_objects, object)
+      else
+        table.insert(zone_held_objects, object)
       end
-      table.insert(zone_objects, object)
     end
   end
 
@@ -49,9 +50,14 @@ function onUpdate()
     x = current_position.x + current_offset.x,
     z = current_position.z + current_offset.z,
   }
+
+  -- TODO: Reset position on X if domino rotated, on Z if not
+  updatePosition(zone_held_objects, kingdom_objects, "x")
+  updatePosition(zone_held_objects, kingdom_objects, "z")
+
   local new_position = {
-    x = updatePosition(zone_objects, kingdom_objects, "x"),
-    z = updatePosition(zone_objects, kingdom_objects, "z")
+    x = current_position.x + current_offset.x,
+    z = current_position.z + current_offset.z,
   }
 
   if not table.equal(old_position, new_position) then
@@ -59,9 +65,9 @@ function onUpdate()
   end
 end
 
-function updatePosition(zone_objects, kingdom_objects, axis)
+function updatePosition(zone_held_objects, kingdom_objects, axis)
   local min_kingdom, max_kingdom = getBoundaries(kingdom_objects, axis)
-  local min_zone, max_zone = getBoundaries(zone_objects, axis)
+  local min_held, max_held = getBoundaries(zone_held_objects, axis)
 
   if min_kingdom == max_kingdom then
     current_position[axis] = 0
@@ -70,10 +76,9 @@ function updatePosition(zone_objects, kingdom_objects, axis)
   end
 
   local step = 0.2
-  -- TODO: change offset starting point to avoid undesired offset
-  if max_zone > max_kingdom then
+  if max_held > max_kingdom + 0.2 then
     current_offset[axis] = -step
-  elseif min_zone < min_kingdom then
+  elseif min_held < min_kingdom - 0.2 then
     current_offset[axis] = step
   else
     if current_offset[axis] ~= 0 then

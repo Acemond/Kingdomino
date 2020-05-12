@@ -44,3 +44,12 @@ function table.containsOne(tbl, other)
   end
   return false
 end
+
+function table.equal(tbl, other)
+  for key, value in pairs(tbl) do
+    if other[key] ~= value then
+      return false
+    end
+  end
+  return true
+end
