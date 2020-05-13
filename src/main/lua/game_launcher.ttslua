@@ -159,12 +159,7 @@ function launchGame(new_game_settings)
   removeCheckZones()
   destroyUnusedPieces()
   game_table.call("prepareTableForGame")
-  if game_settings.seated_players.Green or game_settings.seated_players.Pink
-      or game_settings.variants.kingdomino_xl
-      or game_settings.variants.two_players_advanced
-      or (game_settings.decks.kingdomino and game_settings.decks.queendomino) then
-    Wait.frames(spaceOutPlayers, 5)
-  end
+  Wait.frames(moveKingdoms, 5)
   if game_settings.decks.queendomino then
     Wait.frames(function()
       for color, seated in pairs(game_settings.seated_players) do
@@ -442,17 +437,8 @@ function movePlayerPieces(color, offset_vector)
   })
 end
 
-function spaceOutPlayers()
-  if game_settings.seated_players.White then
-    movePlayerPieces("White", { -2, 0, -8 })
-  end
-  if game_settings.seated_players.Orange then
-    movePlayerPieces("Orange", { 2, 0, -8 })
-  end
-  if game_settings.seated_players.Purple then
-    movePlayerPieces("Purple", { -2, 0, 8 })
-  end
-  if game_settings.seated_players.Red then
-    movePlayerPieces("Red", { 2, 0, 8 })
-  end
+function moveKingdoms()
+  --if game_settings.seated_players.White then
+  --  movePlayerPieces("White", { -2, 0, -8 })
+  --end
 end

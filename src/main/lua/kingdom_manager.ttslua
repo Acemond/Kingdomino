@@ -58,6 +58,7 @@ function onUpdate()
     return
   end
 
+  kingdom_size = Global.getVar("kingdom_size") or 5
   local zone = getObjectFromGUID(kingdom_guids.zone)
   local held_objects = getPlayersObjects()
   local held_dominos, kingdom_dominos, objects_to_move = {}, {}, {}
