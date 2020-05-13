@@ -1,49 +1,6 @@
 require("util/table")
+require("constants/guids")
 
-local player_pieces_guids = {
-  Orange = {
-    hand_zone = "96929a",
-    castle_tile = "9ab771",
-    castle = "768b9c",
-    flag = "6cfdbd",
-    kings = { "4d2d92", "5e6289" }
-  },
-  Purple = {
-    hand_zone = "6ea086",
-    castle_tile = "7db35a",
-    castle = "a1e204",
-    flag = "137a90",
-    kings = { "7dd59a", "e44a70" }
-  },
-  Red = {
-    hand_zone = "31279b",
-    castle_tile = "f6948c",
-    castle = "ae130d",
-    flag = "d99107",
-    kings = { "24345c", "2837e9" }
-  },
-  White = {
-    hand_zone = "f85ea1",
-    castle_tile = "537260",
-    castle = "fd4160",
-    flag = "e0aed1",
-    kings = { "86f4c2", "61259d" }
-  },
-  Green = {
-    hand_zone = "352048",
-    castle_tile = "8c9612",
-    castle = "b5c1bc",
-    flag = "37748e",
-    kings = { "526c31", "f2cd83" }
-  },
-  Pink = {
-    hand_zone = "49989f",
-    castle_tile = "a5aad1",
-    castle = "a407fb",
-    flag = "43d6e5",
-    kings = { "9dc643", "0dba70" }
-  }
-}
 local tile_check_zones = {
   "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
 }
@@ -96,26 +53,48 @@ local castle_tile_y = 0.95
 local castle_y = 1.16
 
 local decks_positions = {
-  main_deck = {
-    { { 0.00, 1.24, -24.00 } },
-    { { -3.00, 1.24, -24.00 }, { 3.00, 1.24, -24.00 } }
+  [3] = {
+    { { 0.00, 1.24, -18.00 } },
+    { { -3.00, 1.24, -18.00 }, { 3.00, 1.24, -18.00 } }
   },
-  main_deck_5p = {
-    { { 0.00, 1.24, -32.00 } },
-    { { -3.00, 1.24, -32.00 }, { 3.00, 1.24, -32.00 } }
+  [4] = {
+    { { 0.00, 1.24, -19.00 } },
+    { { -3.00, 1.24, -19.00 }, { 3.00, 1.24, -19.00 } }
+  },
+  [5] = {
+    { { 0.00, 1.24, -21.00 } },
+    { { -3.00, 1.24, -21.00 }, { 3.00, 1.24, -21.00 } }
+  },
+  [8] = {
+    { { 0.00, 1.24, -27.00 } },
+    { { -3.00, 1.24, -27.00 }, { 3.00, 1.24, -27.00 } }
   }
 }
 
-local next_turn_position = { 0.00, 1.05, -13.00 }
-local next_turn_position_5p = { 0.00, 1.05, -21.00 }
-
 local quests_positions = {
-  { -3.00, 1.03, -21.00 },
-  { 3.00, 1.03, -21.00 }
+  [3] = {
+    { -3.00, 1.03, -14.00 },
+    { 3.00, 1.03, -14.00 }
+  },
+  [4] = {
+    { -3.00, 1.03, -16.00 },
+    { 3.00, 1.03, -16.00 }
+  },
+  [5] = {
+    { -3.00, 1.03, -18.00 },
+    { 3.00, 1.03, -18.00 }
+  },
+  [8] = {
+    { -3.00, 1.03, -24.00 },
+    { 3.00, 1.03, -24.00 }
+  },
 }
-local quests_positions_5p = {
-  { -3.00, 1.03, -29.00 },
-  { 3.00, 1.03, -29.00 }
+
+local next_turn_position = {
+  [3] = { -0.03, 1.05, -4.00 },
+  [4] = { -0.03, 1.05, -6.00 },
+  [5] = { -0.03, 1.05, -8.00 },
+  [8] = { -0.03, 1.05, -15.00 },
 }
 
 local default_quests_guid = { "7f87c8", "ddd8f4" }
@@ -123,6 +102,75 @@ local default_quests_guid = { "7f87c8", "ddd8f4" }
 local game_settings = {}
 
 local next_turn_button_guid = "4a6126"
+
+local player_positions = {
+  start = {
+    White = { -21.01, 0.95, -17.00 },
+    Orange = { 20.95, 0.95, -17.00 },
+    Purple = { -21.01, 0.95, 23.00 },
+    Red = { 20.95, 0.95, 23.00 },
+    Green = { -31.00, 0.95, 3.00 },
+    Pink = { 30.94, 0.95, 3.00 }
+  },
+  [5] = {
+    White = {
+      tight = { -17.01, 0.95, -7.00 },
+      spaced = { -17.01, 0.95, -13.00 }
+    },
+    Orange = {
+      tight = { 16.95, 0.95, -7.00 },
+      spaced = { 16.95, 0.95, -13.00 },
+    },
+    Purple = {
+      tight = { -17.01, 0.95, 13.00 },
+      spaced = { -17.01, 0.95, 19.00 }
+    },
+    Red = {
+      tight = { 16.95, 0.95, 13.00 },
+      spaced = { 16.95, 0.95, 19.00 }
+    },
+    Green = {
+      tight = { -21.01, 0.95, 3.00 },
+      spaced = { -21.01, 0.95, 3.00 }
+    },
+    Pink = {
+      tight = { 20.95, 0.95, 3.00 },
+      spaced = { 20.95, 0.95, 3.00 }
+    }
+  },
+  [7] = {
+    White = {
+      tight = { -19.01, 0.95, -11.00 },
+      spaced = { -19.01, 0.95, -15.00 }
+    },
+    Orange = {
+      tight = { 18.95, 0.95, -11.00 },
+      spaced = { 18.95, 0.95, -15.00 },
+    },
+    Purple = {
+      tight = { -19.01, 0.95, 17.00 },
+      spaced = { -19.01, 0.95, 21.00 }
+    },
+    Red = {
+      tight = { 18.95, 0.95, 17.00 },
+      spaced = { 18.95, 0.95, 21.00 }
+    },
+    Green = {
+      tight = { -23.01, 0.95, 3.00 },
+      spaced = { -23.01, 0.95, 3.00 }
+    },
+    Pink = {
+      tight = { 22.95, 0.95, 3.00 },
+      spaced = { 22.95, 0.95, 3.00 }
+    }
+  }
+}
+local overlapping_players = {
+  White = "Green",
+  Orange = "Pink",
+  Purple = "Green",
+  Red = "Pink"
+}
 
 function onLoad()
   game_table = getObjectFromGUID(game_table_guid)
@@ -159,12 +207,7 @@ function launchGame(new_game_settings)
   removeCheckZones()
   destroyUnusedPieces()
   game_table.call("prepareTableForGame")
-  if game_settings.seated_players.Green or game_settings.seated_players.Pink
-      or game_settings.variants.kingdomino_xl
-      or game_settings.variants.two_players_advanced
-      or (game_settings.decks.kingdomino and game_settings.decks.queendomino) then
-    Wait.frames(spaceOutPlayers, 5)
-  end
+  Wait.frames(moveKingdoms, 15)
   if game_settings.decks.queendomino then
     Wait.frames(function()
       for color, seated in pairs(game_settings.seated_players) do
@@ -172,12 +215,12 @@ function launchGame(new_game_settings)
           takeCoins(color)
         end
       end
-    end, 10)
+    end, 30)
   end
 
   Wait.frames(function()
     firstTurn(decks, buildings)
-  end, 20)
+  end, 60)
 
   getObjectFromGUID(start_button_guid).destroy()
 end
@@ -212,17 +255,14 @@ function getCastles()
   local castles = {}
   for color, playing in pairs(game_settings.seated_players) do
     if playing then
-      castles[color] = player_pieces_guids[color].castle
+      castles[color] = player_pieces[color].castle
     end
   end
   return castles
 end
 
 function setNextTurnPosition(button)
-  local position = next_turn_position
-  if game_settings.player_count > 4 then
-    position = next_turn_position_5p
-  end
+  local position = next_turn_position[game_settings.tile_deal_count]
 
   button.setPosition({ position[1], -2.5, position[3] })
   Wait.frames(function()
@@ -243,15 +283,10 @@ function dealQuests(quest_guids)
   local quest_deck = getObjectFromGUID(quests_deck_guid)
   quest_deck.shuffle()
 
-  local actual_quests_positions = quests_positions
-  if game_settings.player_count > 4 then
-    actual_quests_positions = quests_positions_5p
-  end
-
   for i = 1, 2, 1 do
     quest_deck.takeObject({
       guid = quest_guids[i],
-      position = actual_quests_positions[i],
+      position = quests_positions[game_settings.tile_deal_count][i],
       callback_function = function(obj)
         obj.lock()
       end })
@@ -260,7 +295,7 @@ function dealQuests(quest_guids)
 end
 
 function takeCoins(playerColor)
-  local handPosition = getObjectFromGUID(player_pieces_guids[playerColor].hand_zone).getPosition()
+  local handPosition = getObjectFromGUID(player_pieces[playerColor].hand_zone).getPosition()
   local coin1Bag = getObjectFromGUID(game_objects_guid.queendomino.coin1_bag)
   local coin3Bag = getObjectFromGUID(game_objects_guid.queendomino.coin3_bag)
   local knightBag = getObjectFromGUID(game_objects_guid.queendomino.knight_bag)
@@ -365,16 +400,11 @@ function getMainDecksPosition(decks)
   local size = table.size(decks)
   local i = 1
 
-  local actual_decks_positions = decks_positions.main_deck
-  if game_settings.player_count > 4 then
-    actual_decks_positions = decks_positions.main_deck_5p
-  end
-
   for mode, _ in pairs(decks) do
     if game_settings.player_count < 5 then
-      decks_target_position[mode] = actual_decks_positions[size][i]
+      decks_target_position[mode] = decks_positions[game_settings.tile_deal_count][size][i]
     else
-      decks_target_position[mode] = actual_decks_positions[size][i]
+      decks_target_position[mode] = decks_positions[game_settings.tile_deal_count][size][i]
     end
     i = i + 1
   end
@@ -403,56 +433,52 @@ function cutDeck(deck, size_modifier)
   deck.cut(#deck.getObjects() * size_modifier)[2].destroy()
 end
 
-local castle_tile_positions = {
-  White = { x = -21.00, z = -11.00 },
-  Orange = { x = 21.00, z = -11.00 },
-  Purple = { x = -21.00, z = 11.00 },
-  Red = { x = 21.00, z = 11.00 },
-  Green = { x = -31.00, z = 1.00 },
-  Pink = { x = 31.00, z = -1.00 },
-}
-
-function movePlayerPieces(color, offset_vector)
-  local castle_tile = getObjectFromGUID(player_pieces_guids[color].castle_tile)
-  local hand_zone = getObjectFromGUID(player_pieces_guids[color].hand_zone)
-  local flag = getObjectFromGUID(player_pieces_guids[color].flag)
+function movePlayerPieces(color, target_position)
+  local castle_tile = getObjectFromGUID(player_pieces[color].castle_tile)
+  local kingdom_zone = getObjectFromGUID(player_pieces[color].kingdom_zone)
+  local hand_zone = getObjectFromGUID(player_pieces[color].hand_zone)
+  local flag = getObjectFromGUID(player_pieces[color].flag)
 
   hand_zone.setPosition({
-    hand_zone.getPosition().x + offset_vector[1],
-    hand_zone.getPosition().y + offset_vector[2],
-    hand_zone.getPosition().z + offset_vector[3],
+    hand_zone.getPosition().x - kingdom_zone.getPosition().x + target_position[1],
+    hand_zone.getPosition().y,
+    hand_zone.getPosition().z - kingdom_zone.getPosition().z + target_position[3],
   })
+  kingdom_zone.setPosition(target_position)
   castle_manager.call("moveCastle", {
     seat_color = color,
     position = {
-      castle_tile_positions[color].x + offset_vector[1],
-      castle_y + offset_vector[2],
-      castle_tile_positions[color].z + offset_vector[3]
+      target_position[1],
+      castle_y,
+      target_position[3]
     }
   })
   flag.setPosition({
-    castle_tile_positions[color].x + offset_vector[1],
+    target_position[1],
     flag.getPosition().y,
-    castle_tile_positions[color].z + offset_vector[3]
+    target_position[3]
   })
   castle_tile.setPositionSmooth({
-    castle_tile_positions[color].x + offset_vector[1],
-    castle_tile_y + offset_vector[2],
-    castle_tile_positions[color].z + offset_vector[3]
+    target_position[1],
+    castle_tile_y,
+    target_position[3]
   })
 end
 
-function spaceOutPlayers()
-  if game_settings.seated_players.White then
-    movePlayerPieces("White", { -2, 0, -8 })
-  end
-  if game_settings.seated_players.Orange then
-    movePlayerPieces("Orange", { 2, 0, -8 })
-  end
-  if game_settings.seated_players.Purple then
-    movePlayerPieces("Purple", { -2, 0, 8 })
-  end
-  if game_settings.seated_players.Red then
-    movePlayerPieces("Red", { 2, 0, 8 })
+function shouldSpaceOutPlayer(color)
+  return overlapping_players[color] ~= nil and game_settings.seated_players[overlapping_players[color]]
+end
+
+function moveKingdoms()
+  local kingdom_size = Global.getVar("kingdom_size")
+
+  for color, seated in pairs(game_settings.seated_players) do
+    if seated then
+      local target_position = player_positions[kingdom_size][color].tight
+      if shouldSpaceOutPlayer(color) then
+        target_position = player_positions[kingdom_size][color].spaced
+      end
+      movePlayerPieces(color, target_position)
+    end
   end
 end

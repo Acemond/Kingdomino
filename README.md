@@ -1,21 +1,31 @@
-# Kingdomino - scripted
+![Kingdomino](https://i.imgur.com/fw1csNN.png)
 
-![Kingdomino](https://steamuserimages-a.akamaihd.net/ugc/998053828236833866/15C5C61F0A22BB05FC3A1962F0A0C6C3920BF629/)
+You are a King seeking new lands to expand your Kingdom. You must explore the different terrains: wheat fields, lakes, mines, swamps, forests and plains in order to develop the best territories.
+
+But be careful, as other Kings are also coveting these lands...
+
+## Scripted for Tabletop Simulator
 
 Pick the extension you want to play with and launch the game!
 Includes the following with all possible combinations:
- - Kingdomino
- - Queendomino
- - Age of Giants (requires Kingdomino)
- - The court
+ - **Kingdomino**
+ - **Queendomino**
+ - **Age of Giants** (requires Kingdomino)
+ - **The court**
+ - Kingdomino XL
 
 All configurations are scripted.
 
-Playable for 2 to 4 players.
+**Playable for 2 to 6 players.**
 
-The 3 players Kingdomino game is using the variant recommended by the author.
-Four dominos will be dealt and the one left unpicked is automatically tossed.
+## Contact and support
+You can check what I'm working on with my mini-tracker tool: [Trello](https://trello.com/b/2MNPidbB/kingdomino).
 
-Quality of life updates and 5 players mode coming soon...
+If you encounter anything suspicious about the way the mod behaves, please report it in the corresponding Discussions thread or in the comment section, you can also come to [Discord](https://discord.gg/syERF8) to talk about it.
+
+## Credits
+Thanks to **Bruno Cathala** for his amazing games.
+Thanks to cryptosha for the original idea of modding those games.
+Thanks to P.E.R. for his amazing domino scans.
 
 Kingdomino, Queendomino, Kingdomino: Age of Giants and Kingdomino: The Court are owned by Blue Orange™

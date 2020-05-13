@@ -1,37 +1,88 @@
-local castles = {
-  Orange = "768b9c",
-  Purple = "a1e204",
-  Red = "ae130d",
-  White = "fd4160",
-  Green = "b5c1bc",
-  Pink = "a407fb"
-}
+require("constants/guids")
 
 local castle_positions = {
   White = {
-    position = { x = -21.00, y = 1.16, z = -11.00 },
-    yaw = 0 },
+    position = { x = -21.01, y = 0.95, z = -17.00 },
+    yaw = 0
+  },
   Orange = {
-    position = { x = 21.00, y = 1.16, z = -11.00 },
-    yaw = 0 },
+    position = { x = 20.95, y = 0.95, z = -17.00 },
+    yaw = 0
+  },
   Purple = {
-    position = { x = -21.00, y = 1.16, z = 11.00 },
-    yaw = 180 },
+    position = { x = -21.01, y = 0.95, z = 23.00 },
+    yaw = 180
+  },
   Red = {
-    position = { x = 21.00, y = 1.16, z = 11.00 },
-    yaw = 180 },
+    position = { x = 20.95, y = 0.95, z = 23.00 },
+    yaw = 180
+  },
   Green = {
-    position = { x = -31.00, y = 1.16, z = 1.00 },
-    yaw = 90 },
+    position = { x = -31.00, y = 0.95, z = 3.00 },
+    yaw = 90
+  },
   Pink = {
-    position = { x = 31.00, y = 1.16, z = -1.00 },
-    yaw = 270 }
+    position = { x = 30.94, y = 0.95, z = 3.00 },
+    yaw = 270
+  }
 }
 
-local y_position = 1.16
+local kingdom_zone_scales = {
+  [5] = {10, 4, 10},
+  [7] = {14, 4, 14}
+}
+
+local castle_y_position = 1.16
+local walls_y_position = 0.95
 local hidden_y_position = -0.8
 
 local castle_animations = {}
+local walls_animations = {
+  Orange = {},
+  Purple = {},
+  Red = {},
+  White = {},
+  Green = {},
+  Pink = {}
+}
+local colors = { "Orange", "Purple", "Red", "White", "Green", "Pink" }
+local wall_sizes = { 5, 7 }
+
+local visible_walls = {
+  Orange = false,
+  Purple = false,
+  Red = false,
+  White = false,
+  Green = false,
+  Pink = false
+}
+local current_walls_size = 5
+function onUpdate()
+  local new_walls_size = getWallsSize()
+  if new_walls_size ~= current_walls_size then
+    current_walls_size = new_walls_size
+    updateKingdomZones()
+    updateWalls()
+  end
+end
+
+function updateWalls()
+  for color, visible in pairs(visible_walls) do
+    if visible then
+      showWalls(color, 20)
+    else
+      hideWalls(color, current_walls_size)
+    end
+  end
+
+  for _, color in ipairs(colors) do
+    for _, size in ipairs(wall_sizes) do
+      if size ~= current_walls_size then
+        hideWalls(color, size)
+      end
+    end
+  end
+end
 
 function onPlayerChangeColor(player_color)
   if castle_positions[player_color] and not Global.getVar("quick_setup") then
@@ -45,48 +96,123 @@ function onPlayerChangeColor(player_color)
 end
 
 function showCastle(seat_color)
-  local position = {
+  local castle_position = {
     castle_positions[seat_color].position.x,
-    y_position,
+    castle_y_position,
     castle_positions[seat_color].position.z
   }
-  animateCastle(seat_color, position, 25)
+  animateCastle(seat_color, castle_position, 25)
+  visible_walls[seat_color] = true
+  updateWalls()
 end
 
 function hideCastle(seat_color)
-  local position = {
+  local hidden_position = {
     castle_positions[seat_color].position.x,
     hidden_y_position,
     castle_positions[seat_color].position.z
   }
 
-  animateCastle(seat_color, position, 0)
+  animateCastle(seat_color, hidden_position, 0)
+  visible_walls[seat_color] = false
+  updateWalls()
 end
 
 function moveCastle(parameters)
   animateCastle(parameters.seat_color, parameters.position)
+  local walls_position = {
+    parameters.position[1],
+    walls_y_position,
+    parameters.position[3]
+  }
+  animateWalls(parameters.seat_color, walls_position, current_walls_size)
 end
 
-function stopAnimation(seat_color)
-  Wait.stop(castle_animations[seat_color])
-  castle_animations[seat_color] = nil
+function showWalls(seat_color, delay)
+  local walls_position = {
+    castle_positions[seat_color].position.x,
+    walls_y_position,
+    castle_positions[seat_color].position.z
+  }
+  animateWalls(seat_color, walls_position, current_walls_size, delay)
+end
+
+function hideWalls(seat_color, size)
+  local walls_position = {
+    castle_positions[seat_color].position.x,
+    hidden_y_position,
+    castle_positions[seat_color].position.z
+  }
+  animateWalls(seat_color, walls_position, size, 0)
 end
 
 function animateCastle(seat_color, new_position, delay)
   if castle_animations[seat_color] ~= nil then
-    stopAnimation(seat_color)
+    Wait.stop(castle_animations[seat_color])
+    castle_animations[seat_color] = nil
   end
 
-  local castle = getObjectFromGUID(castles[seat_color])
+  local animation_function = function()
+    local castle = getObjectFromGUID(player_pieces[seat_color].castle)
 
-  if delay == nil or delay == 0 then
     castle.lock()
     castle.setPositionSmooth(new_position)
-  else
-    castle_animations[seat_color] = Wait.frames(function()
-      castle.lock()
-      castle.setPositionSmooth(new_position)
-      castle_animations[seat_color] = nil
-    end, delay)
+    castle_animations[seat_color] = nil
   end
+
+  if delay == nil or delay == 0 then
+    animation_function()
+  else
+    castle_animations[seat_color] = Wait.frames(animation_function, delay)
+  end
+end
+
+function animateWalls(seat_color, new_position, size, delay)
+  if walls_animations[seat_color][size] ~= nil then
+    Wait.stop(walls_animations[seat_color][size])
+    walls_animations[seat_color][size] = nil
+  end
+
+  local animation_function = function()
+    local walls = getObjectFromGUID(walls_guids[size][seat_color])
+
+    walls.setPositionSmooth(new_position)
+    walls_animations[seat_color][size] = nil
+  end
+
+  if delay == nil or delay == 0 then
+    animation_function()
+  else
+    walls_animations[seat_color][size] = Wait.frames(animation_function, delay)
+  end
+end
+
+function updateKingdomZones()
+  for _, guids in pairs(player_pieces) do
+    getObjectFromGUID(guids.kingdom_zone).setScale(kingdom_zone_scales[current_walls_size])
+  end
+end
+
+function getWallsSize()
+  local player_count = Global.getVar("player_count")
+  local decks = Global.getTable("deck_enabled")
+  local variants = Global.getTable("variant_enabled")
+
+  local size = 5
+  if decks.queendomino then
+    if decks.kingdomino then
+      if player_count < 5 then
+        size = 7
+      end
+    else
+      if player_count < 3 then
+        size = 7
+      end
+    end
+  elseif variants.kingdomino_xl or variants.two_players_advanced then
+    size = 7
+  end
+
+  Global.setVar("kingdom_size", size)
+  return size
 end

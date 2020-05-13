@@ -1,3 +1,5 @@
+require("constants/guids")
+
 -- useless hidden objects used to keep button textures in memory
 local decoyButtons = { "3416fc", "25ef05", "d78ce4", "25bfc4", "29ae89", "6ce2c6", "31bd66", "5740ca", "28fcc5",
                        "5aebb9", "536275", "eb1dfc", "59253d", "02c925", "093a20", "fe4a71", "a8ab45" }
@@ -110,6 +112,8 @@ function onLoad(save_state)
   updateFreezeState(decoyButtons, true)
   updateFreezeState(script_holders, true)
   updateFreezeState(non_interactable_guids, true)
+  updateFreezeState(walls_guids[5], true)
+  updateFreezeState(walls_guids[7], true)
   updateFreezeState(temporarily_frozen, frozen)
 end
 
