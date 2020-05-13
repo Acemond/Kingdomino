@@ -23,8 +23,8 @@ function onSave()
   return JSON.encode({ tileValues = tileValues })
 end
 
-function onObjectLeaveContainer(container, leave_object)
-  if container == self then
+function onObjectLeaveContainer(_, leave_object)
+  if tileValues[leave_object.guid] then
     leave_object.setVar("object_type", "domino")
   end
 end
