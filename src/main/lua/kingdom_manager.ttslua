@@ -2,7 +2,7 @@
 require("util/table")
 require("constants/guids")
 
-kingdom_guids = player_pieces[color]
+local kingdom_guids = Guids.player_pieces[color]
 
 local kingdom_size = 5
 
@@ -14,9 +14,22 @@ local current_position = {
   x = 0,
   z = 0
 }
+local locked_kingdom = {
+  Orange = false,
+  Purple = false,
+  Red = false,
+  White = false,
+  Green = false,
+  Pink = false
+}
+
+function onLoad()
+  createLockButtons()
+  createUnlockButtons()
+end
 
 function onUpdate()
-  if pending_movement then
+  if pending_movement or locked_kingdom[color] then
     return
   end
 
@@ -27,7 +40,9 @@ function onUpdate()
   local held_objects = getPlayersObjects()
   local held_dominos, kingdom_dominos, objects_to_move = {}, {}, {}
   for _, object in pairs(zone.getObjects()) do
-    if object.getVar("object_type") ~= nil and object.getVar("object_type") == "domino"
+    if table.contains(dominoes.kingdomino, object.guid)
+        or table.contains(dominoes.queendomino, object.guid)
+        or table.contains(dominoes.age_of_giants, object.guid)
         or object.guid == kingdom_guids.castle_tile then
       if table.contains(held_objects, object) then
         table.insert(held_dominos, object)
@@ -238,4 +253,52 @@ function moveKingdom(kingdom_objects, new_position)
         and math.abs(tile.getPosition().y - zone.positionToWorld(target_local_position).y) < 0.01
         and math.abs(tile.getPosition().z - zone.positionToWorld(target_local_position).z) < 0.01
   end)
+end
+
+function lockKingdom(color)
+  locked_kingdom[color] = true
+end
+
+function unlockKingdom(color)
+  locked_kingdom[color] = false
+end
+
+function createLockButtons()
+  for color, pieces in pairs(Guids.player_pieces) do
+    local lock_kingdom_function_name = "lock_" .. color .. "_kingdom"
+    self.setVar(lock_kingdom_function_name, function ()
+      lockKingdom(color)
+    end)
+
+    getObjectFromGUID(pieces.lock_kingdom).createButton({
+      click_function = lock_kingdom_function_name,
+      function_owner = self,
+      label = "",
+      tooltip = "Click to prevent the kingdom from moving away from the edges.",
+      position = { 0, 0.05, 0 },
+      color = { 0, 0, 0, 0 },
+      width = 800,
+      height = 600,
+    })
+  end
+end
+
+function createUnlockButtons()
+  for color, pieces in pairs(Guids.player_pieces) do
+    local unlock_kingdom_function_name = "unlock_" .. color .. "_kingdom"
+    self.setVar(unlock_kingdom_function_name, function ()
+      unlockKingdom(color)
+    end)
+
+    getObjectFromGUID(pieces.unlock_kingdom).createButton({
+      click_function = unlock_kingdom_function_name,
+      function_owner = self,
+      label = "",
+      tooltip = "Click for kingdom to move away from the edges.",
+      position = { 0, 0.05, 0 },
+      color = { 0, 0, 0, 0 },
+      width = 800,
+      height = 600,
+    })
+  end
 end

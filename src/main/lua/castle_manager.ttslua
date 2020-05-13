@@ -153,7 +153,7 @@ function animateCastle(seat_color, new_position, delay)
   end
 
   local animation_function = function()
-    local castle = getObjectFromGUID(player_pieces[seat_color].castle)
+    local castle = getObjectFromGUID(Guids.player_pieces[seat_color].castle)
 
     castle.lock()
     castle.setPositionSmooth(new_position)
@@ -188,7 +188,7 @@ function animateWalls(seat_color, new_position, size, delay)
 end
 
 function updateKingdomZones()
-  for _, guids in pairs(player_pieces) do
+  for _, guids in pairs(Guids.player_pieces) do
     getObjectFromGUID(guids.kingdom_zone).setScale(kingdom_zone_scales[current_walls_size])
   end
 end

@@ -1,4 +1,6 @@
-local tileValues = {}
+require("util/table")
+require("constants/guids")
+
 local targetDealingPositions = {
   { 5.49, 1.83, 6.87 },
   { 5.50, 1.83, 4.4 },
@@ -9,33 +11,6 @@ local targetDealingPositions = {
   { 5.49, 1.83, -7.67 },
   { 5.49, 1.83, -10.09 }
 }
-
-function onLoad(save_state)
-  if save_state ~= "" then
-    tileValues = JSON.decode(save_state).tileValues
-  else
-    tileValues = assignTilesValue()
-  end
-end
-
-function onSave()
-  return JSON.encode({ tileValues = tileValues })
-end
-
-function onObjectLeaveContainer(_, leave_object)
-  if tileValues[leave_object.guid] then
-    leave_object.setVar("object_type", "domino")
-  end
-end
-
-function assignTilesValue()
-  local values = {}
-  local tiles = self.getObjects()
-  for i = 1, #tiles, 1 do
-    values[tiles[i].guid] = i
-  end
-  return values
-end
 
 function dealTile(tileGuid, position)
   local guid = tileGuid
@@ -69,10 +44,10 @@ end
 function getTilesTargetPosition()
   local guids = getObjectsGuids()
   table.sort(guids, function(a, b)
-    return tileValues[a] < tileValues[b]
+    return table.indexOf(dominoes.queendomino, a) < table.indexOf(dominoes.queendomino, b)
   end)
 
-  result = {}
+  local result = {}
   for i, guid in ipairs(guids) do
     result[guid] = targetDealingPositions[i]
   end

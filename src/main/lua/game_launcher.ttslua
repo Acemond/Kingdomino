@@ -255,7 +255,7 @@ function getCastles()
   local castles = {}
   for color, playing in pairs(game_settings.seated_players) do
     if playing then
-      castles[color] = player_pieces[color].castle
+      castles[color] = Guids.player_pieces[color].castle
     end
   end
   return castles
@@ -295,7 +295,7 @@ function dealQuests(quest_guids)
 end
 
 function takeCoins(playerColor)
-  local handPosition = getObjectFromGUID(player_pieces[playerColor].hand_zone).getPosition()
+  local handPosition = getObjectFromGUID(Guids.player_pieces[playerColor].hand_zone).getPosition()
   local coin1Bag = getObjectFromGUID(game_objects_guid.queendomino.coin1_bag)
   local coin3Bag = getObjectFromGUID(game_objects_guid.queendomino.coin3_bag)
   local knightBag = getObjectFromGUID(game_objects_guid.queendomino.knight_bag)
@@ -434,10 +434,10 @@ function cutDeck(deck, size_modifier)
 end
 
 function movePlayerPieces(color, target_position)
-  local castle_tile = getObjectFromGUID(player_pieces[color].castle_tile)
-  local kingdom_zone = getObjectFromGUID(player_pieces[color].kingdom_zone)
-  local hand_zone = getObjectFromGUID(player_pieces[color].hand_zone)
-  local flag = getObjectFromGUID(player_pieces[color].flag)
+  local castle_tile = getObjectFromGUID(Guids.player_pieces[color].castle_tile)
+  local kingdom_zone = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local hand_zone = getObjectFromGUID(Guids.player_pieces[color].hand_zone)
+  local flag = getObjectFromGUID(Guids.player_pieces[color].flag)
 
   hand_zone.setPosition({
     hand_zone.getPosition().x - kingdom_zone.getPosition().x + target_position[1],
@@ -445,9 +445,9 @@ function movePlayerPieces(color, target_position)
     hand_zone.getPosition().z - kingdom_zone.getPosition().z + target_position[3],
   })
   kingdom_zone.setPosition({
-    target_position.x,
+    target_position[1],
     kingdom_zone.getPosition().y,
-    target_position.z
+    target_position[3]
   })
   castle_manager.call("moveCastle", {
     seat_color = color,

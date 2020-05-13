@@ -1,4 +1,6 @@
-local tileValues = {}
+require("util/table")
+require("constants/guids")
+
 local targetDealingPositions = {
   { 5.49, 1.83, 6.87 },
   { 5.50, 1.83, 4.4 },
@@ -10,33 +12,6 @@ local targetDealingPositions = {
   { 5.49, 1.83, -10.09 }
 }
 local trashBagGuid = "32278a"
-
-function onLoad(save_state)
-  if save_state ~= "" then
-    tileValues = JSON.decode(save_state).tileValues
-  else
-    tileValues = assignTilesValue()
-  end
-end
-
-function onSave()
-  return JSON.encode({ tileValues = tileValues })
-end
-
-function onObjectLeaveContainer(_, leave_object)
-  if tileValues[leave_object.guid] then
-    leave_object.setVar("object_type", "domino")
-  end
-end
-
-function assignTilesValue()
-  local values = {}
-  local tiles = self.getObjects()
-  for i = 1, #tiles, 1 do
-    values[tiles[i].guid] = i
-  end
-  return values
-end
 
 function cutDeck(size)
   if size < #self.getObjects() then
@@ -103,7 +78,7 @@ end
 function getSortedTilesValue()
   local guids = getObjectsGuids()
   table.sort(guids, function(a, b)
-    return tileValues[a] < tileValues[b]
+    return table.indexOf(dominoes.kingdomino, a) < table.indexOf(dominoes.kingdomino, b)
   end)
   return guids
 end
@@ -118,13 +93,6 @@ function getObjectsGuids()
 end
 
 function mergeDeck(deck)
-  addTilesValues(deck.getTable("tiles_value"))
   deck.setInvisibleTo({ "Black", "Grey", "Red", "Orange", "Purple", "White", "Pink", "Green" })
   self.putObject(deck)
-end
-
-function addTilesValues(tileValuesToAdd)
-  for guid, value in pairs(tileValuesToAdd) do
-    tileValues[guid] = value
-  end
 end

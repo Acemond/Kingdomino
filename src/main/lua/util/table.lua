@@ -36,6 +36,14 @@ function table.containsOnly(tbl, other)
   return table.containsAll(tbl, other) and table.containsAll(other, tbl)
 end
 
+function table.indexOf(tbl, value)
+  for i, tbl_value in pairs(tbl) do
+    if tbl_value == value then
+      return i
+    end
+  end
+end
+
 function table.containsOne(tbl, other)
   for _, obj in pairs(other) do
     if table.contains(tbl, obj) then

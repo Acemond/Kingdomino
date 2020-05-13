@@ -1,3 +1,5 @@
+require("constants/guids")
+
 local seated_players = {
   White = false,
   Orange = false,
@@ -18,24 +20,7 @@ local local_players_button_guid = {
   enable = "4f044d",
   disable = "d1e47c"
 }
-local player_buttons_guids = {
-  add = {
-    White = "f60fe5",
-    Orange = "8d17b0",
-    Purple = "1b4b1a",
-    Red = "a1ef12",
-    Green = "fbeaba",
-    Pink = "6987e6"
-  },
-  remove = {
-    White = "74e8b0",
-    Orange = "fa1b7c",
-    Purple = "1bbcb3",
-    Red = "dfeee5",
-    Green = "8fedd0",
-    Pink = "668a0a"
-  }
-}
+
 local game_master_color = "Black"
 local spectator_color = "Grey"
 
@@ -92,17 +77,23 @@ function setLocalPlayersEnabled(is_enabled)
   end
 end
 
-function addPlayer(parameters)
-  seated_players[parameters.seat_color] = true
+function addLocalPlayer(seat_color)
+  seated_players[seat_color] = true
+  updateSeatedPlayers(seated_players)
+  castle_manager.call("showCastle", seat_color)
+end
+
+function addPlayer(player_color, seat_color)
+  seated_players[seat_color] = true
   if not local_players_enabled then
-    if parameters.player_color == "Grey" then
-      getNextSpectator().changeColor(parameters.seat_color)
+    if player_color == "Grey" then
+      getNextSpectator().changeColor(seat_color)
     else
-      Player[parameters.player_color].changeColor(parameters.seat_color)
+      Player[player_color].changeColor(seat_color)
     end
   end
   updateSeatedPlayers(seated_players)
-  castle_manager.call("showCastle", parameters.seat_color)
+  castle_manager.call("showCastle", seat_color)
 end
 
 function getNextSpectator()
@@ -144,11 +135,11 @@ function addNextPlayer()
     if not seated_players[color] then
       local player = getPlayerNotSeated()
       if player ~= nil then
-        addPlayer { player_color = player.color, seat_color = color }
+        addPlayer(player.color, color)
         return
       else
         setLocalPlayersEnabled(true)
-        addPlayer { seat_color = color }
+        addLocalPlayer(color)
         return
       end
     end
@@ -174,7 +165,7 @@ end
 function onPlayerChangeColor(player_color)
   if not local_players_enabled and player_color ~= spectator_color and player_color ~= game_master_color
       and not seated_players[player_color] and Player[player_color].seated then
-    addPlayer { player_color = player_color, seat_color = player_color }
+    addPlayer(player_color, player_color)
   end
   if not local_players_enabled then
     removeUnoccupiedSeats()
@@ -193,7 +184,7 @@ function seatColoredPlayer()
   for _, player in pairs(Player.getPlayers()) do
     if not local_players_enabled and player.color ~= spectator_color and player.color ~= game_master_color then
       if not seated_players[player.color] and player.seated then
-        addPlayer { player_color = player.color, seat_color = player.color }
+        addPlayer(player.color, player.color)
       end
     end
   end
@@ -212,7 +203,7 @@ end
 function onPlayerConnect(person)
   if not local_players_enabled and not seated_players[person.color]
       and person.color ~= spectator_color and person.color ~= game_master_color then
-    addPlayer { player_color = person.color, seat_color = person.color }
+    addPlayer(person.color, person.color)
   end
 end
 
@@ -224,8 +215,8 @@ end
 
 function updatePlayerButtons()
   for color, seated in pairs(seated_players) do
-    local add_button = getObjectFromGUID(player_buttons_guids.add[color])
-    local remove_button = getObjectFromGUID(player_buttons_guids.remove[color])
+    local add_button = getObjectFromGUID(Guids.player_pieces[color].add_player)
+    local remove_button = getObjectFromGUID(Guids.player_pieces[color].remove_player)
 
     if seated and add_button ~= nil and add_button.getStateId() == 1 then
       add_button.setState(2)
