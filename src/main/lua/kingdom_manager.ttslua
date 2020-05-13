@@ -10,7 +10,6 @@ local table_guid = "0f8757"
 
 local pending_movement
 local grid = 0.1
-local tile_size = grid * 2
 local current_position = {
   x = 0,
   z = 0
@@ -22,6 +21,8 @@ function onUpdate()
   end
 
   kingdom_size = Global.getVar("kingdom_size") or 5
+  grid = 0.5 / kingdom_size
+
   local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
   local held_objects = getPlayersObjects()
   local held_dominos, kingdom_dominos, objects_to_move = {}, {}, {}
@@ -60,7 +61,7 @@ function getShiftKingdom(kingdom_dominos, domino, axis)
   local domino_size = getDominoSize(domino, axis)
   local domino_local_position = getObjectFromGUID(kingdom_guids.kingdom_zone).positionToLocal(domino.getPosition())
 
-  local shift = tile_size * domino_size
+  local shift = grid * 2 * domino_size
   if domino_local_position[axis] > grid * (kingdom_size - 1) then
     return getPossibleShift(min_kingdom, max_kingdom, -shift)
   elseif domino_local_position[axis] < -grid * (kingdom_size - 1) then
