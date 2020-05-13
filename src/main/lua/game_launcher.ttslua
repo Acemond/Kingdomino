@@ -444,7 +444,11 @@ function movePlayerPieces(color, target_position)
     hand_zone.getPosition().y,
     hand_zone.getPosition().z - kingdom_zone.getPosition().z + target_position[3],
   })
-  kingdom_zone.setPosition(target_position)
+  kingdom_zone.setPosition({
+    target_position.x,
+    kingdom_zone.getPosition().y,
+    target_position.z
+  })
   castle_manager.call("moveCastle", {
     seat_color = color,
     position = {
