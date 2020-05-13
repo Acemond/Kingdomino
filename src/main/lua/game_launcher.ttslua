@@ -192,7 +192,7 @@ function launchGame(new_game_settings)
   removeCheckZones()
   destroyUnusedPieces()
   game_table.call("prepareTableForGame")
-  Wait.frames(moveKingdoms, 5)
+  Wait.frames(moveKingdoms, 15)
   if game_settings.decks.queendomino then
     Wait.frames(function()
       for color, seated in pairs(game_settings.seated_players) do
@@ -200,12 +200,12 @@ function launchGame(new_game_settings)
           takeCoins(color)
         end
       end
-    end, 10)
+    end, 30)
   end
 
   Wait.frames(function()
     firstTurn(decks, buildings)
-  end, 20)
+  end, 60)
 
   getObjectFromGUID(start_button_guid).destroy()
 end
