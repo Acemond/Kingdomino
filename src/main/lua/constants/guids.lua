@@ -49,3 +49,21 @@ player_pieces = {
   }
 }
 
+walls_guids = {
+  [5] = {
+    Orange = "5a6899",
+    Purple = "5907ab",
+    Red = "81b26a",
+    White = "81e993",
+    Green = "92a671",
+    Pink = "41845a"
+  },
+  [7] = {
+    Orange = "3e4ffe",
+    Purple = "7ee381",
+    Red = "31a320",
+    White = "5dd07b",
+    Green = "e3c516",
+    Pink = "82e2c3"
+  }
+}
