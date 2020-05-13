@@ -93,17 +93,24 @@ function getPossibleShift(min_kingdom, max_kingdom, space_needed)
         and math.abs(-kingdom_limit - min_kingdom) >= math.abs(shift) then
       return shift
     end
+
+    if space_needed + grid * 2 < 0 then
+      return getPossibleShift(min_kingdom, max_kingdom, space_needed + grid * 2)
+    else
+      return 0
+    end
   else
     local shift = space_needed - math.abs(-kingdom_limit - min_kingdom)
     if math.abs(-kingdom_limit - min_kingdom) < space_needed
         and kingdom_limit - max_kingdom >= shift then
       return shift
     end
-  end
-  if space_needed - grid * 2 > 0 then
-    return getPossibleShift(min_kingdom, max_kingdom, space_needed - grid * 2)
-  else
-    return 0
+
+    if space_needed - grid * 2 > 0 then
+      return getPossibleShift(min_kingdom, max_kingdom, space_needed - grid * 2)
+    else
+      return 0
+    end
   end
 end
 
