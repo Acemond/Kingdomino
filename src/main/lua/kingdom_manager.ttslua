@@ -1,45 +1,8 @@
 --local color = "Orange"
 require("util/table")
+require("constants/guids")
 
-local kingdom_guids = {
-  Orange = {
-    zone = "f9209b",
-    castle_tile = "9ab771",
-    castle = "768b9c",
-    flag = "6cfdbd"
-  },
-  Purple = {
-    zone = "54b528",
-    castle_tile = "7db35a",
-    castle = "a1e204",
-    flag = "137a90"
-  },
-  Red = {
-    zone = "f1bc94",
-    castle_tile = "f6948c",
-    castle = "ae130d",
-    flag = "d99107"
-  },
-  White = {
-    zone = "57d93f",
-    castle_tile = "537260",
-    castle = "fd4160",
-    flag = "e0aed1"
-  },
-  Green = {
-    zone = "e491d2",
-    castle_tile = "8c9612",
-    castle = "b5c1bc",
-    flag = "37748e"
-  },
-  Pink = {
-    zone = "921b32",
-    castle_tile = "a5aad1",
-    castle = "a407fb",
-    flag = "43d6e5"
-  }
-}
-kingdom_guids = kingdom_guids[color]
+kingdom_guids = player_pieces[color]
 
 local kingdom_size = 5
 
@@ -59,7 +22,7 @@ function onUpdate()
   end
 
   kingdom_size = Global.getVar("kingdom_size") or 5
-  local zone = getObjectFromGUID(kingdom_guids.zone)
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
   local held_objects = getPlayersObjects()
   local held_dominos, kingdom_dominos, objects_to_move = {}, {}, {}
   for _, object in pairs(zone.getObjects()) do
@@ -95,7 +58,7 @@ end
 function getShiftKingdom(kingdom_dominos, domino, axis)
   local min_kingdom, max_kingdom = getMinPos(kingdom_dominos, axis), getMaxPos(kingdom_dominos, axis)
   local domino_size = getDominoSize(domino, axis)
-  local domino_local_position = getObjectFromGUID(kingdom_guids.zone).positionToLocal(domino.getPosition())
+  local domino_local_position = getObjectFromGUID(kingdom_guids.kingdom_zone).positionToLocal(domino.getPosition())
 
   local shift = tile_size * domino_size
   if domino_local_position[axis] > grid * (kingdom_size - 1) then
@@ -133,7 +96,7 @@ function launchAnimation(objects, new_position)
 end
 
 function getMaxPos(objects, axis)
-  local zone = getObjectFromGUID(kingdom_guids.zone)
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
 
   local max
   for _, object in pairs(objects) do
@@ -155,7 +118,7 @@ function getMaxPos(objects, axis)
 end
 
 function getMinPos(objects, axis)
-  local zone = getObjectFromGUID(kingdom_guids.zone)
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
 
   local min
   for _, object in pairs(objects) do
@@ -246,7 +209,7 @@ function getPlayersObjects()
 end
 
 function moveKingdom(kingdom_objects, new_position)
-  local zone = getObjectFromGUID(kingdom_guids.zone)
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
   local tile = getObjectFromGUID(kingdom_guids.castle_tile)
 
   local tile_local_pos = zone.positionToLocal(tile.getPosition())

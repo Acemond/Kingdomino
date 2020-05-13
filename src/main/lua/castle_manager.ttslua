@@ -1,11 +1,5 @@
-local castles = {
-  Orange = "768b9c",
-  Purple = "a1e204",
-  Red = "ae130d",
-  White = "fd4160",
-  Green = "b5c1bc",
-  Pink = "a407fb"
-}
+require("constants/guids")
+
 local walls_guids = {
   [5] = {
     Orange = "5a6899",
@@ -27,23 +21,34 @@ local walls_guids = {
 
 local castle_positions = {
   White = {
-    position = { x = -17.01, y = 1.16, z = -9.00 },
-    yaw = 0 },
+    position = { x = -21.01, y = 0.95, z = -17.00 },
+    yaw = 0
+  },
   Orange = {
-    position = { x = 16.95, y = 1.16, z = -9.00 },
-    yaw = 0 },
+    position = { x = 20.95, y = 0.95, z = -17.00 },
+    yaw = 0
+  },
   Purple = {
-    position = { x = -17.01, y = 1.16, z = 15.00 },
-    yaw = 180 },
+    position = { x = -21.01, y = 0.95, z = 23.00 },
+    yaw = 180
+  },
   Red = {
-    position = { x = 16.95, y = 1.16, z = 15.00 },
-    yaw = 180 },
+    position = { x = 20.95, y = 0.95, z = 23.00 },
+    yaw = 180
+  },
   Green = {
-    position = { x = -21.01, y = 1.16, z = 3.00 },
-    yaw = 90 },
+    position = { x = -31.00, y = 0.95, z = 3.00 },
+    yaw = 90
+  },
   Pink = {
-    position = { x = 20.95, y = 1.16, z = 3.00 },
-    yaw = 270 }
+    position = { x = 30.94, y = 0.95, z = 3.00 },
+    yaw = 270
+  }
+}
+
+local kingdom_zone_scales = {
+  [5] = {10, 4, 10},
+  [7] = {14, 4, 14}
 }
 
 local castle_y_position = 1.16
@@ -75,6 +80,7 @@ function onUpdate()
   local new_walls_size = getWallsSize()
   if new_walls_size ~= current_walls_size then
     current_walls_size = new_walls_size
+    updateKingdomZones()
     updateWalls()
   end
 end
@@ -133,7 +139,12 @@ end
 
 function moveCastle(parameters)
   animateCastle(parameters.seat_color, parameters.position)
-  animateWalls(parameters.seat_color, parameters.position, current_walls_size)
+  local walls_position = {
+    parameters.position[1],
+    walls_y_position,
+    parameters.position[3]
+  }
+  animateWalls(parameters.seat_color, walls_position, current_walls_size)
 end
 
 function showWalls(seat_color, delay)
@@ -161,7 +172,7 @@ function animateCastle(seat_color, new_position, delay)
   end
 
   local animation_function = function()
-    local castle = getObjectFromGUID(castles[seat_color])
+    local castle = getObjectFromGUID(player_pieces[seat_color].castle)
 
     castle.lock()
     castle.setPositionSmooth(new_position)
@@ -192,6 +203,12 @@ function animateWalls(seat_color, new_position, size, delay)
     animation_function()
   else
     walls_animations[seat_color][size] = Wait.frames(animation_function, delay)
+  end
+end
+
+function updateKingdomZones()
+  for _, guids in pairs(player_pieces) do
+    getObjectFromGUID(guids.kingdom_zone).setScale(kingdom_zone_scales[current_walls_size])
   end
 end
 
