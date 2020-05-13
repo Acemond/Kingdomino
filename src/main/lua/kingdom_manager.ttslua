@@ -317,12 +317,12 @@ function showButton(button)
   local kingdom_position = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone).getPosition()
   button.editButton({ index = 0, scale = { 1, 1, 1 } })
   button.setPosition({
-    kingdom_position.x - 4,
+    kingdom_position.x - 5,
     0.86,
     kingdom_position.z - 7,
   })
   button.setPositionSmooth({
-    kingdom_position.x - 4,
+    kingdom_position.x - 5,
     lock_y_position,
     kingdom_position.z - 7,
   })
@@ -332,7 +332,7 @@ function hideButton(button)
   local kingdom_position = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone).getPosition()
   button.editButton({ index = 0, scale = { 0, 0, 0 } })
   button.setPositionSmooth({
-    kingdom_position.x - 4,
+    kingdom_position.x - 5,
     hidden_y_position,
     kingdom_position.z - 7,
   })
