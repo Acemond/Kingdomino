@@ -1,10 +1,12 @@
-local buildingZones = {"b6d71a", "3b40dd", "51e2bf", "58ae27", "091f68", "372846"}
+local buildingZones = { "b6d71a", "3b40dd", "51e2bf", "58ae27", "091f68", "372846" }
 local leftBuildingsBoardGuid = "a066dc"
 local rightBuildingsBoardGuid = "a77d62"
 local tableGuid = "0f8757"
 
 local deck_guid = "04de04"
-local deck_position = { -5.88, 1.25, 4.05 }
+local dragon_guid = "447c40"
+local dragon_cave_position = { -8.29, 1.22, 11.54 }
+local deck_position = { -5.87, 1.21, 11.51 }
 
 function dealBuildings()
   sendDragonBack()
@@ -26,8 +28,8 @@ function dealBuildings()
 end
 
 function sendDragonBack()
-  getObjectFromGUID("447c40").setPositionSmooth({-8.28, 1.23, 4.10})
-  getObjectFromGUID("447c40").setRotationSmooth({0, 0, 0})
+  getObjectFromGUID(dragon_guid).setPositionSmooth(dragon_cave_position)
+  getObjectFromGUID(dragon_guid).setRotationSmooth({ 0, 0, 0 })
 end
 
 function buildingPresent(zone)
@@ -51,7 +53,7 @@ function getNextDealtBuilding(zones, cursor, max)
 end
 
 function moveBuilding(sourceZone, destinationZone)
-  for _,obj in ipairs(sourceZone.getObjects()) do
+  for _, obj in ipairs(sourceZone.getObjects()) do
     if obj.guid ~= leftBuildingsBoardGuid and obj.guid ~= rightBuildingsBoardGuid and obj.guid ~= tableGuid then
       obj.setPositionSmooth(destinationZone.getPosition(), false)
     end
@@ -61,7 +63,7 @@ end
 function dealBuilding(zone)
   local deck = getObjectFromGUID(deck_guid)
   if deck ~= nil then
-    deck.takeObject({position = zone.getPosition()})
+    deck.takeObject({ position = zone.getPosition() })
   end
 end
 

@@ -1,0 +1,241 @@
+--local color = "Orange"
+require("util/table")
+require("constants/guids")
+
+kingdom_guids = player_pieces[color]
+
+local kingdom_size = 5
+
+local table_guid = "0f8757"
+
+local pending_movement
+local grid = 0.1
+local current_position = {
+  x = 0,
+  z = 0
+}
+
+function onUpdate()
+  if pending_movement then
+    return
+  end
+
+  kingdom_size = Global.getVar("kingdom_size") or 5
+  grid = 0.5 / kingdom_size
+
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
+  local held_objects = getPlayersObjects()
+  local held_dominos, kingdom_dominos, objects_to_move = {}, {}, {}
+  for _, object in pairs(zone.getObjects()) do
+    if object.getVar("object_type") ~= nil and object.getVar("object_type") == "domino"
+        or object.guid == kingdom_guids.castle_tile then
+      if table.contains(held_objects, object) then
+        table.insert(held_dominos, object)
+      else
+        table.insert(kingdom_dominos, object)
+      end
+    end
+
+    if object.guid ~= table_guid and not table.contains(held_objects, object) then
+      table.insert(objects_to_move, object)
+    end
+  end
+
+  local shift = { x = 0, z = 0 }
+  for _, domino in pairs(held_dominos) do
+    shift.x = getShiftKingdom(kingdom_dominos, domino, "x")
+    shift.z = getShiftKingdom(kingdom_dominos, domino, "z")
+  end
+
+  current_position = {
+    x = current_position.x + shift.x,
+    z = current_position.z + shift.z,
+  }
+  if not table.equal(shift, { x = 0, z = 0 }) then
+    launchAnimation(objects_to_move, current_position)
+  end
+end
+
+function getShiftKingdom(kingdom_dominos, domino, axis)
+  local min_kingdom, max_kingdom = getMinPos(kingdom_dominos, axis), getMaxPos(kingdom_dominos, axis)
+  local domino_size = getDominoSize(domino, axis)
+  local domino_local_position = getObjectFromGUID(kingdom_guids.kingdom_zone).positionToLocal(domino.getPosition())
+
+  local shift = grid * 2 * domino_size
+  if domino_local_position[axis] > grid * (kingdom_size - 1) then
+    return getPossibleShift(min_kingdom, max_kingdom, -shift)
+  elseif domino_local_position[axis] < -grid * (kingdom_size - 1) then
+    return getPossibleShift(min_kingdom, max_kingdom, shift)
+  end
+
+  return 0
+end
+
+function getPossibleShift(min_kingdom, max_kingdom, space_needed)
+  local kingdom_limit = grid * (kingdom_size - 1)
+  if space_needed < 0 then
+    local shift = space_needed + kingdom_limit - max_kingdom
+    if kingdom_limit - max_kingdom < math.abs(space_needed)
+        and math.abs(-kingdom_limit - min_kingdom) >= math.abs(shift) then
+      return shift
+    end
+  else
+    local shift = space_needed - math.abs(-kingdom_limit - min_kingdom)
+    if math.abs(-kingdom_limit - min_kingdom) < space_needed
+        and kingdom_limit - max_kingdom >= shift then
+      return shift
+    end
+  end
+  return 0
+end
+
+function launchAnimation(objects, new_position)
+  -- Waiting 1 frame for tile snap to grid
+  pending_movement = Wait.frames(function()
+    moveKingdom(objects, new_position)
+  end, 1)
+end
+
+function getMaxPos(objects, axis)
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
+
+  local max
+  for _, object in pairs(objects) do
+    local world_position = object.getPosition()
+    if object.guid ~= kingdom_guids.castle_tile then
+      world_position = getDominoMaxBoundaries(object)
+    end
+
+    local local_position = zone.positionToLocal(world_position)[axis]
+    if max == nil or local_position > max then
+      max = local_position
+    end
+  end
+  if max == nil then
+    return 0
+  else
+    return math.floor(max * (1 / grid) + 0.5) / (1 / grid)
+  end
+end
+
+function getMinPos(objects, axis)
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
+
+  local min
+  for _, object in pairs(objects) do
+    local world_position = object.getPosition()
+    if object.guid ~= kingdom_guids.castle_tile then
+      world_position = getDominoMinBoundaries(object)
+    end
+
+    local local_position = zone.positionToLocal(world_position)[axis]
+    if min == nil or local_position < min then
+      min = local_position
+    end
+  end
+  if min == nil then
+    return 0
+  else
+    return math.floor(min * (1 / grid) + 0.5) / (1 / grid)
+  end
+end
+
+function getDominoMaxBoundaries(domino)
+  local rotation = domino.getRotation().y
+  local world_position = domino.getPosition()
+  if (rotation > -45 and rotation < 45) or (rotation > 135 and rotation < 225) or (rotation > 315) then
+    world_position = {
+      world_position.x + 1,
+      world_position.y,
+      world_position.z
+    }
+  else
+    world_position = {
+      world_position.x,
+      world_position.y,
+      world_position.z + 1
+    }
+  end
+
+  return world_position
+end
+
+function getDominoSize(domino, axis)
+  local rotation_y = domino.getRotation().y
+  if (rotation_y > -45 and rotation_y < 45) or (rotation_y > 135 and rotation_y < 225) or (rotation_y > 315) then
+    if axis == "x" then
+      return 2
+    else
+      return 1
+    end
+  else
+    if axis == "x" then
+      return 1
+    else
+      return 2
+    end
+  end
+end
+
+function getDominoMinBoundaries(domino)
+  local rotation = domino.getRotation().y
+  local world_position = domino.getPosition()
+  if (rotation > -45 and rotation < 45) or (rotation > 135 and rotation < 225) or (rotation > 315) then
+    world_position = {
+      world_position.x - 1,
+      world_position.y,
+      world_position.z
+    }
+  else
+    world_position = {
+      world_position.x,
+      world_position.y,
+      world_position.z - 1
+    }
+  end
+
+  return world_position
+end
+
+function getPlayersObjects()
+  local all_objects = {}
+  for _, player in pairs(Player.getPlayers()) do
+    if player.getHoldingObjects() ~= nil then
+      for _, object in pairs(player.getHoldingObjects()) do
+        table.insert(all_objects, object)
+      end
+    end
+  end
+  return all_objects
+end
+
+function moveKingdom(kingdom_objects, new_position)
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
+  local tile = getObjectFromGUID(kingdom_guids.castle_tile)
+
+  local tile_local_pos = zone.positionToLocal(tile.getPosition())
+
+  local target_local_position = {
+    x = new_position.x,
+    y = tile_local_pos.y,
+    z = new_position.z
+  }
+
+  for _, object in pairs(kingdom_objects) do
+    local object_local_position = zone.positionToLocal(object.getPosition())
+    local object_target_position = {
+      target_local_position.x + (object_local_position.x - tile_local_pos.x),
+      object_local_position.y,
+      target_local_position.z + (object_local_position.z - tile_local_pos.z),
+    }
+    object.setPositionSmooth(zone.positionToWorld(object_target_position), false, true)
+  end
+
+  pending_movement = Wait.condition(function()
+    pending_movement = nil
+  end, function()
+    return math.abs(tile.getPosition().x - zone.positionToWorld(target_local_position).x) < 0.01
+        and math.abs(tile.getPosition().y - zone.positionToWorld(target_local_position).y) < 0.01
+        and math.abs(tile.getPosition().z - zone.positionToWorld(target_local_position).z) < 0.01
+  end)
+end

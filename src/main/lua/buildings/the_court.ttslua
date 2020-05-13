@@ -1,7 +1,7 @@
 local buildingZones = { "e03e9a", "72e2ec", "d91132" }
 
 local deck_guid = "e0b7ee"
-local deck_position = { -3.67, 1.21, 8.04 }
+local deck_position = { -3.67, 1.19, 15.50 }
 
 function dealBuildings()
   for _, zoneGuid in pairs(buildingZones) do
