@@ -53,33 +53,48 @@ local castle_tile_y = 0.95
 local castle_y = 1.16
 
 local decks_positions = {
-  main_deck = {
-    { { 0.00, 1.24, -24.00 } },
-    { { -3.00, 1.24, -24.00 }, { 3.00, 1.24, -24.00 } }
+  [3] = {
+    { { 0.00, 1.24, -18.00 } },
+    { { -3.00, 1.24, -18.00 }, { 3.00, 1.24, -18.00 } }
   },
-  main_deck_5p = {
-    { { 0.00, 1.24, -32.00 } },
-    { { -3.00, 1.24, -32.00 }, { 3.00, 1.24, -32.00 } }
+  [4] = {
+    { { 0.00, 1.24, -19.00 } },
+    { { -3.00, 1.24, -19.00 }, { 3.00, 1.24, -19.00 } }
+  },
+  [5] = {
+    { { 0.00, 1.24, -21.00 } },
+    { { -3.00, 1.24, -21.00 }, { 3.00, 1.24, -21.00 } }
+  },
+  [8] = {
+    { { 0.00, 1.24, -27.00 } },
+    { { -3.00, 1.24, -27.00 }, { 3.00, 1.24, -27.00 } }
   }
 }
 
-local next_turn_position = { 0.00, 1.05, -13.00 }
-local next_turn_position_5p = { 0.00, 1.05, -21.00 }
+local quests_positions = {
+  [3] = {
+    { -3.00, 1.03, -14.00 },
+    { 3.00, 1.03, -14.00 }
+  },
+  [4] = {
+    { -3.00, 1.03, -16.00 },
+    { 3.00, 1.03, -16.00 }
+  },
+  [5] = {
+    { -3.00, 1.03, -18.00 },
+    { 3.00, 1.03, -18.00 }
+  },
+  [8] = {
+    { -3.00, 1.03, -24.00 },
+    { 3.00, 1.03, -24.00 }
+  },
+}
 
 local next_turn_position = {
   [3] = { -0.03, 1.05, -4.00 },
   [4] = { -0.03, 1.05, -6.00 },
   [5] = { -0.03, 1.05, -8.00 },
   [8] = { -0.03, 1.05, -15.00 },
-}
-
-local quests_positions = {
-  { -3.00, 1.03, -21.00 },
-  { 3.00, 1.03, -21.00 }
-}
-local quests_positions_5p = {
-  { -3.00, 1.03, -29.00 },
-  { 3.00, 1.03, -29.00 }
 }
 
 local default_quests_guid = { "7f87c8", "ddd8f4" }
@@ -268,15 +283,10 @@ function dealQuests(quest_guids)
   local quest_deck = getObjectFromGUID(quests_deck_guid)
   quest_deck.shuffle()
 
-  local actual_quests_positions = quests_positions
-  if game_settings.player_count > 4 then
-    actual_quests_positions = quests_positions_5p
-  end
-
   for i = 1, 2, 1 do
     quest_deck.takeObject({
       guid = quest_guids[i],
-      position = actual_quests_positions[i],
+      position = quests_positions[game_settings.tile_deal_count][i],
       callback_function = function(obj)
         obj.lock()
       end })
@@ -390,16 +400,11 @@ function getMainDecksPosition(decks)
   local size = table.size(decks)
   local i = 1
 
-  local actual_decks_positions = decks_positions.main_deck
-  if game_settings.player_count > 4 then
-    actual_decks_positions = decks_positions.main_deck_5p
-  end
-
   for mode, _ in pairs(decks) do
     if game_settings.player_count < 5 then
-      decks_target_position[mode] = actual_decks_positions[size][i]
+      decks_target_position[mode] = decks_positions[game_settings.tile_deal_count][size][i]
     else
-      decks_target_position[mode] = actual_decks_positions[size][i]
+      decks_target_position[mode] = decks_positions[game_settings.tile_deal_count][size][i]
     end
     i = i + 1
   end
