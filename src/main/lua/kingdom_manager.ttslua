@@ -318,7 +318,7 @@ function showButton(button)
   button.editButton({ index = 0, scale = { 1, 1, 1 } })
   button.setPosition({
     kingdom_position.x - 4,
-    0.9,
+    0.86,
     kingdom_position.z - 7,
   })
   button.setPositionSmooth({
