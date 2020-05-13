@@ -76,6 +76,7 @@ end
 
 function firstTurn(new_game)
   game = new_game
+  Global.setVar("game_launched", true)
   initializeCastles(game.castles)
   nextTurn()
 end

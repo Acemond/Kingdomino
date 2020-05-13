@@ -1,4 +1,3 @@
---local color = "Orange"
 require("util/table")
 require("constants/guids")
 
@@ -14,14 +13,11 @@ local current_position = {
   x = 0,
   z = 0
 }
-local locked_kingdom = {
-  Orange = false,
-  Purple = false,
-  Red = false,
-  White = false,
-  Green = false,
-  Pink = false
-}
+local locked_kingdom = false
+local button_state_locked = true
+
+local lock_y_position = 1.05
+local hidden_y_position = 0.5
 
 function onLoad()
   createLockButtons()
@@ -29,7 +25,10 @@ function onLoad()
 end
 
 function onUpdate()
-  if pending_movement or locked_kingdom[color] then
+  if Global.getVar("game_launched") and locked_kingdom ~= button_state_locked then
+    updateLockButtons()
+  end
+  if pending_movement or locked_kingdom then
     return
   end
 
@@ -40,9 +39,9 @@ function onUpdate()
   local held_objects = getPlayersObjects()
   local held_dominos, kingdom_dominos, objects_to_move = {}, {}, {}
   for _, object in pairs(zone.getObjects()) do
-    if table.contains(dominoes.kingdomino, object.guid)
-        or table.contains(dominoes.queendomino, object.guid)
-        or table.contains(dominoes.age_of_giants, object.guid)
+    if table.contains(Guids.dominoes.kingdomino, object.guid)
+        or table.contains(Guids.dominoes.queendomino, object.guid)
+        or table.contains(Guids.dominoes.age_of_giants, object.guid)
         or object.guid == kingdom_guids.castle_tile then
       if table.contains(held_objects, object) then
         table.insert(held_dominos, object)
@@ -255,50 +254,86 @@ function moveKingdom(kingdom_objects, new_position)
   end)
 end
 
-function lockKingdom(color)
-  locked_kingdom[color] = true
+function lockKingdom()
+  locked_kingdom = true
 end
 
-function unlockKingdom(color)
-  locked_kingdom[color] = false
+function unlockKingdom()
+  locked_kingdom = false
 end
 
 function createLockButtons()
-  for color, pieces in pairs(Guids.player_pieces) do
-    local lock_kingdom_function_name = "lock_" .. color .. "_kingdom"
-    self.setVar(lock_kingdom_function_name, function ()
-      lockKingdom(color)
-    end)
-
-    getObjectFromGUID(pieces.lock_kingdom).createButton({
-      click_function = lock_kingdom_function_name,
-      function_owner = self,
-      label = "",
-      tooltip = "Click to prevent the kingdom from moving away from the edges.",
-      position = { 0, 0.05, 0 },
-      color = { 0, 0, 0, 0 },
-      width = 800,
-      height = 600,
-    })
-  end
+  getObjectFromGUID(Guids.player_pieces[color].lock_kingdom).createButton({
+    click_function = "lockKingdom",
+    function_owner = self,
+    label = "",
+    tooltip = "Click to prevent the kingdom from moving away from the edges.",
+    position = { 0, 0.05, 0 },
+    scale = { 0, 0, 0 },
+    color = { 0, 0, 0, 0 },
+    width = 800,
+    height = 600,
+  })
 end
 
 function createUnlockButtons()
-  for color, pieces in pairs(Guids.player_pieces) do
-    local unlock_kingdom_function_name = "unlock_" .. color .. "_kingdom"
-    self.setVar(unlock_kingdom_function_name, function ()
-      unlockKingdom(color)
-    end)
+  getObjectFromGUID(Guids.player_pieces[color].unlock_kingdom).createButton({
+    click_function = "unlockKingdom",
+    function_owner = self,
+    label = "",
+    tooltip = "Click for kingdom to move away from the edges.",
+    position = { 0, 0.05, 0 },
+    scale = { 0, 0, 0 },
+    color = { 0, 0, 0, 0 },
+    width = 800,
+    height = 600,
+  })
+end
 
-    getObjectFromGUID(pieces.unlock_kingdom).createButton({
-      click_function = unlock_kingdom_function_name,
-      function_owner = self,
-      label = "",
-      tooltip = "Click for kingdom to move away from the edges.",
-      position = { 0, 0.05, 0 },
-      color = { 0, 0, 0, 0 },
-      width = 800,
-      height = 600,
-    })
+function updateLockButtons()
+  local unlock_button = getObjectFromGUID(Guids.player_pieces[color].unlock_kingdom)
+  local lock_button = getObjectFromGUID(Guids.player_pieces[color].lock_kingdom)
+
+  if locked_kingdom then
+    button_state_locked = true
+    hideButton(lock_button)
+    Wait.condition(function()
+      showButton(unlock_button)
+    end, function()
+      return lock_button.getPosition().y < 0.9
+    end)
+  else
+    button_state_locked = false
+    hideButton(unlock_button)
+    Wait.condition(function()
+      showButton(lock_button)
+    end, function()
+      return unlock_button.getPosition().y < 0.9
+    end)
   end
+end
+
+function showButton(button)
+  local kingdom_position = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone).getPosition()
+  button.editButton({ index = 0, scale = { 1, 1, 1 } })
+  button.setPosition({
+    kingdom_position.x - 4,
+    0.9,
+    kingdom_position.z - 7,
+  })
+  button.setPositionSmooth({
+    kingdom_position.x - 4,
+    lock_y_position,
+    kingdom_position.z - 7,
+  })
+end
+
+function hideButton(button)
+  local kingdom_position = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone).getPosition()
+  button.editButton({ index = 0, scale = { 0, 0, 0 } })
+  button.setPositionSmooth({
+    kingdom_position.x - 4,
+    hidden_y_position,
+    kingdom_position.z - 7,
+  })
 end

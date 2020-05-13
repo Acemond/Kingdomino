@@ -78,7 +78,7 @@ end
 function getSortedTilesValue()
   local guids = getObjectsGuids()
   table.sort(guids, function(a, b)
-    return table.indexOf(dominoes.kingdomino, a) < table.indexOf(dominoes.kingdomino, b)
+    return table.indexOf(Guids.dominoes.kingdomino, a) < table.indexOf(Guids.dominoes.kingdomino, b)
   end)
   return guids
 end

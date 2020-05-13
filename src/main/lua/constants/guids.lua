@@ -76,7 +76,7 @@ Guids.player_pieces = {
   }
 }
 
-walls_guids = {
+Guids.walls_guids = {
   [5] = {
     Orange = "5a6899",
     Purple = "5907ab",
@@ -95,7 +95,7 @@ walls_guids = {
   }
 }
 
-dominoes = {
+Guids.dominoes = {
   kingdomino = {
     "65c7b4",
     "efc3a8",

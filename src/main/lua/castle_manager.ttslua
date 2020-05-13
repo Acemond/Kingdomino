@@ -28,8 +28,8 @@ local castle_positions = {
 }
 
 local kingdom_zone_scales = {
-  [5] = {10, 4, 10},
-  [7] = {14, 4, 14}
+  [5] = { 10, 4, 10 },
+  [7] = { 14, 4, 14 }
 }
 
 local castle_y_position = 1.16
@@ -174,7 +174,7 @@ function animateWalls(seat_color, new_position, size, delay)
   end
 
   local animation_function = function()
-    local walls = getObjectFromGUID(walls_guids[size][seat_color])
+    local walls = getObjectFromGUID(Guids.walls_guids[size][seat_color])
 
     walls.setPositionSmooth(new_position)
     walls_animations[seat_color][size] = nil

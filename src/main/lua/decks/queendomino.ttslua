@@ -44,7 +44,7 @@ end
 function getTilesTargetPosition()
   local guids = getObjectsGuids()
   table.sort(guids, function(a, b)
-    return table.indexOf(dominoes.queendomino, a) < table.indexOf(dominoes.queendomino, b)
+    return table.indexOf(Guids.dominoes.queendomino, a) < table.indexOf(Guids.dominoes.queendomino, b)
   end)
 
   local result = {}
