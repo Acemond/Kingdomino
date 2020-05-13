@@ -100,7 +100,11 @@ function getPossibleShift(min_kingdom, max_kingdom, space_needed)
       return shift
     end
   end
-  return 0
+  if space_needed - grid * 2 > 0 then
+    return getPossibleShift(min_kingdom, max_kingdom, space_needed - grid * 2)
+  else
+    return 0
+  end
 end
 
 function launchAnimation(objects, new_position)
@@ -317,14 +321,14 @@ function showButton(button)
   local kingdom_position = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone).getPosition()
   button.editButton({ index = 0, scale = { 1, 1, 1 } })
   button.setPosition({
-    kingdom_position.x - 5,
+    kingdom_position.x - kingdom_size,
     0.86,
-    kingdom_position.z - 7,
+    kingdom_position.z - (kingdom_size + 2),
   })
   button.setPositionSmooth({
-    kingdom_position.x - 5,
+    kingdom_position.x - kingdom_size,  -- if kingdom size
     lock_y_position,
-    kingdom_position.z - 7,
+    kingdom_position.z - (kingdom_size + 2),
   })
 end
 
