@@ -1,24 +1,51 @@
+--local color = "Orange"
 require("util/table")
 
-local zone_guid = "f9209b"
-local tile_guid = "9ab771"
-local castle_guid = "768b9c"
-local ready_token_guid = "6cfdbd"
-local add_player_guid = "8d17b0"
-local remove_player_guid = "fa1b7c"
+local kingdom_guids = {
+  Orange = {
+    zone = "f9209b",
+    castle_tile = "9ab771",
+    castle = "768b9c",
+    flag = "6cfdbd"
+  },
+  Purple = {
+    zone = "54b528",
+    castle_tile = "7db35a",
+    castle = "a1e204",
+    flag = "137a90"
+  },
+  Red = {
+    zone = "f1bc94",
+    castle_tile = "f6948c",
+    castle = "ae130d",
+    flag = "d99107"
+  },
+  White = {
+    zone = "57d93f",
+    castle_tile = "537260",
+    castle = "fd4160",
+    flag = "e0aed1"
+  },
+  Green = {
+    zone = "e491d2",
+    castle_tile = "8c9612",
+    castle = "b5c1bc",
+    flag = "37748e"
+  },
+  Pink = {
+    zone = "921b32",
+    castle_tile = "a5aad1",
+    castle = "a407fb",
+    flag = "43d6e5"
+  }
+}
+kingdom_guids = kingdom_guids[color]
+
+local kingdom_size = 5
 
 local table_guid = "0f8757"
 
-local not_kingdom = {
-  table_guid, add_player_guid, remove_player_guid
-}
-local not_tile_or_domino = {
-  castle_guid, ready_token_guid
-}
-
 local pending_movement
-
-local kingdom_size = 5
 local grid = 0.1
 local tile_size = grid * 2
 local current_position = {
@@ -31,24 +58,28 @@ function onUpdate()
     return
   end
 
-  local zone = getObjectFromGUID(zone_guid)
-
-  local zone_held_objects, kingdom_objects = {}, {}
+  local zone = getObjectFromGUID(kingdom_guids.zone)
   local held_objects = getPlayersObjects()
-  local shift = { x = 0, z = 0 }
+  local held_dominos, kingdom_dominos, objects_to_move = {}, {}, {}
   for _, object in pairs(zone.getObjects()) do
-    if not table.contains(not_kingdom, object.guid) then
-      if not table.contains(held_objects, object) then
-        table.insert(kingdom_objects, object)
+    if object.getVar("object_type") ~= nil and object.getVar("object_type") == "domino"
+        or object.guid == kingdom_guids.castle_tile then
+      if table.contains(held_objects, object) then
+        table.insert(held_dominos, object)
       else
-        table.insert(zone_held_objects, object)
+        table.insert(kingdom_dominos, object)
       end
+    end
+
+    if object.guid ~= table_guid and not table.contains(held_objects, object) then
+      table.insert(objects_to_move, object)
     end
   end
 
-  for _, domino in pairs(zone_held_objects) do
-    shift.x = getShiftKingdom(kingdom_objects, domino, "x")
-    shift.z = getShiftKingdom(kingdom_objects, domino, "z")
+  local shift = { x = 0, z = 0 }
+  for _, domino in pairs(held_dominos) do
+    shift.x = getShiftKingdom(kingdom_dominos, domino, "x")
+    shift.z = getShiftKingdom(kingdom_dominos, domino, "z")
   end
 
   current_position = {
@@ -56,14 +87,14 @@ function onUpdate()
     z = current_position.z + shift.z,
   }
   if not table.equal(shift, { x = 0, z = 0 }) then
-    launchAnimation(kingdom_objects, current_position)
+    launchAnimation(objects_to_move, current_position)
   end
 end
 
-function getShiftKingdom(kingdom_objects, domino, axis)
-  local min_kingdom, max_kingdom = getBoundaries(kingdom_objects, axis)
+function getShiftKingdom(kingdom_dominos, domino, axis)
+  local min_kingdom, max_kingdom = getMinPos(kingdom_dominos, axis), getMaxPos(kingdom_dominos, axis)
   local domino_size = getDominoSize(domino, axis)
-  local domino_local_position = getObjectFromGUID(zone_guid).positionToLocal(domino.getPosition())
+  local domino_local_position = getObjectFromGUID(kingdom_guids.zone).positionToLocal(domino.getPosition())
 
   local shift = tile_size * domino_size
   if domino_local_position[axis] > grid * (kingdom_size - 1) then
@@ -93,17 +124,6 @@ function getPossibleShift(min_kingdom, max_kingdom, space_needed)
   return 0
 end
 
-function getBoundaries(objects, axis)
-  local tiles = {}
-  for _, object in pairs(objects) do
-    if not table.contains(not_tile_or_domino, object.guid) then
-      table.insert(tiles, object)
-    end
-  end
-
-  return getMinPos(tiles, axis), getMaxPos(tiles, axis)
-end
-
 function launchAnimation(objects, new_position)
   -- Waiting 1 frame for tile snap to grid
   pending_movement = Wait.frames(function()
@@ -112,12 +132,12 @@ function launchAnimation(objects, new_position)
 end
 
 function getMaxPos(objects, axis)
-  local zone = getObjectFromGUID(zone_guid)
+  local zone = getObjectFromGUID(kingdom_guids.zone)
 
   local max
   for _, object in pairs(objects) do
     local world_position = object.getPosition()
-    if object.guid ~= tile_guid then
+    if object.guid ~= kingdom_guids.castle_tile then
       world_position = getDominoMaxBoundaries(object)
     end
 
@@ -134,12 +154,12 @@ function getMaxPos(objects, axis)
 end
 
 function getMinPos(objects, axis)
-  local zone = getObjectFromGUID(zone_guid)
+  local zone = getObjectFromGUID(kingdom_guids.zone)
 
   local min
   for _, object in pairs(objects) do
     local world_position = object.getPosition()
-    if object.guid ~= tile_guid then
+    if object.guid ~= kingdom_guids.castle_tile then
       world_position = getDominoMinBoundaries(object)
     end
 
@@ -225,8 +245,8 @@ function getPlayersObjects()
 end
 
 function moveKingdom(kingdom_objects, new_position)
-  local zone = getObjectFromGUID(zone_guid)
-  local tile = getObjectFromGUID(tile_guid)
+  local zone = getObjectFromGUID(kingdom_guids.zone)
+  local tile = getObjectFromGUID(kingdom_guids.castle_tile)
 
   local tile_local_pos = zone.positionToLocal(tile.getPosition())
 
