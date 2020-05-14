@@ -58,8 +58,9 @@ local visible_walls = {
 }
 local current_walls_size = 5
 function onUpdate()
+  local new_walls_size = getWallsSize()
+
   if not Global.get("game") then
-    local new_walls_size = getWallsSize()
     if new_walls_size ~= current_walls_size then
       current_walls_size = new_walls_size
       updateKingdomZones()
@@ -196,9 +197,18 @@ function updateKingdomZones()
 end
 
 function getWallsSize()
-  local player_count = Global.getVar("player_count")
-  local decks = Global.getTable("deck_enabled")
-  local variants = Global.getTable("variant_enabled")
+  local player_count, decks, variants
+  local game = Global.get("game")
+  if game then
+    decks = game.settings.decks
+    variants = game.settings.variants
+    player_count = game.settings.player_count
+  else
+    player_count = Global.getVar("player_count")
+    decks = Global.getTable("deck_enabled")
+    variants = Global.getTable("variant_enabled")
+  end
+
 
   local size = 5
   if decks.queendomino then

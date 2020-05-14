@@ -38,20 +38,27 @@ local lock_position_offset = {
   Green = { 2, 0 },
 }
 
-function onLoad()
+function onLoad(save_state)
+  if save_state ~= "" then
+    kingdom_size = JSON.decode(save_state).kingdom_size
+  end
   createLockButtons()
   createUnlockButtons()
+end
+
+function onSave()
+  return JSON.encode({ kingdom_size = kingdom_size })
 end
 
 function onUpdate()
   if Global.get("game") and locked_kingdom ~= button_state_locked then
     updateLockButtons()
   end
-  if pending_movement or locked_kingdom then
+  if pending_movement or locked_kingdom or not Global.getVar("kingdom_size") then
     return
   end
 
-  kingdom_size = Global.getVar("kingdom_size") or 5
+  kingdom_size = Global.getVar("kingdom_size")
   grid = 0.5 / kingdom_size
 
   local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
