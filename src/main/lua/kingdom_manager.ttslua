@@ -41,13 +41,14 @@ local lock_position_offset = {
 function onLoad(save_state)
   if save_state ~= "" then
     kingdom_size = JSON.decode(save_state).kingdom_size
+    current_position = JSON.decode(save_state).current_position
   end
   createLockButtons()
   createUnlockButtons()
 end
 
 function onSave()
-  return JSON.encode({ kingdom_size = kingdom_size })
+  return JSON.encode({ kingdom_size = kingdom_size, current_position = current_position })
 end
 
 function onUpdate()
