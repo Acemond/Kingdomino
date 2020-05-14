@@ -44,7 +44,7 @@ function onLoad()
 end
 
 function onUpdate()
-  if Global.getVar("game_launched") and locked_kingdom ~= button_state_locked then
+  if Global.get("game") and locked_kingdom ~= button_state_locked then
     updateLockButtons()
   end
   if pending_movement or locked_kingdom then

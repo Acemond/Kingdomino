@@ -37,8 +37,10 @@ function initialize(save_state)
     game = JSON.decode(save_state).game
     Global.setTable("game", game)
     if game and game.castles then
-      initializeCastles(game.castles)
-      resetCastles(game.castles)
+      Wait.frames(function ()
+        initializeCastles(game.castles)
+        resetCastles(game.castles)
+      end, 1)
     end
   end
 end
@@ -76,7 +78,6 @@ end
 
 function firstTurn(new_game)
   game = new_game
-  Global.setVar("game_launched", true)
   initializeCastles(game.castles)
   nextTurn()
 end

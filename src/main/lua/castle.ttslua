@@ -1,6 +1,4 @@
 --local color = "White"
-local flag = {}
-
 local ready_tooltip = "Ready"
 local cancel_tooltip = "Cancel"
 
@@ -25,13 +23,10 @@ local ready_text_color = { r = 0, g = 0.75, b = 0 }
 local unready_text_color = { r = 0.8, g = 0.8, b = 0.8 }
 
 function onLoad()
-  if Global.getVar("game_launched") then
-    reset()
-  end
-  flag = getObjectFromGUID(flag_guids[color])
-  flag.interactable = false
+  getObjectFromGUID(flag_guids[color]).interactable = false
   next_turn_button = getObjectFromGUID(next_turn_button_guid)
   hideFlag(true)
+  is_ready = false
 end
 
 function initialize()
@@ -70,6 +65,7 @@ function toggleReady()
 end
 
 function showFlag()
+  local flag = getObjectFromGUID(flag_guids[color])
   flag.setPositionSmooth({
     self.getPosition().x,
     flag_shown_y,
@@ -84,6 +80,7 @@ function showFlag()
 end
 
 function hideFlag(hide_instantaniously)
+  local flag = getObjectFromGUID(flag_guids[color])
   if hide_instantaniously then
     flag.setPosition({
       self.getPosition().x,

@@ -58,11 +58,13 @@ local visible_walls = {
 }
 local current_walls_size = 5
 function onUpdate()
-  local new_walls_size = getWallsSize()
-  if new_walls_size ~= current_walls_size then
-    current_walls_size = new_walls_size
-    updateKingdomZones()
-    updateWalls()
+  if not Global.get("game") then
+    local new_walls_size = getWallsSize()
+    if new_walls_size ~= current_walls_size then
+      current_walls_size = new_walls_size
+      updateKingdomZones()
+      updateWalls()
+    end
   end
 end
 
