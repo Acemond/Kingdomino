@@ -15,7 +15,7 @@ local kingsGuid = {
   "526c31", "f2cd83", -- Green
   "9dc643", "0dba70", -- Pink
 }
-local game = {}
+local game
 local player_ready = {}
 
 function onLoad(save_state)

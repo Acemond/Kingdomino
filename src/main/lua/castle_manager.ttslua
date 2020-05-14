@@ -69,6 +69,16 @@ function onUpdate()
   end
 end
 
+function onLoad(save_state)
+  if save_state ~= "" then
+    visible_walls = JSON.decode(save_state).visible_walls
+  end
+end
+
+function onSave()
+  return JSON.encode({ visible_walls = visible_walls })
+end
+
 function updateWalls()
   for color, visible in pairs(visible_walls) do
     if visible then
@@ -199,7 +209,7 @@ end
 function getWallsSize()
   local player_count, decks, variants
   local game = Global.get("game")
-  if game then
+  if game and game.settings then
     decks = game.settings.decks
     variants = game.settings.variants
     player_count = game.settings.player_count
@@ -208,7 +218,6 @@ function getWallsSize()
     decks = Global.getTable("deck_enabled")
     variants = Global.getTable("variant_enabled")
   end
-
 
   local size = 5
   if decks.queendomino then
