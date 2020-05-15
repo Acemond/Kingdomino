@@ -55,9 +55,32 @@ end
 
 function table.equal(tbl, other)
   for key, value in pairs(tbl) do
-    if other[key] ~= value then
+    if type(value) == "table" then
+      if not table.equal(value, other[key]) then
+        return false
+      end
+    elseif other[key] ~= value then
       return false
     end
   end
   return true
+end
+
+function table.print(tbl)
+  print(table.tostring(tbl))
+end
+
+function table.tostring(tbl)
+  if type(tbl) == "table" then
+    local result = "{ "
+    for key, value in pairs(tbl) do
+      if result ~= "{ " then
+        result = result .. ", "
+      end
+      result = result .. tostring(key) .. ": " .. table.tostring(value)
+    end
+    return result .. " }"
+  else
+    return tostring(tbl)
+  end
 end

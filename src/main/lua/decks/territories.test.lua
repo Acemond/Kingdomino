@@ -47,13 +47,17 @@ local tests = {
     }
     assertEquals(computeScore(kingdom), 190)
   end,
+
+  shouldCompareTables = function()
+    assertEquals({ 1, 2 }, { 1, 2 })
+  end
 }
 for test_name, test in pairs(tests) do
   local state, message = pcall(test)
   if state then
     print(test_name .. ": OK")
   else
-    print(test_name .. ": " ..message)
+    print(test_name .. ": " .. message)
   end
 end
 
