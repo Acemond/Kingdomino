@@ -363,7 +363,7 @@ function showButton(button)
     kingdom_position.x + lock_position_multiplier[color][1] * (kingdom_size + lock_position_offset[color][1]),
     lock_y_position,
     kingdom_position.z + lock_position_multiplier[color][2] * (kingdom_size + lock_position_offset[color][2]),
-  })
+  }, false, true)
 end
 
 function hideButton(button)
@@ -373,5 +373,5 @@ function hideButton(button)
     kingdom_position.x + lock_position_multiplier[color][1] * (kingdom_size + lock_position_offset[color][1]),
     hidden_y_position,
     kingdom_position.z + lock_position_multiplier[color][2] * (kingdom_size + lock_position_offset[color][2]),
-  })
+  }, false, true)
 end

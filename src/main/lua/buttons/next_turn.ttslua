@@ -16,57 +16,64 @@ local kingsGuid = {
   "9dc643", "0dba70", -- Pink
 }
 local game
+local last_turn
 local player_ready = {}
 
 function onLoad(save_state)
   initialize(save_state)
-  self.createButton({
-    click_function = "onClick",
-    function_owner = self,
-    label = "",
-    position = { 0, 0.05, 0 },
-    color = { 0, 0, 0, 0 },
-    width = 2400,
-    height = 600
-  })
 end
 
 function initialize(save_state)
   if save_state ~= "" then
     turn = JSON.decode(save_state).turn
     game = JSON.decode(save_state).game
+    last_turn = JSON.decode(save_state).last_turn
     Global.setTable("game", game)
-    if game and game.castles then
-      Wait.frames(function ()
+    if game and game.castles and not last_turn then
+      Wait.frames(function()
         initializeCastles(game.castles)
         resetCastles(game.castles)
       end, 1)
     end
+  end
+
+  if not last_turn then
+    self.createButton({
+      click_function = "onClick",
+      function_owner = self,
+      label = "",
+      position = { 0, 0.05, 0 },
+      color = { 0, 0, 0, 0 },
+      width = 2400,
+      height = 600
+    })
   end
 end
 
 function onSave()
   return JSON.encode({
     turn = turn,
-    game = game
+    game = game,
+    last_turn = last_turn
   })
 end
 
 function temporarilyDisableButtons()
-  local button = self.getButtons()[1]
   self.setPositionSmooth({
     self.getPosition().x,
     0.9,
     self.getPosition().z,
   }, false, true)
-  self.editButton({ index = button.index, scale = { 0, 0, 0 } })
+  self.editButton({ index = 0, scale = { 0, 0, 0 } })
   Wait.frames(function()
-    self.setPositionSmooth({
-      self.getPosition().x,
-      1.05,
-      self.getPosition().z,
-    }, false, true)
-    self.editButton({ index = button.index, scale = { 1, 1, 1 } })
+    if not last_turn then
+      self.setPositionSmooth({
+        self.getPosition().x,
+        1.05,
+        self.getPosition().z,
+      }, false, true)
+      self.editButton({ index = 0, scale = { 1, 1, 1 } })
+    end
   end, 120)
 end
 
@@ -150,9 +157,12 @@ function nextTurn()
     deck.shuffle()
     deck.call("dealTiles")
   else
+    last_turn = true
     disableCastles()
     setupPing()
-    self.destroy()
+
+    self.editButton({ index = 0, scale = { 0, 0, 0 } })
+    self.setPositionSmooth({ self.getPosition().x, 0, self.getPosition().z }, false, true)
   end
 end
 
