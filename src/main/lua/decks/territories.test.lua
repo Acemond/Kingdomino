@@ -1,8 +1,9 @@
 require("decks/territories")
 require("util/assertions")
+require("util/test")
 
-local tests = {
-  shouldComputeScore = function()
+test({
+  ["should compute score"] = function()
     local kingdom = {
       { squares.fields_0, squares.fields_1, squares.prairies_0 },
       { squares.fields_0, squares.castle, squares.prairies_2 },
@@ -11,14 +12,14 @@ local tests = {
     assertEquals(computeScore(kingdom), 10)
   end,
 
-  shouldComputeEmptyKingdom = function()
+  ["should compute empty kingdom"] = function()
     local kingdom = {
       { squares.castle },
     }
     assertEquals(computeScore(kingdom), 0)
   end,
 
-  shouldComputeNilKingdom = function()
+  ["should compute nil kingdom"] = function()
     local kingdom = {
       { nil, nil, nil },
       { nil, nil, nil },
@@ -27,7 +28,7 @@ local tests = {
     assertEquals(computeScore(kingdom), 0)
   end,
 
-  shouldComputeScoreWithNils = function()
+  ["should compute score with nils"] = function()
     local kingdom = {
       { nil, squares.fields_1, squares.prairies_0 },
       { squares.fields_0, squares.castle, nil },
@@ -36,7 +37,7 @@ local tests = {
     assertEquals(computeScore(kingdom), 3)
   end,
 
-  shouldComputeSize7Kingdom = function()
+  ["should compute size 7 kingdom"] = function()
     local kingdom = {
       { squares.fields_0, squares.fields_1, squares.prairies_0, squares.prairies_2, squares.prairies_0, squares.prairies_1, squares.prairies_0 },
       { squares.fields_0, squares.castle, squares.prairies_2, squares.prairies_0, squares.prairies_1, squares.town, squares.town },
@@ -48,16 +49,8 @@ local tests = {
     assertEquals(computeScore(kingdom), 190)
   end,
 
-  shouldCompareTables = function()
+  ["should compare tables"] = function()
     assertEquals({ 1, 2 }, { 1, 2 })
   end
-}
-for test_name, test in pairs(tests) do
-  local state, message = pcall(test)
-  if state then
-    print(test_name .. ": OK")
-  else
-    print(test_name .. ": " .. message)
-  end
-end
+})
 
