@@ -42,13 +42,20 @@ function onLoad(save_state)
   if save_state ~= "" then
     kingdom_size = JSON.decode(save_state).kingdom_size
     current_position = JSON.decode(save_state).current_position
+    locked_kingdom = JSON.decode(save_state).locked_kingdom
+    button_state_locked = JSON.decode(save_state).button_state_locked
   end
   createLockButtons()
   createUnlockButtons()
 end
 
 function onSave()
-  return JSON.encode({ kingdom_size = kingdom_size, current_position = current_position })
+  return JSON.encode({
+    kingdom_size = kingdom_size,
+    current_position = current_position,
+    locked_kingdom = locked_kingdom,
+    button_state_locked = not locked_kingdom,  -- forces update of buttons on load
+  })
 end
 
 function onUpdate()
