@@ -54,7 +54,7 @@ function onSave()
     kingdom_size = kingdom_size,
     current_position = current_position,
     locked_kingdom = locked_kingdom,
-    button_state_locked = not locked_kingdom,  -- forces update of buttons on load
+    button_state_locked = not locked_kingdom, -- forces update of buttons on load
   })
 end
 

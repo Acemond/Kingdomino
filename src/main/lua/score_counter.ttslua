@@ -1,0 +1,54 @@
+require("util/button")
+require("decks/territories")
+
+local buttons = {}
+
+function createButtons()
+  local game = Global.getTable("game")
+  local kingdom_size = Global.getTable("kingdom_size")
+
+  for color, seated in pairs(game.seated_players) do
+    if seated then
+      createButton(kingdom_size, color)
+    end
+  end
+end
+
+function createButton(kingdom_size, color)
+  local kingdom_position = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone).getPosition()
+  local position_x = kingdom_position.x
+  local position_z = kingdom_position.z - kingdom_size + 2
+
+  local function_name = "compute_score_" .. color
+  self.setVar(function_name, computeScore(color))
+
+  local properties = {
+    click_function = function_name,
+    function_owner = self,
+    label = "",
+    tooltip = "",
+    position = { 0, 0.05, 0 },
+    scale = { 0, 0, 0 },
+    color = { 0, 0, 0, 0 },
+    width = 2400,
+    height = 600,
+  }
+
+  buttons[color] = Button.new(Guids.player_pieces[color].score, position_x, position_z, properties)
+end
+
+local kingdom = {
+  {o, o, o},
+  {o, o, o},
+  {o, o, o},
+}
+
+-- position relative to the grid: { 1, 1.5 } ~ first line, between cols 1 and 2
+function addDomino(kingdom, domino, position)
+end
+
+function computeScore(color)
+  local kingdom_zone = Guids.player_pieces[color].kingdom_zone
+
+  error("Not implemented!")
+end
