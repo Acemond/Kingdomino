@@ -1,5 +1,5 @@
-require("decks.territories")
-require("util.test")
+require("decks/territories")
+require("util/assertions")
 
 local tests = {
   shouldComputeScore = function()
