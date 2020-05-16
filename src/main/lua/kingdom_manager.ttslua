@@ -42,12 +42,22 @@ function onSave()
   })
 end
 
+local kingdom_update_frequency = 30
+local frame = 0
+
 function onUpdate()
   if Global.get("game") and locked_kingdom ~= button_state_locked then
     updateLockButtons()
   end
   if pending_movement or locked_kingdom or not Global.getVar("kingdom_size") then
     return
+  end
+
+  frame = frame + 1
+  if frame % kingdom_update_frequency ~= 0 then
+    return
+  else
+    frame = 0
   end
 
   kingdom_size = Global.getVar("kingdom_size")

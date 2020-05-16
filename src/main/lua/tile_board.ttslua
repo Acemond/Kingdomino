@@ -39,11 +39,13 @@ function onSave()
 end
 
 function onUpdate()
-  local new_board_size = getBoardSize()
-  if not Global.get("game") and current_board_size ~= new_board_size then
-    current_board_size = new_board_size
-    updateTileBoards(current_board_size)
-    Global.setVar("board_size", current_board_size)
+  if not Global.get("game") then
+    local new_board_size = getBoardSize()
+    if current_board_size ~= new_board_size then
+      current_board_size = new_board_size
+      updateTileBoards(current_board_size)
+      Global.setVar("board_size", current_board_size)
+    end
   end
 end
 
