@@ -156,7 +156,9 @@ function showWalls(seat_color, delay)
   Wait.frames(function()
     local kingdom_zone = getObjectFromGUID(Guids.player_pieces[seat_color].kingdom_zone)
     local hand_offset = (current_walls_size + 2) / kingdom_zone.getScale().x
-    Player[seat_color].setHandTransform({ position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset }) })
+    local hand_transform = Player[seat_color].getHandTransform()
+    hand_transform.position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset })
+    Player[seat_color].setHandTransform(hand_transform)
   end, delay)
 
   animateWalls(seat_color, walls_position, current_walls_size, delay)

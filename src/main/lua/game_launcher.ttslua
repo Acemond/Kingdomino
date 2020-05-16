@@ -209,13 +209,7 @@ function launchGame(new_game_settings)
   game_table.call("prepareTableForGame")
   Wait.frames(moveKingdoms, 15)
   if game_settings.decks.queendomino then
-    Wait.frames(function()
-      for color, seated in pairs(game_settings.seated_players) do
-        if seated then
-          takeCoins(color)
-        end
-      end
-    end, 30)
+    Wait.frames(takeCoins, 30)
   end
 
   Wait.frames(function()
@@ -294,22 +288,14 @@ function dealQuests(quest_guids)
   quest_deck.destroy()
 end
 
-function takeCoins(playerColor)
-  local handPosition = getObjectFromGUID(Guids.player_pieces[playerColor].hand_zone).getPosition()
+function takeCoins()
   local coin1Bag = getObjectFromGUID(game_objects_guid.queendomino.coin1_bag)
   local coin3Bag = getObjectFromGUID(game_objects_guid.queendomino.coin3_bag)
   local knightBag = getObjectFromGUID(game_objects_guid.queendomino.knight_bag)
-  if playerColor == "Green" or playerColor == "Pink" then
-    coin1Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z + 2 } })
-    coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z + 1 } })
-    coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z } })
-    knightBag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z - 2 } })
-  else
-    coin1Bag.takeObject({ smooth = false, position = { handPosition.x + 2, handPosition.y, handPosition.z } })
-    coin3Bag.takeObject({ smooth = false, position = { handPosition.x + 1, handPosition.y, handPosition.z } })
-    coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z } })
-    knightBag.takeObject({ smooth = false, position = { handPosition.x - 2, handPosition.y, handPosition.z } })
-  end
+
+  coin1Bag.deal(1)
+  coin3Bag.deal(2)
+  knightBag.deal(1)
 end
 
 function destroyUnusedPieces()
@@ -445,7 +431,9 @@ function movePlayerPieces(color, target_position)
   })
   local hand_offset = (Global.get("kingdom_size") + 4) / kingdom_zone.getScale().x
   Wait.condition(function()
-    Player[color].setHandTransform({ position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset }) })
+    local hand_transform = Player[color].getHandTransform()
+    hand_transform.position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset })
+    Player[color].setHandTransform(hand_transform)
   end, function()
     return math.abs(castle_tile.getPosition().x - target_position[1]) < 0.1
   end)
