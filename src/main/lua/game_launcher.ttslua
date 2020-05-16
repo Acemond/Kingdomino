@@ -436,19 +436,19 @@ end
 function movePlayerPieces(color, target_position)
   local castle_tile = getObjectFromGUID(Guids.player_pieces[color].castle_tile)
   local kingdom_zone = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
-  local hand_zone = getObjectFromGUID(Guids.player_pieces[color].hand_zone)
   local flag = getObjectFromGUID(Guids.player_pieces[color].flag)
 
-  hand_zone.setPosition({
-    hand_zone.getPosition().x - kingdom_zone.getPosition().x + target_position[1],
-    hand_zone.getPosition().y,
-    hand_zone.getPosition().z - kingdom_zone.getPosition().z + target_position[3],
-  })
   kingdom_zone.setPosition({
     target_position[1],
     kingdom_zone.getPosition().y,
     target_position[3]
   })
+  local hand_offset = (Global.get("kingdom_size") + 4) / kingdom_zone.getScale().x
+  Wait.condition(function()
+    Player[color].setHandTransform({ position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset }) })
+  end, function()
+    return math.abs(castle_tile.getPosition().x - target_position[1]) < 0.1
+  end)
   castle_manager.call("moveCastle", {
     seat_color = color,
     position = {
