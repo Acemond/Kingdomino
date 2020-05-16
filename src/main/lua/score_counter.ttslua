@@ -1,54 +1,80 @@
 require("util/button")
+require("util/kingdom")
+require("util/table")
+require("constants/guids")
 require("decks/territories")
 
 local buttons = {}
+local scores = {}
+
+function onLoad()
+  if Global.get("game") then
+    createButtons()
+  end
+end
+
+function onUpdate()
+  for color, _ in pairs(buttons) do
+    computeScore(color)
+  end
+end
 
 function createButtons()
   local game = Global.getTable("game")
-  local kingdom_size = Global.getTable("kingdom_size")
+  local kingdom_size = Global.getVar("kingdom_size")
 
-  for color, seated in pairs(game.seated_players) do
+  for color, seated in pairs(game.settings.seated_players) do
     if seated then
-      createButton(kingdom_size, color)
+      buttons[color] = createButton(kingdom_size, color)
+      buttons[color]:setPositionLow()
     end
   end
 end
 
 function createButton(kingdom_size, color)
-  local kingdom_position = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone).getPosition()
-  local position_x = kingdom_position.x
-  local position_z = kingdom_position.z - kingdom_size + 2
+  local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local button_position = kingdom.positionToWorld({ 0, 0, -(0.2) * (kingdom_size / 2 + 1) })
 
   local function_name = "compute_score_" .. color
-  self.setVar(function_name, computeScore(color))
+  self.setVar(function_name, function()
+    computeScore(color)
+  end)
 
   local properties = {
     click_function = function_name,
     function_owner = self,
     label = "",
     tooltip = "",
-    position = { 0, 0.05, 0 },
-    scale = { 0, 0, 0 },
+    position = { 1, 0.1, 0 },
+    font_size = 400,
     color = { 0, 0, 0, 0 },
-    width = 2400,
+    font_color = { 1, 1, 1, 100 },
+    width = 800,
     height = 600,
   }
 
-  buttons[color] = Button.new(Guids.player_pieces[color].score, position_x, position_z, properties)
-end
-
-local kingdom = {
-  {o, o, o},
-  {o, o, o},
-  {o, o, o},
-}
-
--- position relative to the grid: { 1, 1.5 } ~ first line, between cols 1 and 2
-function addDomino(kingdom, domino, position)
+  return Button:new(Guids.player_pieces[color].score, button_position.x, button_position.z, properties)
 end
 
 function computeScore(color)
-  local kingdom_zone = Guids.player_pieces[color].kingdom_zone
+  local kingdom_zone = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local kingdom_size = Global.getVar("kingdom_size")
 
-  error("Not implemented!")
+  local kingdom = Kingdom:new(color, kingdom_size)
+
+  for _, object in pairs(kingdom_zone.getObjects()) do
+    if table.contains(Guids.dominoes.kingdomino, object.guid)
+        or table.contains(Guids.dominoes.queendomino, object.guid)
+        or table.contains(Guids.dominoes.age_of_giants, object.guid) then
+      kingdom:addDomino(object)
+    end
+  end
+
+  local total_score = kingdom:getScore()
+  if scores[color] ~= total_score then
+    log("UPDATE")
+    scores[color] = total_score
+    buttons[color]:setLabel(total_score)
+    buttons[color]:setTooltip("Total score: " .. total_score)
+  end
 end

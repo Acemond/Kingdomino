@@ -56,7 +56,7 @@ local visible_walls = {
   Green = false,
   Pink = false
 }
-local current_walls_size = 5
+local current_walls_size
 function onUpdate()
   local new_walls_size = getWallsSize()
 
@@ -73,6 +73,7 @@ function onLoad(save_state)
   if save_state ~= "" then
     visible_walls = JSON.decode(save_state).visible_walls
   end
+  current_walls_size = getWallsSize()
 end
 
 function onSave()

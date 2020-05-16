@@ -12,11 +12,11 @@ function DominoUtils.getOrientation(raw_rotation)
   local rotation = boundRotation(raw_rotation)
 
   if rotation >= -45 and rotation < 45 then
-    return DominoUtils.orientations.x
+    return DominoUtils.orientations.x_reverse
   elseif rotation >= 45 and rotation < 135 then
     return DominoUtils.orientations.z
-  elseif (rotation >= 135 and rotation < 180) or (rotation >= -180 and rotation < -135) then
-    return DominoUtils.orientations.x_reverse
+  elseif (rotation >= 135 and rotation <= 180) or (rotation >= -180 and rotation < -135) then
+    return DominoUtils.orientations.x
   else
     return DominoUtils.orientations.z_reverse
   end

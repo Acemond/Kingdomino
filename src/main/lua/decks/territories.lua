@@ -149,6 +149,13 @@ dominoes = {
   }
 }
 
+function getDominoContent(guid)
+  local domino_index = table.indexOf(Guids.dominoes.kingdomino, guid)
+  if domino_index ~= nil then
+    return dominoes.kingdomino[domino_index]
+  end
+end
+
 function countTerritory(kingdom, position, accumulator)
   if kingdom[position[1]] and kingdom[position[1]][position[2]]
       and not accumulator.counted_squares[position[1]][position[2]] then
@@ -181,17 +188,4 @@ function initializeCountedArray(kingdom)
   end
 
   return counted_squares
-end
-
-function computeScore(kingdom)
-  local total = 0
-  local counted_squares = initializeCountedArray(kingdom)
-  for row, column in pairs(kingdom) do
-    for col_number, _ in pairs(column) do
-      local territory = countTerritory(kingdom, { row, col_number }, { counted_squares = counted_squares, type = nil, size = 0, crowns = 0 })
-      total = total + territory.size * territory.crowns
-    end
-  end
-
-  return total
 end

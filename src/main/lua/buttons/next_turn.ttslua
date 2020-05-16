@@ -1,4 +1,5 @@
 require("util/table")
+require("constants/guids")
 
 local leftZoneGuid = "38ed1c"
 local rightZoneGuid = "358f4e"
@@ -85,6 +86,7 @@ end
 
 function firstTurn(new_game)
   game = new_game
+  getObjectFromGUID(Guids.score_counter).call("createButtons")
   initializeCastles(game.castles)
   nextTurn()
 end

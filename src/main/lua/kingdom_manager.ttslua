@@ -1,6 +1,7 @@
 --local color = "White"
 
 require("util/table")
+require("util/domino")
 require("constants/guids")
 
 local kingdom_guids = Guids.player_pieces[color]
@@ -20,23 +21,6 @@ local button_state_locked = true
 
 local lock_y_position = 1.05
 local hidden_y_position = 0.5
-
-local lock_position_multiplier = {
-  White = { -1, -1 },
-  Orange = { -1, -1 },
-  Pink = { 1, -1 },
-  Red = { 1, 1 },
-  Purple = { 1, 1 },
-  Green = { -1, 1 },
-}
-local lock_position_offset = {
-  White = { 0, 2 },
-  Orange = { 0, 2 },
-  Pink = { 2, 0 },
-  Red = { 0, 2 },
-  Purple = { 0, 2 },
-  Green = { 2, 0 },
-}
 
 function onLoad(save_state)
   if save_state ~= "" then
@@ -160,14 +144,14 @@ function getMaxPos(objects, axis)
 
   local max
   for _, object in pairs(objects) do
-    local world_position = object.getPosition()
+    local local_position = zone.positionToLocal(object.getPosition())
     if object.guid ~= kingdom_guids.castle_tile then
-      world_position = getDominoMaxBoundaries(object)
+      local orientation = DominoUtils.getOrientation(object.getRotation().y - zone.getRotation().y)
+      local_position = getDominoMaxBoundaries(local_position, orientation)
     end
 
-    local local_position = zone.positionToLocal(world_position)[axis]
-    if max == nil or local_position > max then
-      max = local_position
+    if max == nil or local_position[axis] > max then
+      max = local_position[axis]
     end
   end
   if max == nil then
@@ -182,14 +166,14 @@ function getMinPos(objects, axis)
 
   local min
   for _, object in pairs(objects) do
-    local world_position = object.getPosition()
+    local local_position = zone.positionToLocal(object.getPosition())
     if object.guid ~= kingdom_guids.castle_tile then
-      world_position = getDominoMinBoundaries(object)
+      local orientation = DominoUtils.getOrientation(object.getRotation().y - zone.getRotation().y)
+      local_position = getDominoMinBoundaries(local_position, orientation)
     end
 
-    local local_position = zone.positionToLocal(world_position)[axis]
-    if min == nil or local_position < min then
-      min = local_position
+    if min == nil or local_position[axis] < min then
+      min = local_position[axis]
     end
   end
   if min == nil then
@@ -199,24 +183,19 @@ function getMinPos(objects, axis)
   end
 end
 
-function getDominoMaxBoundaries(domino)
-  local rotation = domino.getRotation().y
-  local world_position = domino.getPosition()
-  if (rotation > -45 and rotation < 45) or (rotation > 135 and rotation < 225) or (rotation > 315) then
-    world_position = {
-      world_position.x + 1,
-      world_position.y,
-      world_position.z
-    }
+function getDominoMaxBoundaries(zone_position, orientation)
+  local offset = { x = 0, y = 0, z = 0 }
+  if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
+    offset.x = grid
   else
-    world_position = {
-      world_position.x,
-      world_position.y,
-      world_position.z + 1
-    }
+    offset.z = grid
   end
 
-  return world_position
+  return {
+    x = zone_position.x + offset.x,
+    y = zone_position.y + offset.y,
+    z = zone_position.z + offset.z,
+  }
 end
 
 function getDominoSize(domino, axis)
@@ -236,24 +215,19 @@ function getDominoSize(domino, axis)
   end
 end
 
-function getDominoMinBoundaries(domino)
-  local rotation = domino.getRotation().y
-  local world_position = domino.getPosition()
-  if (rotation > -45 and rotation < 45) or (rotation > 135 and rotation < 225) or (rotation > 315) then
-    world_position = {
-      world_position.x - 1,
-      world_position.y,
-      world_position.z
-    }
+function getDominoMinBoundaries(zone_position, orientation)
+  local offset = { x = 0, y = 0, z = 0 }
+  if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
+    offset.x = -grid
   else
-    world_position = {
-      world_position.x,
-      world_position.y,
-      world_position.z - 1
-    }
+    offset.z = -grid
   end
 
-  return world_position
+  return {
+    x = zone_position.x + offset.x,
+    y = zone_position.y + offset.y,
+    z = zone_position.z + offset.z,
+  }
 end
 
 function getPlayersObjects()
@@ -359,26 +333,16 @@ function updateLockButtons()
 end
 
 function showButton(button)
-  local kingdom_position = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone).getPosition()
+  local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local lock_position = kingdom.positionToWorld({ -(grid * 2) * kingdom_size / 2, 0, -(grid * 2) * (kingdom_size / 2 + 1) })
   button.editButton({ index = 0, scale = { 1, 1, 1 } })
-  button.setPosition({
-    kingdom_position.x + lock_position_multiplier[color][1] * (kingdom_size + lock_position_offset[color][1]),
-    0.86,
-    kingdom_position.z + lock_position_multiplier[color][2] * (kingdom_size + lock_position_offset[color][2]),
-  })
-  button.setPositionSmooth({
-    kingdom_position.x + lock_position_multiplier[color][1] * (kingdom_size + lock_position_offset[color][1]),
-    lock_y_position,
-    kingdom_position.z + lock_position_multiplier[color][2] * (kingdom_size + lock_position_offset[color][2]),
-  }, false, true)
+  button.setPosition({ lock_position.x, 0.86, lock_position.z, })
+  button.setPositionSmooth({ lock_position.x, lock_y_position, lock_position.z, }, false, true)
 end
 
 function hideButton(button)
-  local kingdom_position = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone).getPosition()
+  local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local lock_position = kingdom.positionToWorld({ -(grid * 2) * kingdom_size / 2, 0, -(grid * 2) * (kingdom_size / 2 + 1) })
   button.editButton({ index = 0, scale = { 0, 0, 0 } })
-  button.setPositionSmooth({
-    kingdom_position.x + lock_position_multiplier[color][1] * (kingdom_size + lock_position_offset[color][1]),
-    hidden_y_position,
-    kingdom_position.z + lock_position_multiplier[color][2] * (kingdom_size + lock_position_offset[color][2]),
-  }, false, true)
+  button.setPositionSmooth({ lock_position.x, hidden_y_position, lock_position.z, }, false, true)
 end
