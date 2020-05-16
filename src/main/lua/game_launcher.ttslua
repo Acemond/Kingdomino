@@ -1,5 +1,6 @@
 require("util/table")
 require("constants/guids")
+require("constants/players")
 
 local tile_check_zones = {
   "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
@@ -208,9 +209,6 @@ function launchGame(new_game_settings)
   destroyUnusedPieces()
   game_table.call("prepareTableForGame")
   Wait.frames(moveKingdoms, 15)
-  if game_settings.decks.queendomino then
-    Wait.frames(takeCoins, 30)
-  end
 
   Wait.frames(function()
     firstTurn(decks, buildings)
@@ -288,14 +286,16 @@ function dealQuests(quest_guids)
   quest_deck.destroy()
 end
 
-function takeCoins()
+function takeCoins(color)
   local coin1Bag = getObjectFromGUID(game_objects_guid.queendomino.coin1_bag)
   local coin3Bag = getObjectFromGUID(game_objects_guid.queendomino.coin3_bag)
   local knightBag = getObjectFromGUID(game_objects_guid.queendomino.knight_bag)
 
-  coin1Bag.deal(1)
-  coin3Bag.deal(2)
-  knightBag.deal(1)
+  if game_settings.seated_players[color] then
+    coin1Bag.deal(1, color)
+    coin3Bag.deal(2, color)
+    knightBag.deal(1, color)
+  end
 end
 
 function destroyUnusedPieces()
@@ -429,14 +429,19 @@ function movePlayerPieces(color, target_position)
     kingdom_zone.getPosition().y,
     target_position[3]
   })
-  local hand_offset = (Global.get("kingdom_size") + 4) / kingdom_zone.getScale().x
+
+  local hand_offset = (Global.get("kingdom_size") + 5) / kingdom_zone.getScale().x
+  local hand_transform = Player[color].getHandTransform()
+  hand_transform.position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset })
   Wait.condition(function()
-    local hand_transform = Player[color].getHandTransform()
-    hand_transform.position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset })
     Player[color].setHandTransform(hand_transform)
+    if game_settings.decks.queendomino then
+      takeCoins(color)
+    end
   end, function()
     return math.abs(castle_tile.getPosition().x - target_position[1]) < 0.1
   end)
+
   castle_manager.call("moveCastle", {
     seat_color = color,
     position = {

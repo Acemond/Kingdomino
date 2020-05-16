@@ -1,4 +1,5 @@
 require("constants/guids")
+require("constants/players")
 
 local seated_players = {
   White = false,
@@ -7,14 +8,6 @@ local seated_players = {
   Red = false,
   Green = false,
   Pink = false
-}
-local color_priority = {
-  "White",
-  "Orange",
-  "Purple",
-  "Red",
-  "Green",
-  "Pink"
 }
 local local_players_button_guid = {
   enable = "4f044d",
@@ -134,7 +127,7 @@ function setPlayerCount(target_player_count)
 end
 
 function addNextPlayer()
-  for _, color in ipairs(color_priority) do
+  for _, color in ipairs(PlayerConstants.playable_color) do
     if not seated_players[color] then
       local player = getPlayerNotSeated()
       if player ~= nil then

@@ -12,6 +12,7 @@ function Kingdom:new(color, size)
   kingdom.size = size
   kingdom.tower_count = 0
   kingdom.knight_count = 0
+  kingdom.coins = 0
   kingdom.map = {}
   for i = 1, size, 1 do
     kingdom.map[i] = {}
@@ -36,6 +37,10 @@ end
 
 function Kingdom:addKnight()
   self.knight_count = self.knight_count + 1
+end
+
+function Kingdom:addCoins(count)
+  self.coins = self.coins + count
 end
 
 function Kingdom:addNormalizedDomino(tile, line, column)
@@ -74,6 +79,7 @@ function Kingdom:getScore()
   local territories = self:getTerritories()
   return self:countCrownsPoints(territories)
       + self:countBuildingsPoints(territories)
+      + self:countCoinsPoints()
 end
 
 function Kingdom:countBuildingsPoints(territories)
@@ -124,6 +130,10 @@ function Kingdom:countCharacterPoints(character, row, column)
   end
 
   return points
+end
+
+function Kingdom:countCoinsPoints()
+  return (self.coins - self.coins % 3) / 3
 end
 
 function getVariablePoints(variable, square)
