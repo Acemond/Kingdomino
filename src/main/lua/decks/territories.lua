@@ -32,7 +32,42 @@ squares = {
   town = { type = terrain_type.town, crowns = 0 },
 }
 
-dominoes = {
+resources = {
+  Wheat = { type = "wheat", base_points = 0, warrior = false },
+  Wood = { type = "wood", base_points = 0, warrior = false },
+  Fish = { type = "fish", base_points = 0, warrior = false },
+  Sheep = { type = "sheep", base_points = 0, warrior = false },
+}
+
+buildings = {
+  ["53a259"] = { type = "building", warrior = false, crowns = 1 },
+  ["55a4a4"] = { type = "building", warrior = false, crowns = 1 },
+  ["241fb0"] = { type = "character", base_points = 3, variable = { condition = "wheat", amount = 3 }, warrior = false, crowns = 0 },
+  ["274932"] = { type = "building", warrior = false, crowns = 1 },
+  ["bb359a"] = { type = "character", base_points = 2, variable = { condition = "resource", amount = 2 }, warrior = false, crowns = 0 },
+  ["c67301"] = { type = "building", warrior = false, crowns = 1 },
+  ["6d78bd"] = { type = "building", warrior = false, crowns = 1 },
+  ["ff433f"] = { type = "character", base_points = 3, variable = { condition = "wood", amount = 3 }, warrior = false, crowns = 0 },
+  ["f3256d"] = { type = "building", warrior = false, crowns = 1 },
+  ["18035c"] = { type = "character", base_points = 4, warrior = true, crowns = 0 },
+  ["232195"] = { type = "building", warrior = false, crowns = 1 },
+  ["c8bd41"] = { type = "building", warrior = false, crowns = 1 },
+  ["0beb15"] = { type = "character", base_points = 3, variable = { condition = "fish", amount = 3 }, warrior = false, crowns = 0 },
+  ["7ce667"] = { type = "building", warrior = false, crowns = 1 },
+  ["10f247"] = { type = "character", base_points = 4, warrior = true, crowns = 0 },
+  ["5a7da2"] = { type = "building", warrior = false, crowns = 1 },
+  ["4c73d8"] = { type = "building", warrior = false, crowns = 2 },
+  ["03f1db"] = { type = "character", base_points = 3, variable = { condition = "sheep", amount = 3 }, warrior = false, crowns = 0 },
+  ["88ed47"] = { type = "character", base_points = 1, variable = { condition = "warrior", amount = 3 }, warrior = true, crowns = 0 },
+  ["3bd5ba"] = { type = "character", base_points = 3, warrior = true, crowns = 0 },
+  ["edfc8d"] = { type = "building", warrior = false, crowns = 1 },
+  ["0255c1"] = { type = "building", warrior = false, crowns = 2 },
+  ["ac0d2f"] = { type = "character", base_points = 0, variable = { condition = "crowns", amount = 1 }, warrior = false, crowns = 0 },
+  ["78cc48"] = { type = "character", base_points = 2, variable = { condition = "character", amount = 2 }, warrior = false, crowns = 0 },
+  ["55a4a4"] = { type = "character", base_points = 3, warrior = true, crowns = 0 },
+}
+
+local dominoes = {
   kingdomino = {
     { squares.fields_0, squares.fields_0 },
     { squares.fields_0, squares.fields_0 },
@@ -149,26 +184,38 @@ dominoes = {
   }
 }
 
-function getDominoContent(guid)
-  local domino_index = table.indexOf(Guids.dominoes.kingdomino, guid)
+function getDominoContent(object)
+  local domino_index = table.indexOf(Guids.dominoes.kingdomino, object.guid)
   if domino_index ~= nil then
     return dominoes.kingdomino[domino_index]
   end
 end
 
-function countTerritory(kingdom, position, accumulator)
-  if kingdom[position[1]] and kingdom[position[1]][position[2]]
+function getBuildingObject(object)
+  if buildings[object.guid] then
+    return buildings[object.guid]
+  else
+    return resources[object.getName()]
+  end
+end
+
+function countTerritory(map, position, accumulator)
+  if map[position[1]] and map[position[1]][position[2]]
       and not accumulator.counted_squares[position[1]][position[2]] then
-    local kingdom_square = kingdom[position[1]][position[2]]
-    if not accumulator.type or kingdom_square.type == accumulator.type then
+    local kingdom_square = map[position[1]][position[2]].terrain
+    local building = map[position[1]][position[2]].building
+    if kingdom_square ~= nil and (not accumulator.type or kingdom_square.type == accumulator.type) then
       accumulator.type = kingdom_square.type
       accumulator.size = accumulator.size + 1
       accumulator.crowns = accumulator.crowns + kingdom_square.crowns
+      if building and building.crowns then
+        accumulator.crowns = accumulator.crowns + building.crowns
+      end
       accumulator.counted_squares[position[1]][position[2]] = true
-      countTerritory(kingdom, { position[1] + 1, position[2] }, accumulator)
-      countTerritory(kingdom, { position[1] - 1, position[2] }, accumulator)
-      countTerritory(kingdom, { position[1], position[2] + 1 }, accumulator)
-      countTerritory(kingdom, { position[1], position[2] - 1 }, accumulator)
+      countTerritory(map, { position[1] + 1, position[2] }, accumulator)
+      countTerritory(map, { position[1] - 1, position[2] }, accumulator)
+      countTerritory(map, { position[1], position[2] + 1 }, accumulator)
+      countTerritory(map, { position[1], position[2] - 1 }, accumulator)
     end
   end
 

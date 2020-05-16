@@ -81,12 +81,17 @@ function computeScore(color)
   local kingdom_size = Global.getVar("kingdom_size")
 
   local kingdom = Kingdom:new(color, kingdom_size)
-
   for _, object in pairs(kingdom_zone.getObjects()) do
-    if not table.contains(getPlayersObjects(), object) and (table.contains(Guids.dominoes.kingdomino, object.guid)
-        or table.contains(Guids.dominoes.queendomino, object.guid)
-        or table.contains(Guids.dominoes.age_of_giants, object.guid)) then
-      kingdom:addDomino(object)
+    if not table.contains(getPlayersObjects(), object) then
+      if (table.contains(Guids.dominoes.kingdomino, object.guid)
+          or table.contains(Guids.dominoes.queendomino, object.guid)
+          or table.contains(Guids.dominoes.age_of_giants, object.guid)) then
+        kingdom:addDomino(object)
+      end
+
+      if buildings[object.guid] ~= nil or resources[object.getName()] then
+        kingdom:addBuilding(object)
+      end
     end
   end
 
