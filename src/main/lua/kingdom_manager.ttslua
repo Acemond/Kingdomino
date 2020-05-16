@@ -41,10 +41,8 @@ function onSave()
   })
 end
 
-local kingdom_update_frequency = 30
-local frame = 0
-
 -- FIXME: optimize this shit that is called player_count times per frame!
+local frame = 0
 function onUpdate()
   if Global.get("game") and locked_kingdom ~= button_state_locked then
     updateLockButtons()
@@ -54,7 +52,7 @@ function onUpdate()
   end
 
   frame = frame + 1
-  if frame % kingdom_update_frequency ~= 0 then
+  if frame % 15 ~= 0 then
     return
   else
     frame = 0
@@ -102,9 +100,9 @@ function getShiftKingdom(kingdom_dominos, domino, axis)
   local min_kingdom, max_kingdom = getMinPos(kingdom_dominos, axis), getMaxPos(kingdom_dominos, axis)
   local domino_local_position = getObjectFromGUID(kingdom_guids.kingdom_zone).positionToLocal(domino.getPosition())
 
-  if domino_local_position[axis] > (1 / zone.getScale().x) * (kingdom_size - 1) then
+  if domino_local_position[axis] > (1 / zone.getScale()[axis]) * (kingdom_size - 1) then
     return getPossibleShift(min_kingdom, max_kingdom, -getDominoSize(domino, axis))
-  elseif domino_local_position[axis] < -(1 / zone.getScale().x) * (kingdom_size - 1) then
+  elseif domino_local_position[axis] < -(1 / zone.getScale()[axis]) * (kingdom_size - 1) then
     return getPossibleShift(min_kingdom, max_kingdom, getDominoSize(domino, axis))
   end
 
@@ -152,20 +150,20 @@ function getMaxPos(objects, axis)
 
   local max
   for _, object in pairs(objects) do
-    local local_position = zone.positionToLocal(object.getPosition())
+    local local_position = math.floor(zone.positionToLocal(object.getPosition())[axis] * zone.getScale().x + 0.5) / 2
     if object.guid ~= kingdom_guids.castle_tile then
       local orientation = DominoUtils.getOrientation(object.getRotation().y - zone.getRotation().y)
-      local_position = getDominoMaxBoundaries(local_position, orientation)
+      local_position = local_position + getDominoMaxOffset(orientation)[axis]
     end
 
-    if max == nil or local_position[axis] > max then
-      max = local_position[axis]
+    if max == nil or local_position > max then
+      max = local_position
     end
   end
   if max == nil then
     return 0
   else
-    return math.floor(max * zone.getScale().x + 0.5) / 2
+    return max
   end
 end
 
@@ -174,36 +172,29 @@ function getMinPos(objects, axis)
 
   local min
   for _, object in pairs(objects) do
-    local local_position = zone.positionToLocal(object.getPosition())
+    local local_position = math.floor(zone.positionToLocal(object.getPosition())[axis] * zone.getScale().x + 0.5) / 2
     if object.guid ~= kingdom_guids.castle_tile then
       local orientation = DominoUtils.getOrientation(object.getRotation().y - zone.getRotation().y)
-      local_position = getDominoMinBoundaries(local_position, orientation)
+      local_position = local_position + getDominoMinOffset(orientation)[axis]
     end
 
-    if min == nil or local_position[axis] < min then
-      min = local_position[axis]
+    if min == nil or local_position < min then
+      min = local_position
     end
   end
   if min == nil then
     return 0
   else
-    return math.floor(min * zone.getScale().x + 0.5) / 2
+    return min
   end
 end
 
-function getDominoMaxBoundaries(zone_position, orientation)
-  local offset = { x = 0, y = 0, z = 0 }
+function getDominoMaxOffset(orientation)
   if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
-    offset.x = 0.5
+    return { x = 0.5, y = 0, z = 0 }
   else
-    offset.z = 0.5
+    return { x = 0, y = 0, z = 0.5 }
   end
-
-  return {
-    x = zone_position.x + offset.x,
-    y = zone_position.y + offset.y,
-    z = zone_position.z + offset.z,
-  }
 end
 
 function getDominoSize(domino, axis)
@@ -223,19 +214,12 @@ function getDominoSize(domino, axis)
   end
 end
 
-function getDominoMinBoundaries(zone_position, orientation)
-  local offset = { x = 0, y = 0, z = 0 }
+function getDominoMinOffset(orientation)
   if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
-    offset.x = -0.5
+    return { x = -0.5, y = 0, z = 0 }
   else
-    offset.z = -0.5
+    return { x = 0, y = 0, z = -0.5 }
   end
-
-  return {
-    x = zone_position.x + offset.x,
-    y = zone_position.y + offset.y,
-    z = zone_position.z + offset.z,
-  }
 end
 
 function getPlayersObjects()
