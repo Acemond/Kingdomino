@@ -2,7 +2,7 @@ require("constants/guids")
 
 -- useless hidden objects used to keep button textures in memory
 local decoyButtons = { "3416fc", "25ef05", "d78ce4", "25bfc4", "29ae89", "6ce2c6", "31bd66", "5740ca", "28fcc5",
-                       "5aebb9", "536275", "eb1dfc", "59253d", "02c925", "093a20", "fe4a71", "a8ab45" }
+                       "5aebb9", "536275", "eb1dfc", "59253d", "02c925", "093a20", "fe4a71", "a8ab45", "725923" }
 
 -- useless decoy buttons used to hold management scripts
 local script_holders = {
@@ -46,6 +46,13 @@ local non_interactable_guids = {
   Guids.player_pieces.Red.unlock_kingdom,
   Guids.player_pieces.Pink.unlock_kingdom,
   Guids.player_pieces.Purple.unlock_kingdom,
+
+  Guids.player_pieces.Green.score,
+  Guids.player_pieces.Orange.score,
+  Guids.player_pieces.White.score,
+  Guids.player_pieces.Red.score,
+  Guids.player_pieces.Pink.score,
+  Guids.player_pieces.Purple.score,
 }
 local temporarily_frozen = {
   "b972db", -- king
