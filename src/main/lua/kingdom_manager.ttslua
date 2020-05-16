@@ -45,6 +45,7 @@ end
 local kingdom_update_frequency = 30
 local frame = 0
 
+-- FIXME: optimize this shit that is called player_count times per frame!
 function onUpdate()
   if Global.get("game") and locked_kingdom ~= button_state_locked then
     updateLockButtons()

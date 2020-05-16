@@ -35,11 +35,11 @@ function Kingdom:addNormalizedDomino(domino, line, column)
     self.map[line][column - 0.5] = squares[2]
     self.map[line][column + 0.5] = squares[1]
   elseif orientation == DominoUtils.orientations.z and self.map[line + 0.5] and self.map[line - 0.5] then
-    self.map[line - 0.5][column] = squares[1]
-    self.map[line + 0.5][column] = squares[2]
-  elseif orientation == DominoUtils.orientations.z_reverse and self.map[line + 0.5] and self.map[line - 0.5] then
     self.map[line - 0.5][column] = squares[2]
     self.map[line + 0.5][column] = squares[1]
+  elseif orientation == DominoUtils.orientations.z_reverse and self.map[line + 0.5] and self.map[line - 0.5] then
+    self.map[line - 0.5][column] = squares[1]
+    self.map[line + 0.5][column] = squares[2]
   end
 end
 

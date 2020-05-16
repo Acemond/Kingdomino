@@ -13,13 +13,27 @@ function onLoad()
   end
 end
 
-function onObjectDrop()
+local frame = 0
+function onUpdate()
+  frame = frame + 1
+  if frame % 90 ~= 0 then
+    return
+  else
+    frame = 0
+  end
+
   for color, _ in pairs(buttons) do
     computeScore(color)
   end
 end
 
 function onObjectPickUp()
+  for color, _ in pairs(buttons) do
+    computeScore(color)
+  end
+end
+
+function onObjectDrop()
   for color, _ in pairs(buttons) do
     computeScore(color)
   end
