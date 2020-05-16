@@ -66,8 +66,8 @@ function table.equal(tbl, other)
   return true
 end
 
-function table.print(tbl)
-  print(table.tostring(tbl))
+function table.log(tbl)
+  log(table.tostring(tbl))
 end
 
 function table.tostring(tbl)

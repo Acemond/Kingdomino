@@ -9,6 +9,7 @@ local buttons = {}
 local scores = {}
 
 function onLoad()
+  -- FIXME: not loading properly
   if Global.get("game") then
     createButtons()
   end

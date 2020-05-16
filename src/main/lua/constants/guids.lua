@@ -5,7 +5,7 @@ Guids.managers = {
   player = "31971b"
 }
 
-Guids.score_counter = "725923"
+Guids.score_counter = "3416fc"
 
 Guids.player_pieces = {
   Orange = {

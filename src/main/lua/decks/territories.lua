@@ -247,11 +247,11 @@ function getBuildingObject(object)
   end
 end
 
-function getTerritory(map, position, accumulator)
-  if map[position[1]] and map[position[1]][position[2]]
-      and not accumulator.counted_squares[position[1]][position[2]] then
-    local kingdom_square = map[position[1]][position[2]].terrain
-    local building = map[position[1]][position[2]].building
+function getTerritory(map, row, col, accumulator)
+  if map[row] and map[row][col] and not accumulator.counted_squares[row][col] then
+    local kingdom_square = map[row][col].terrain
+    local building = map[row][col].building
+
     if kingdom_square ~= nil and (not accumulator.type or kingdom_square.type == accumulator.type) then
       accumulator.type = kingdom_square.type
       accumulator.size = accumulator.size + 1
@@ -264,11 +264,11 @@ function getTerritory(map, position, accumulator)
         accumulator.crowns = accumulator.crowns + kingdom_square.crowns
       end
 
-      accumulator.counted_squares[position[1]][position[2]] = true
-      getTerritory(map, { position[1] + 1, position[2] }, accumulator)
-      getTerritory(map, { position[1] - 1, position[2] }, accumulator)
-      getTerritory(map, { position[1], position[2] + 1 }, accumulator)
-      getTerritory(map, { position[1], position[2] - 1 }, accumulator)
+      accumulator.counted_squares[row][col] = true
+      getTerritory(map, row + 1, col, accumulator)
+      getTerritory(map, row - 1, col, accumulator)
+      getTerritory(map, row, col + 1, accumulator)
+      getTerritory(map, row, col - 1, accumulator)
     end
   end
 

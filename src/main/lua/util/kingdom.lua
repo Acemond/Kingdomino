@@ -55,11 +55,11 @@ function Kingdom:addNormalizedDomino(tile, line, column)
     addSquareToMap(self.map, squares[2], line, column - 0.5)
     addSquareToMap(self.map, squares[1], line, column + 0.5)
   elseif orientation == DominoUtils.orientations.z and self.map[line + 0.5] and self.map[line - 0.5] then
-    addSquareToMap(self.map, squares[2], line - 0.5, column)
-    addSquareToMap(self.map, squares[1], line + 0.5, column)
-  elseif orientation == DominoUtils.orientations.z_reverse and self.map[line + 0.5] and self.map[line - 0.5] then
     addSquareToMap(self.map, squares[1], line - 0.5, column)
     addSquareToMap(self.map, squares[2], line + 0.5, column)
+  elseif orientation == DominoUtils.orientations.z_reverse and self.map[line + 0.5] and self.map[line - 0.5] then
+    addSquareToMap(self.map, squares[2], line - 0.5, column)
+    addSquareToMap(self.map, squares[1], line + 0.5, column)
   end
 end
 
@@ -160,9 +160,9 @@ function Kingdom:getTerritories()
 
   for row_number, column in pairs(self.map) do
     for col_number, square in pairs(column) do
-      if square.terrain ~= nil then
+      if square.terrain ~= nil and not counted_squares[row_number][col_number] then
         local accumulator = { counted_squares = counted_squares, type = nil, size = 0, crowns = 0 }
-        local territory = getTerritory(self.map, { row_number, col_number }, accumulator)
+        local territory = getTerritory(self.map, row_number, col_number, accumulator)
         table.insert(territories, territory)
       end
     end
