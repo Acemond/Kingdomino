@@ -48,12 +48,11 @@ function initialize(save_state)
     local_players_enabled = JSON.decode(save_state).local_players_enabled
   end
 
-  updateSeatedPlayers(seated_players)
+  updateSeatedPlayers()
   setLocalPlayersEnabled(local_players_enabled)
 end
 
-function updateSeatedPlayers(new_seated_players)
-  seated_players = new_seated_players
+function updateSeatedPlayers()
   Global.setTable("seated_players", seated_players)
   Global.setVar("player_count", getPlayerCount())
 end
@@ -79,7 +78,7 @@ end
 
 function addLocalPlayer(seat_color)
   seated_players[seat_color] = true
-  updateSeatedPlayers(seated_players)
+  updateSeatedPlayers()
   castle_manager.call("showCastle", seat_color)
 end
 
@@ -96,7 +95,7 @@ function doAddPlayer(player_color, seat_color)
       Player[player_color].changeColor(seat_color)
     end
   end
-  updateSeatedPlayers(seated_players)
+  updateSeatedPlayers()
   castle_manager.call("showCastle", seat_color)
 end
 
@@ -113,7 +112,7 @@ function removePlayer(seat_color)
   if not local_players_enabled then
     removePlayerColor(Player[seat_color])
   end
-  updateSeatedPlayers(seated_players)
+  updateSeatedPlayers()
   castle_manager.call("hideCastle", seat_color)
 end
 

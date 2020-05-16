@@ -1,4 +1,4 @@
-local terrain_type = {
+terrain_type = {
   castle = "castle",
   prairies = "prairies",
   fields = "fields",
@@ -40,33 +40,67 @@ resources = {
 }
 
 giant = { type = "giant" }
+queen = { type = "queen", crowns = 1 }
 
 buildings = {
-  ["53a259"] = { type = "building", warrior = false, crowns = 1 },
-  ["55a4a4"] = { type = "building", warrior = false, crowns = 1 },
-  ["241fb0"] = { type = "character", base_points = 3, variable = { condition = "wheat", amount = 3 }, warrior = false, crowns = 0 },
-  ["274932"] = { type = "building", warrior = false, crowns = 1 },
-  ["bb359a"] = { type = "character", base_points = 2, variable = { condition = "resource", amount = 2 }, warrior = false, crowns = 0 },
-  ["c67301"] = { type = "building", warrior = false, crowns = 1 },
-  ["6d78bd"] = { type = "building", warrior = false, crowns = 1 },
-  ["ff433f"] = { type = "character", base_points = 3, variable = { condition = "wood", amount = 3 }, warrior = false, crowns = 0 },
-  ["f3256d"] = { type = "building", warrior = false, crowns = 1 },
+  ["53a259"] = { type = "building", base_points = 0, crowns = 1 },
+  ["55a4a4"] = { type = "building", base_points = 0, crowns = 1 },
+  ["241fb0"] = { type = "character", base_points = 3, variable = { condition = "wheat", amount = 3 }, crowns = 0 },
+  ["274932"] = { type = "building", base_points = 0, crowns = 1 },
+  ["bb359a"] = { type = "character", base_points = 2, variable = { condition = "resource", amount = 2 }, crowns = 0 },
+  ["c67301"] = { type = "building", base_points = 0, crowns = 1 },
+  ["6d78bd"] = { type = "building", base_points = 0, crowns = 1 },
+  ["ff433f"] = { type = "character", base_points = 3, variable = { condition = "wood", amount = 3 }, crowns = 0 },
+  ["f3256d"] = { type = "building", base_points = 0, crowns = 1 },
   ["18035c"] = { type = "character", base_points = 4, warrior = true, crowns = 0 },
-  ["232195"] = { type = "building", warrior = false, crowns = 1 },
-  ["c8bd41"] = { type = "building", warrior = false, crowns = 1 },
-  ["0beb15"] = { type = "character", base_points = 3, variable = { condition = "fish", amount = 3 }, warrior = false, crowns = 0 },
-  ["7ce667"] = { type = "building", warrior = false, crowns = 1 },
+  ["232195"] = { type = "building", base_points = 0, crowns = 1 },
+  ["c8bd41"] = { type = "building", base_points = 0, crowns = 1 },
+  ["0beb15"] = { type = "character", base_points = 3, variable = { condition = "fish", amount = 3 }, crowns = 0 },
+  ["7ce667"] = { type = "building", base_points = 0, crowns = 1 },
   ["10f247"] = { type = "character", base_points = 4, warrior = true, crowns = 0 },
-  ["5a7da2"] = { type = "building", warrior = false, crowns = 1 },
-  ["4c73d8"] = { type = "building", warrior = false, crowns = 2 },
-  ["03f1db"] = { type = "character", base_points = 3, variable = { condition = "sheep", amount = 3 }, warrior = false, crowns = 0 },
+  ["5a7da2"] = { type = "building", base_points = 0, crowns = 1 },
+  ["4c73d8"] = { type = "building", base_points = 0, crowns = 2 },
+  ["03f1db"] = { type = "character", base_points = 3, variable = { condition = "sheep", amount = 3 }, crowns = 0 },
   ["88ed47"] = { type = "character", base_points = 1, variable = { condition = "warrior", amount = 3 }, warrior = true, crowns = 0 },
   ["3bd5ba"] = { type = "character", base_points = 3, warrior = true, crowns = 0 },
-  ["edfc8d"] = { type = "building", warrior = false, crowns = 1 },
-  ["0255c1"] = { type = "building", warrior = false, crowns = 2 },
-  ["ac0d2f"] = { type = "character", base_points = 0, variable = { condition = "crowns", amount = 1 }, warrior = false, crowns = 0 },
-  ["78cc48"] = { type = "character", base_points = 2, variable = { condition = "character", amount = 2 }, warrior = false, crowns = 0 },
+  ["edfc8d"] = { type = "building", base_points = 0, crowns = 1 },
+  ["0255c1"] = { type = "building", base_points = 0, crowns = 2 },
+  ["ac0d2f"] = { type = "character", base_points = 0, variable = { condition = "crowns", amount = 1 }, crowns = 0 },
+  ["78cc48"] = { type = "character", base_points = 2, variable = { condition = "character", amount = 2 }, crowns = 0 },
   ["55a4a4"] = { type = "character", base_points = 3, warrior = true, crowns = 0 },
+  -- Queendomino
+  ["d9bf8b"] = { type = "building", base_points = 0, crowns = 1 },
+  ["d9eca3"] = { type = "building", base_points = 0, crowns = 1 },
+  ["a5d37f"] = { type = "building", base_points = 0, crowns = 1 },
+  ["4d0169"] = { type = "building", base_points = 3, crowns = 0 },
+  ["27b93b"] = { type = "building", base_points = 2, crowns = 0 },
+  ["1a04ee"] = { type = "building", base_points = 3, crowns = 0 },
+  ["652cf1"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = "tower", amount = 1 } },
+  ["1853da"] = { type = "building", base_points = 5, crowns = 0 },
+  ["782aaa"] = { type = "building", base_points = 5, crowns = 0 },
+  ["31df24"] = { type = "building", base_points = 5, crowns = 0 },
+  ["353102"] = { type = "building", base_points = 3, crowns = 0 },
+  ["de4cb6"] = { type = "building", base_points = 3, crowns = 0 },
+  ["cde022"] = { type = "building", base_points = 2, crowns = 0 },
+  ["89e872"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = "knight", amount = 1 } },
+  ["3a9776"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = "knight", amount = 1 } },
+  ["81427c"] = { type = "building", base_points = 2, crowns = 0 },
+  ["9728da"] = { type = "building", base_points = 2, crowns = 0 },
+  ["60be38"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.forest, amount = 2 } },
+  ["c42be4"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.forest, amount = 2 } },
+  ["5cf294"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.mountain, amount = 2 } },
+  ["5f8667"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.mountain, amount = 2 } },
+  ["2a33d7"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.marsh, amount = 2 } },
+  ["733e96"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.lake, amount = 2 } },
+  ["4770ba"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.lake, amount = 2 } },
+  ["199581"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.town, amount = 2 } },
+  ["5a17db"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.town, amount = 2 } },
+  ["0598a2"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.marsh, amount = 2 } },
+  ["36774f"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.fields, amount = 2 } },
+  ["f4b32f"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.fields, amount = 2 } },
+  ["aae8a1"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.prairies, amount = 2 } },
+  ["d9eca3"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.prairies, amount = 2 } },
+  ["ce08fa"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = "tower", amount = 1 } },
 }
 
 local dominoes = {
@@ -191,6 +225,14 @@ function getDominoContent(object)
   if domino_index ~= nil then
     return dominoes.kingdomino[domino_index]
   end
+  domino_index = table.indexOf(Guids.dominoes.queendomino, object.guid)
+  if domino_index ~= nil then
+    return dominoes.queendomino[domino_index]
+  end
+  domino_index = table.indexOf(Guids.dominoes.age_of_giants, object.guid)
+  if domino_index ~= nil then
+    return dominoes.age_of_giants[domino_index]
+  end
 end
 
 function getBuildingObject(object)
@@ -198,12 +240,14 @@ function getBuildingObject(object)
     return buildings[object.guid]
   elseif object.getName() == "Giant" then
     return giant
+  elseif object.getName() == "Queen" then
+    return queen
   elseif resources[object.getName()] then
     return resources[object.getName()]
   end
 end
 
-function countTerritory(map, position, accumulator)
+function getTerritory(map, position, accumulator)
   if map[position[1]] and map[position[1]][position[2]]
       and not accumulator.counted_squares[position[1]][position[2]] then
     local kingdom_square = map[position[1]][position[2]].terrain
@@ -213,7 +257,7 @@ function countTerritory(map, position, accumulator)
       accumulator.size = accumulator.size + 1
 
       if building then
-        if not building.type == "giant" and building.crowns then
+        if building.type ~= "giant" and building.crowns then
           accumulator.crowns = accumulator.crowns + kingdom_square.crowns + building.crowns
         end
       else
@@ -221,10 +265,10 @@ function countTerritory(map, position, accumulator)
       end
 
       accumulator.counted_squares[position[1]][position[2]] = true
-      countTerritory(map, { position[1] + 1, position[2] }, accumulator)
-      countTerritory(map, { position[1] - 1, position[2] }, accumulator)
-      countTerritory(map, { position[1], position[2] + 1 }, accumulator)
-      countTerritory(map, { position[1], position[2] - 1 }, accumulator)
+      getTerritory(map, { position[1] + 1, position[2] }, accumulator)
+      getTerritory(map, { position[1] - 1, position[2] }, accumulator)
+      getTerritory(map, { position[1], position[2] + 1 }, accumulator)
+      getTerritory(map, { position[1], position[2] - 1 }, accumulator)
     end
   end
 

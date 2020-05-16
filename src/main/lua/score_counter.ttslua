@@ -53,7 +53,7 @@ end
 
 function createButton(kingdom_size, color)
   local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
-  local button_position = kingdom.positionToWorld({ 0, 0, -(0.2) * (kingdom_size / 2 + 1) })
+  local button_position = kingdom.positionToWorld({ 0, 0, -2 * (kingdom_size / 2 + 1) / kingdom.getScale().x })
 
   local function_name = "compute_score_" .. color
   self.setVar(function_name, function()
@@ -89,8 +89,15 @@ function computeScore(color)
         kingdom:addDomino(object)
       end
 
-      if buildings[object.guid] ~= nil or resources[object.getName()] or object.getName() == "Giant" then
+      if buildings[object.guid] ~= nil
+          or resources[object.getName()]
+          or object.getName() == "Giant"
+          or object.getName() == "Queen" then
         kingdom:addBuilding(object)
+      elseif object.getName() == "Tower" then
+        kingdom:addTower()
+      elseif object.getName() == "Knight" then
+        kingdom:addKnight()
       end
     end
   end

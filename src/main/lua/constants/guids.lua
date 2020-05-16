@@ -1,6 +1,10 @@
 Guids = {}
 Guids.__index = Guids
 
+Guids.managers = {
+  player = "31971b"
+}
+
 Guids.score_counter = "725923"
 
 Guids.player_pieces = {

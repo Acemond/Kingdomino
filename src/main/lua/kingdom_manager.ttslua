@@ -11,7 +11,6 @@ local kingdom_size = 5
 local table_guid = "0f8757"
 
 local pending_movement
-local grid = 0.1
 local current_position = {
   x = 0,
   z = 0
@@ -62,7 +61,6 @@ function onUpdate()
   end
 
   kingdom_size = Global.getVar("kingdom_size")
-  grid = 0.5 / kingdom_size
 
   local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
   local held_objects = getPlayersObjects()
@@ -100,22 +98,21 @@ function onUpdate()
 end
 
 function getShiftKingdom(kingdom_dominos, domino, axis)
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
   local min_kingdom, max_kingdom = getMinPos(kingdom_dominos, axis), getMaxPos(kingdom_dominos, axis)
-  local domino_size = getDominoSize(domino, axis)
   local domino_local_position = getObjectFromGUID(kingdom_guids.kingdom_zone).positionToLocal(domino.getPosition())
 
-  local shift = grid * 2 * domino_size
-  if domino_local_position[axis] > grid * (kingdom_size - 1) then
-    return getPossibleShift(min_kingdom, max_kingdom, -shift)
-  elseif domino_local_position[axis] < -grid * (kingdom_size - 1) then
-    return getPossibleShift(min_kingdom, max_kingdom, shift)
+  if domino_local_position[axis] > (1 / zone.getScale().x) * (kingdom_size - 1) then
+    return getPossibleShift(min_kingdom, max_kingdom, -getDominoSize(domino, axis))
+  elseif domino_local_position[axis] < -(1 / zone.getScale().x) * (kingdom_size - 1) then
+    return getPossibleShift(min_kingdom, max_kingdom, getDominoSize(domino, axis))
   end
 
   return 0
 end
 
 function getPossibleShift(min_kingdom, max_kingdom, space_needed)
-  local kingdom_limit = grid * (kingdom_size - 1)
+  local kingdom_limit = (kingdom_size - 1) / 2
   if space_needed < 0 then
     local shift = space_needed + kingdom_limit - max_kingdom
     if kingdom_limit - max_kingdom < math.abs(space_needed)
@@ -123,8 +120,8 @@ function getPossibleShift(min_kingdom, max_kingdom, space_needed)
       return shift
     end
 
-    if space_needed + grid * 2 < 0 then
-      return getPossibleShift(min_kingdom, max_kingdom, space_needed + grid * 2)
+    if space_needed + 1 < 0 then
+      return getPossibleShift(min_kingdom, max_kingdom, space_needed + 1)
     else
       return 0
     end
@@ -135,8 +132,8 @@ function getPossibleShift(min_kingdom, max_kingdom, space_needed)
       return shift
     end
 
-    if space_needed - grid * 2 > 0 then
-      return getPossibleShift(min_kingdom, max_kingdom, space_needed - grid * 2)
+    if space_needed - 1 > 0 then
+      return getPossibleShift(min_kingdom, max_kingdom, space_needed - 1)
     else
       return 0
     end
@@ -168,7 +165,7 @@ function getMaxPos(objects, axis)
   if max == nil then
     return 0
   else
-    return math.floor(max * (1 / grid) + 0.5) / (1 / grid)
+    return math.floor(max * zone.getScale().x + 0.5) / 2
   end
 end
 
@@ -190,16 +187,16 @@ function getMinPos(objects, axis)
   if min == nil then
     return 0
   else
-    return math.floor(min * (1 / grid) + 0.5) / (1 / grid)
+    return math.floor(min * zone.getScale().x + 0.5) / 2
   end
 end
 
 function getDominoMaxBoundaries(zone_position, orientation)
   local offset = { x = 0, y = 0, z = 0 }
   if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
-    offset.x = grid
+    offset.x = 0.5
   else
-    offset.z = grid
+    offset.z = 0.5
   end
 
   return {
@@ -229,9 +226,9 @@ end
 function getDominoMinBoundaries(zone_position, orientation)
   local offset = { x = 0, y = 0, z = 0 }
   if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
-    offset.x = -grid
+    offset.x = -0.5
   else
-    offset.z = -grid
+    offset.z = -0.5
   end
 
   return {
@@ -260,9 +257,9 @@ function moveKingdom(kingdom_objects, new_position)
   local tile_local_pos = zone.positionToLocal(tile.getPosition())
 
   local target_local_position = {
-    x = new_position.x,
+    x = new_position.x * 2 / zone.getScale().x,
     y = tile_local_pos.y,
-    z = new_position.z
+    z = new_position.z * 2 / zone.getScale().z
   }
 
   for _, object in pairs(kingdom_objects) do
@@ -345,7 +342,9 @@ end
 
 function showButton(button)
   local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
-  local lock_position = kingdom.positionToWorld({ -(grid * 2) * kingdom_size / 2, 0, -(grid * 2) * (kingdom_size / 2 + 1) })
+  local x_offset = -kingdom_size / kingdom.getScale().x
+  local z_offset = -2 * (kingdom_size / 2 + 1) / kingdom.getScale().z
+  local lock_position = kingdom.positionToWorld({ x_offset, 0, z_offset })
   button.editButton({ index = 0, scale = { 1, 1, 1 } })
   button.setPosition({ lock_position.x, 0.86, lock_position.z, })
   button.setPositionSmooth({ lock_position.x, lock_y_position, lock_position.z, }, false, true)
@@ -353,7 +352,9 @@ end
 
 function hideButton(button)
   local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
-  local lock_position = kingdom.positionToWorld({ -(grid * 2) * kingdom_size / 2, 0, -(grid * 2) * (kingdom_size / 2 + 1) })
+  local x_offset = -kingdom_size / kingdom.getScale().x
+  local z_offset = -2 * (kingdom_size / 2 + 1) / kingdom.getScale().z
+  local lock_position = kingdom.positionToWorld({ x_offset, 0, z_offset })
   button.editButton({ index = 0, scale = { 0, 0, 0 } })
   button.setPositionSmooth({ lock_position.x, hidden_y_position, lock_position.z, }, false, true)
 end

@@ -71,12 +71,17 @@ end
 function onLoad(save_state)
   if save_state ~= "" then
     visible_walls = JSON.decode(save_state).visible_walls
+    current_walls_size = JSON.decode(save_state).current_walls_size
+  else
+    current_walls_size = 5
   end
-  current_walls_size = getWallsSize()
 end
 
 function onSave()
-  return JSON.encode({ visible_walls = visible_walls })
+  return JSON.encode({
+    visible_walls = visible_walls,
+    current_walls_size = current_walls_size
+  })
 end
 
 function updateWalls()

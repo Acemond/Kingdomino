@@ -5,13 +5,13 @@ require("constants/guids")
 Kingdom = {}
 Kingdom.__index = Kingdom
 
-local grid = 0.1
-
 function Kingdom:new(color, size)
   local kingdom = {}
   setmetatable(kingdom, Kingdom)
   kingdom.color = color
   kingdom.size = size
+  kingdom.tower_count = 0
+  kingdom.knight_count = 0
   kingdom.map = {}
   for i = 1, size, 1 do
     kingdom.map[i] = {}
@@ -28,6 +28,14 @@ end
 
 function Kingdom:addBuilding(tile)
   addBuildingToMap(self.map, getBuildingObject(tile), self:getTileLine(tile), self:getTileColumn(tile))
+end
+
+function Kingdom:addTower()
+  self.tower_count = self.tower_count + 1
+end
+
+function Kingdom:addKnight()
+  self.knight_count = self.knight_count + 1
 end
 
 function Kingdom:addNormalizedDomino(tile, line, column)
@@ -63,19 +71,42 @@ function addSquareToMap(map, square, line, column)
 end
 
 function Kingdom:getScore()
-  return self:countCrownsPoints()
-      + self:countTheCourtPoints()
+  local territories = self:getTerritories()
+  return self:countCrownsPoints(territories)
+      + self:countBuildingsPoints(territories)
 end
 
-function Kingdom:countTheCourtPoints()
+function Kingdom:countBuildingsPoints(territories)
   local points = 0
   for row_number, column in pairs(self.map) do
     for col_number, square in pairs(column) do
       if square.building ~= nil and square.building.type == "character" then
         points = points + self:countCharacterPoints(square.building, row_number, col_number)
+      elseif square.building ~= nil then
+        points = points + self:countBuildingPoints(square.building, territories)
       end
     end
   end
+  return points
+end
+
+function Kingdom:countBuildingPoints(building, territories)
+  local points = building.base_points
+
+  if building.variable then
+    if building.variable.condition == "knight" then
+      points = points + building.variable.amount * self.knight_count
+    elseif building.variable.condition == "tower" then
+      points = points + building.variable.amount * self.tower_count
+    else
+      for _, territory in pairs(territories) do
+        if territory.type == building.variable.condition then
+          points = points + building.variable.amount
+        end
+      end
+    end
+  end
+
   return points
 end
 
@@ -113,31 +144,42 @@ function getVariablePoints(variable, square)
   end
 end
 
-function Kingdom:countCrownsPoints()
-  local points = 0
+function Kingdom:getTerritories()
+  local territories = {}
   local counted_squares = initializeCountedArray(self.map)
+
   for row_number, column in pairs(self.map) do
     for col_number, square in pairs(column) do
       if square.terrain ~= nil then
         local accumulator = { counted_squares = counted_squares, type = nil, size = 0, crowns = 0 }
-        local territory = countTerritory(self.map, { row_number, col_number }, accumulator)
-        points = points + territory.size * territory.crowns
+        local territory = getTerritory(self.map, { row_number, col_number }, accumulator)
+        table.insert(territories, territory)
       end
     end
+  end
+  return territories
+end
+
+function Kingdom:countCrownsPoints(territories)
+  local points = 0
+  for _, territory in pairs(territories) do
+    points = points + territory.size * territory.crowns
   end
   return points
 end
 
 function Kingdom:getTileLine(tile)
   local zone = getObjectFromGUID(Guids.player_pieces[self.color].kingdom_zone)
-  local local_position = math.floor(zone.positionToLocal(tile.getPosition()).z * (1 / grid) + 0.5) / (1 / grid)
+  local local_position = zone.positionToLocal(tile.getPosition()).z
 
-  return self.size - local_position * 5 - (self.size - 1) / 2
+  local position_to_center = math.floor(local_position * zone.getScale().x + 0.5) / 2
+  return position_to_center + (self.size - 1) / 2 + 1
 end
 
 function Kingdom:getTileColumn(tile)
   local zone = getObjectFromGUID(Guids.player_pieces[self.color].kingdom_zone)
-  local local_position = math.floor(zone.positionToLocal(tile.getPosition()).x * (1 / grid) + 0.5) / (1 / grid)
+  local local_position = zone.positionToLocal(tile.getPosition()).x
 
-  return local_position * 5 + (self.size - 1) / 2 + 1
+  local position_to_center = math.floor(local_position * zone.getScale().x + 0.5) / 2
+  return position_to_center + (self.size - 1) / 2 + 1
 end
