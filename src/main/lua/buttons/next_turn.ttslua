@@ -173,10 +173,7 @@ function setupPing()
   if score_sheets_bag ~= nil then
     Wait.condition(function()
       Wait.condition(function()
-        broadcastToAll("Game over! Score sheets next to the compass.", { r = 1, g = 1, b = 1 })
-        local position = score_sheets_bag.getPosition()
-        position.y = 3
-        Player.getPlayers()[1].pingTable(position)
+        broadcastToAll("Game over!", { r = 1, g = 1, b = 1 })
       end, function()
         return #getObjectFromGUID(leftZoneGuid).getObjects() - getKingCount(leftZoneGuid) < 3
       end)
