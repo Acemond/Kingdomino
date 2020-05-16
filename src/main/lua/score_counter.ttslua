@@ -72,7 +72,6 @@ function computeScore(color)
 
   local total_score = kingdom:getScore()
   if scores[color] ~= total_score then
-    log("UPDATE")
     scores[color] = total_score
     buttons[color]:setLabel(total_score)
     buttons[color]:setTooltip("Total score: " .. total_score)
