@@ -89,7 +89,7 @@ function computeScore(color)
         kingdom:addDomino(object)
       end
 
-      if buildings[object.guid] ~= nil or resources[object.getName()] then
+      if buildings[object.guid] ~= nil or resources[object.getName()] or object.getName() == "Giant" then
         kingdom:addBuilding(object)
       end
     end
