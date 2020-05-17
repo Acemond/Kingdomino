@@ -57,7 +57,6 @@ function createButtons()
 end
 
 function createButton(kingdom_size, color)
-  log(kingdom_size)
   local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
   local button_position = kingdom.positionToWorld({ 0, 0, -2 * (kingdom_size / 2 + 1) / kingdom.getScale().x })
 
