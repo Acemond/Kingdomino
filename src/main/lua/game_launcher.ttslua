@@ -196,10 +196,11 @@ function launchGame(new_game_settings)
   game_settings = new_game_settings
   kings_bag.call("placeKings", game_settings)
 
+  local quests
   if game_settings.variants.random_quests then
-    dealRandomQuests()
+    quests = dealRandomQuests()
   else
-    dealDefaultQuests()
+    quests = dealDefaultQuests()
   end
 
   local decks = prepareMainDecks()
@@ -211,7 +212,7 @@ function launchGame(new_game_settings)
   Wait.frames(moveKingdoms, 15)
 
   Wait.frames(function()
-    firstTurn(decks, buildings)
+    firstTurn(decks, buildings, quests)
   end, 60)
 
   getObjectFromGUID(start_button_guid).destroy()
@@ -223,7 +224,7 @@ function removeCheckZones()
   end
 end
 
-function firstTurn(decks, building_guids)
+function firstTurn(decks, building_guids, quests)
   local next_turn_button = getObjectFromGUID(next_turn_button_guid)
   setNextTurnPosition(next_turn_button)
 
@@ -237,7 +238,8 @@ function firstTurn(decks, building_guids)
     decks = deck_guids,
     buildings = building_guids,
     settings = game_settings,
-    castles = getCastles()
+    castles = getCastles(),
+    quests = quests
   }
   Global.setTable("game", new_game)
   next_turn_button.call("firstTurn", new_game)
@@ -264,26 +266,28 @@ function setNextTurnPosition(button)
 end
 
 function dealDefaultQuests()
-  dealQuests(default_quests_guid)
+  return dealQuests(default_quests_guid)
 end
 
 function dealRandomQuests()
-  dealQuests({ nil, nil })
+  return dealQuests({ nil, nil })
 end
 
 function dealQuests(quest_guids)
   local quest_deck = getObjectFromGUID(quests_deck_guid)
   quest_deck.shuffle()
 
+  local quests = {}
   for i = 1, 2, 1 do
-    quest_deck.takeObject({
+    quests[i] = quest_deck.takeObject({
       guid = quest_guids[i],
       position = quests_positions[game_settings.tile_deal_count][i],
       callback_function = function(obj)
         obj.lock()
-      end })
+      end }).guid
   end
   quest_deck.destroy()
+  return quests
 end
 
 function takeCoins(color)

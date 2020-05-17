@@ -93,6 +93,9 @@ function computeScore(color)
           or table.contains(Guids.dominoes.age_of_giants, object.guid)) then
         kingdom:addDomino(object)
       end
+      if object.guid == Guids.castle_tiles[color] then
+        kingdom:addCastle(object)
+      end
 
       if buildings[object.guid] ~= nil
           or resources[object.getName()]

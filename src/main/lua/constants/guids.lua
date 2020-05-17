@@ -88,6 +88,15 @@ Guids.player_pieces = {
   }
 }
 
+Guids.castle_tiles = {
+  Orange = "9ab771",
+  Purple = "7db35a",
+  Red = "f6948c",
+  White = "537260",
+  Green = "8c9612",
+  Pink = "a5aad1"
+}
+
 Guids.walls_guids = {
   [5] = {
     Orange = "5a6899",

@@ -31,6 +31,10 @@ function Kingdom:addBuilding(tile)
   addBuildingToMap(self.map, getBuildingObject(tile), self:getTileLine(tile), self:getTileColumn(tile))
 end
 
+function Kingdom:addCastle(tile)
+  addSquareToMap(self.map, squares.castle, self:getTileLine(tile), self:getTileColumn(tile))
+end
+
 function Kingdom:addTower()
   self.tower_count = self.tower_count + 1
 end
@@ -80,6 +84,7 @@ function Kingdom:getScore()
   return self:countCrownsPoints(territories)
       + self:countBuildingsPoints(territories)
       + self:countCoinsPoints()
+      + self:countQuestsPoints()
 end
 
 function Kingdom:countBuildingsPoints(territories)
@@ -134,6 +139,44 @@ end
 
 function Kingdom:countCoinsPoints()
   return (self.coins - self.coins % 3) / 3
+end
+
+function Kingdom:countQuestsPoints()
+  local points = 0
+  local quests_guids = Global.get("game").quests
+  for _, guid in pairs(quests_guids) do
+    if guid == "7f87c8" then
+      points = points + self:checkHarmonyQuest()
+    elseif guid == "ddd8f4" then
+      points = points + self:checkMiddleKingdomQuest()
+    else
+      error("Quest not yet implemented!")
+    end
+  end
+  return points
+end
+
+function Kingdom:checkMiddleKingdomQuest()
+  local middle_square = (self.size + 1) / 2
+  if self.map[middle_square]
+      and self.map[middle_square][middle_square]
+      and self.map[middle_square][middle_square].terrain
+      and self.map[middle_square][middle_square].terrain.type == terrain_type.castle then
+    return 10
+  else
+    return 0
+  end
+end
+
+function Kingdom:checkHarmonyQuest()
+  for _, content in pairs(self.map) do
+    for _, square in pairs(content) do
+      if square.terrain == nil then
+        return 0
+      end
+    end
+  end
+  return 5
 end
 
 function getVariablePoints(variable, square)
