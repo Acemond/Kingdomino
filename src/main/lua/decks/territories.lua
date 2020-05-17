@@ -40,8 +40,8 @@ resources = {
   Sheep = { type = "sheep", base_points = 0, warrior = false },
 }
 
-giant = { type = "giant" }
-queen = { type = "queen", crowns = 1 }
+giant = { name = "Giant" }
+queen = { name = "Queen" }
 
 buildings = {
   ["53a259"] = { type = "building", base_points = 0, crowns = 1 },
@@ -239,10 +239,6 @@ end
 function getBuildingObject(object)
   if buildings[object.guid] then
     return buildings[object.guid]
-  elseif object.getName() == "Giant" then
-    return giant
-  elseif object.getName() == "Queen" then
-    return queen
   elseif resources[object.getName()] then
     return resources[object.getName()]
   end
@@ -257,12 +253,14 @@ function getTerritory(map, row, col, accumulator)
       accumulator.type = kingdom_square.type
       accumulator.size = accumulator.size + 1
 
-      if building then
-        if building.type ~= "giant" and building.crowns then
-          accumulator.crowns = accumulator.crowns + kingdom_square.crowns + building.crowns
-        end
-      else
+      if not map[row][col].giant then
         accumulator.crowns = accumulator.crowns + kingdom_square.crowns
+        if building and building.crowns then
+          accumulator.crowns = building.crowns
+        end
+        if map[row][col].queen then
+          accumulator.crowns = accumulator.crowns + 1
+        end
       end
 
       accumulator.counted_squares[row][col] = true

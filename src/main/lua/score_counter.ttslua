@@ -97,11 +97,12 @@ function computeScore(color)
         kingdom:addCastle(object)
       end
 
-      if buildings[object.guid] ~= nil
-          or resources[object.getName()]
-          or object.getName() == "Giant"
-          or object.getName() == "Queen" then
+      if buildings[object.guid] or resources[object.getName()] then
         kingdom:addBuilding(object)
+      elseif object.getName() == "Giant" then
+        kingdom:addGiant(object)
+      elseif object.getName() == "Queen" then
+        kingdom:addQueen(object)
       elseif object.getName() == "Tower" then
         kingdom:addTower()
       elseif object.getName() == "Knight" then

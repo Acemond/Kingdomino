@@ -31,6 +31,20 @@ function Kingdom:addBuilding(tile)
   addBuildingToMap(self.map, getBuildingObject(tile), self:getTileLine(tile), self:getTileColumn(tile))
 end
 
+function Kingdom:addGiant(tile)
+  local line, column = self:getTileLine(tile), self:getTileColumn(tile)
+  if self.map[line] and self.map[column] then
+    self.map[line][column].giant = true
+  end
+end
+
+function Kingdom:addQueen(tile)
+  local line, column = self:getTileLine(tile), self:getTileColumn(tile)
+  if self.map[line] and self.map[column] then
+    self.map[line][column].queen = true
+  end
+end
+
 function Kingdom:addCastle(tile)
   addSquareToMap(self.map, squares.castle, self:getTileLine(tile), self:getTileColumn(tile))
 end
