@@ -1,5 +1,6 @@
 require("util/table")
 require("constants/guids")
+require("constants/players")
 
 local tile_check_zones = {
   "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
@@ -195,10 +196,11 @@ function launchGame(new_game_settings)
   game_settings = new_game_settings
   kings_bag.call("placeKings", game_settings)
 
+  local quests
   if game_settings.variants.random_quests then
-    dealRandomQuests()
+    quests = dealRandomQuests()
   else
-    dealDefaultQuests()
+    quests = dealDefaultQuests()
   end
 
   local decks = prepareMainDecks()
@@ -208,18 +210,9 @@ function launchGame(new_game_settings)
   destroyUnusedPieces()
   game_table.call("prepareTableForGame")
   Wait.frames(moveKingdoms, 15)
-  if game_settings.decks.queendomino then
-    Wait.frames(function()
-      for color, seated in pairs(game_settings.seated_players) do
-        if seated then
-          takeCoins(color)
-        end
-      end
-    end, 30)
-  end
 
   Wait.frames(function()
-    firstTurn(decks, buildings)
+    firstTurn(decks, buildings, quests)
   end, 60)
 
   getObjectFromGUID(start_button_guid).destroy()
@@ -231,7 +224,7 @@ function removeCheckZones()
   end
 end
 
-function firstTurn(decks, building_guids)
+function firstTurn(decks, building_guids, quests)
   local next_turn_button = getObjectFromGUID(next_turn_button_guid)
   setNextTurnPosition(next_turn_button)
 
@@ -245,7 +238,8 @@ function firstTurn(decks, building_guids)
     decks = deck_guids,
     buildings = building_guids,
     settings = game_settings,
-    castles = getCastles()
+    castles = getCastles(),
+    quests = quests
   }
   Global.setTable("game", new_game)
   next_turn_button.call("firstTurn", new_game)
@@ -272,43 +266,39 @@ function setNextTurnPosition(button)
 end
 
 function dealDefaultQuests()
-  dealQuests(default_quests_guid)
+  return dealQuests(default_quests_guid)
 end
 
 function dealRandomQuests()
-  dealQuests({ nil, nil })
+  return dealQuests({ nil, nil })
 end
 
 function dealQuests(quest_guids)
   local quest_deck = getObjectFromGUID(quests_deck_guid)
   quest_deck.shuffle()
 
+  local quests = {}
   for i = 1, 2, 1 do
-    quest_deck.takeObject({
+    quests[i] = quest_deck.takeObject({
       guid = quest_guids[i],
       position = quests_positions[game_settings.tile_deal_count][i],
       callback_function = function(obj)
         obj.lock()
-      end })
+      end }).guid
   end
   quest_deck.destroy()
+  return quests
 end
 
-function takeCoins(playerColor)
-  local handPosition = getObjectFromGUID(Guids.player_pieces[playerColor].hand_zone).getPosition()
+function takeCoins(color)
   local coin1Bag = getObjectFromGUID(game_objects_guid.queendomino.coin1_bag)
   local coin3Bag = getObjectFromGUID(game_objects_guid.queendomino.coin3_bag)
   local knightBag = getObjectFromGUID(game_objects_guid.queendomino.knight_bag)
-  if playerColor == "Green" or playerColor == "Pink" then
-    coin1Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z + 2 } })
-    coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z + 1 } })
-    coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z } })
-    knightBag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z - 2 } })
-  else
-    coin1Bag.takeObject({ smooth = false, position = { handPosition.x + 2, handPosition.y, handPosition.z } })
-    coin3Bag.takeObject({ smooth = false, position = { handPosition.x + 1, handPosition.y, handPosition.z } })
-    coin3Bag.takeObject({ smooth = false, position = { handPosition.x, handPosition.y, handPosition.z } })
-    knightBag.takeObject({ smooth = false, position = { handPosition.x - 2, handPosition.y, handPosition.z } })
+
+  if game_settings.seated_players[color] then
+    coin1Bag.deal(1, color)
+    coin3Bag.deal(2, color)
+    knightBag.deal(1, color)
   end
 end
 
@@ -436,19 +426,26 @@ end
 function movePlayerPieces(color, target_position)
   local castle_tile = getObjectFromGUID(Guids.player_pieces[color].castle_tile)
   local kingdom_zone = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
-  local hand_zone = getObjectFromGUID(Guids.player_pieces[color].hand_zone)
   local flag = getObjectFromGUID(Guids.player_pieces[color].flag)
 
-  hand_zone.setPosition({
-    hand_zone.getPosition().x - kingdom_zone.getPosition().x + target_position[1],
-    hand_zone.getPosition().y,
-    hand_zone.getPosition().z - kingdom_zone.getPosition().z + target_position[3],
-  })
   kingdom_zone.setPosition({
     target_position[1],
     kingdom_zone.getPosition().y,
     target_position[3]
   })
+
+  local hand_offset = (Global.get("kingdom_size") + 5) / kingdom_zone.getScale().x
+  local hand_transform = Player[color].getHandTransform()
+  hand_transform.position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset })
+  Wait.condition(function()
+    Player[color].setHandTransform(hand_transform)
+    if game_settings.decks.queendomino then
+      takeCoins(color)
+    end
+  end, function()
+    return math.abs(castle_tile.getPosition().x - target_position[1]) < 0.1
+  end)
+
   castle_manager.call("moveCastle", {
     seat_color = color,
     position = {

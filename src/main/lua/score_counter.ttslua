@@ -1,0 +1,144 @@
+require("util/button")
+require("util/kingdom")
+require("util/table")
+require("constants/guids")
+require("constants/players")
+require("decks/territories")
+
+local buttons = {}
+local scores = {}
+
+function onLoad()
+  -- FIXME: waiting frame after another for Global var set cascade...
+  -- ... ugh
+  Wait.frames(function()
+    if Global.get("game") then
+      createButtons()
+    end
+  end, 2)
+end
+
+local frame = 7
+function onUpdate()
+  frame = frame + 1
+  if frame % 90 ~= 0 then
+    return
+  else
+    frame = 0
+  end
+
+  for color, _ in pairs(buttons) do
+    computeScore(color)
+  end
+end
+
+function onObjectPickUp()
+  for color, _ in pairs(buttons) do
+    computeScore(color)
+  end
+end
+
+function onObjectDrop()
+  for color, _ in pairs(buttons) do
+    computeScore(color)
+  end
+end
+
+function createButtons()
+  local game = Global.getTable("game")
+  local kingdom_size = Global.getVar("kingdom_size")
+
+  for color, seated in pairs(game.settings.seated_players) do
+    if seated then
+      buttons[color] = createButton(kingdom_size, color)
+      buttons[color]:setPositionLow()
+    end
+  end
+end
+
+function createButton(kingdom_size, color)
+  local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local button_position = kingdom.positionToWorld({ 0, 0, -2 * (kingdom_size / 2 + 1) / kingdom.getScale().x })
+
+  local function_name = "compute_score_" .. color
+  self.setVar(function_name, function()
+    computeScore(color)
+  end)
+
+  local properties = {
+    click_function = function_name,
+    function_owner = self,
+    label = "0",
+    tooltip = "",
+    position = { 1, 0.1, 0 },
+    font_size = 400,
+    color = { 0, 0, 0, 0 },
+    font_color = { 1, 1, 1, 100 },
+    width = 800,
+    height = 600,
+  }
+
+  return Button:new(Guids.player_pieces[color].score, button_position.x, button_position.z, properties)
+end
+
+function computeScore(color)
+  local kingdom_zone = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local kingdom_size = Global.getVar("kingdom_size")
+
+  local kingdom = Kingdom:new(color, kingdom_size)
+  for _, object in pairs(kingdom_zone.getObjects()) do
+    if not table.contains(getPlayersObjects(), object) then
+      if (table.contains(Guids.dominoes.kingdomino, object.guid)
+          or table.contains(Guids.dominoes.queendomino, object.guid)
+          or table.contains(Guids.dominoes.age_of_giants, object.guid)) then
+        kingdom:addDomino(object)
+      end
+      if object.guid == Guids.castle_tiles[color] then
+        kingdom:addCastle(object)
+      end
+
+      if buildings[object.guid] or resources[object.getName()] then
+        kingdom:addBuilding(object)
+      elseif object.getName() == "Giant" then
+        kingdom:addGiant(object)
+      elseif object.getName() == "Queen" then
+        kingdom:addQueen(object)
+      elseif object.getName() == "Tower" then
+        kingdom:addTower()
+      elseif object.getName() == "Knight" then
+        kingdom:addKnight()
+      end
+    end
+  end
+
+  for _, object in pairs(Player[color].getHandObjects()) do
+    if object.getName() == "Coin (1)" then
+      kingdom:addCoins(1)
+    elseif object.getName() == "Coin (3)" then
+      kingdom:addCoins(3)
+    elseif object.getName() == "Coin (9)" then
+      kingdom:addCoins(9)
+    elseif object.getName() == "Knight" then
+      kingdom:addKnight()
+    end
+  end
+
+  local total_score = kingdom:getScore()
+  if scores[color] ~= total_score then
+    scores[color] = total_score
+    buttons[color]:setLabel(total_score)
+    buttons[color]:setTooltip("Total score: " .. total_score)
+  end
+end
+
+function getPlayersObjects()
+  local all_objects = {}
+  for _, player in pairs(Player.getPlayers()) do
+    if player.getHoldingObjects() ~= nil then
+      for _, object in pairs(player.getHoldingObjects()) do
+        table.insert(all_objects, object)
+      end
+    end
+  end
+  return all_objects
+end

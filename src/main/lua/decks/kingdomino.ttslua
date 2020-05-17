@@ -29,6 +29,7 @@ function trashTile(tileGuid, position)
 end
 
 function moveToTrash(tile)
+  tile.unlock()
   local trashBag = getObjectFromGUID(trashBagGuid)
   trashBag.putObject(tile)
 end

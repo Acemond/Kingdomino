@@ -1,6 +1,12 @@
 Guids = {}
 Guids.__index = Guids
 
+Guids.managers = {
+  player = "31971b"
+}
+
+Guids.score_counter = "3416fc"
+
 Guids.player_pieces = {
   Orange = {
     kingdom_zone = "f9209b",
@@ -13,6 +19,7 @@ Guids.player_pieces = {
     unlock_kingdom = "174baf",
     add_player = "8d17b0",
     remove_player = "fa1b7c",
+    score = "fb3aef"
   },
   Purple = {
     kingdom_zone = "54b528",
@@ -25,6 +32,7 @@ Guids.player_pieces = {
     unlock_kingdom = "bb6a8f",
     add_player = "1b4b1a",
     remove_player = "1bbcb3",
+    score = "a0c171"
   },
   Red = {
     kingdom_zone = "f1bc94",
@@ -37,6 +45,7 @@ Guids.player_pieces = {
     unlock_kingdom = "8ea950",
     add_player = "a1ef12",
     remove_player = "dfeee5",
+    score = "5f029e"
   },
   White = {
     kingdom_zone = "57d93f",
@@ -49,6 +58,7 @@ Guids.player_pieces = {
     unlock_kingdom = "78c148",
     add_player = "f60fe5",
     remove_player = "74e8b0",
+    score = "6d61c5"
   },
   Green = {
     kingdom_zone = "e491d2",
@@ -61,6 +71,7 @@ Guids.player_pieces = {
     unlock_kingdom = "4d9e38",
     add_player = "fbeaba",
     remove_player = "8fedd0",
+    score = "43b47b"
   },
   Pink = {
     kingdom_zone = "921b32",
@@ -73,7 +84,17 @@ Guids.player_pieces = {
     unlock_kingdom = "f26133",
     add_player = "6987e6",
     remove_player = "668a0a",
+    score = "e9f7d0"
   }
+}
+
+Guids.castle_tiles = {
+  Orange = "9ab771",
+  Purple = "7db35a",
+  Red = "f6948c",
+  White = "537260",
+  Green = "8c9612",
+  Pink = "a5aad1"
 }
 
 Guids.walls_guids = {
