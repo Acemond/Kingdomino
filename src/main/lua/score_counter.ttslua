@@ -18,7 +18,7 @@ function onLoad()
   end, 2)
 end
 
-local frame = 0
+local frame = 7
 function onUpdate()
   frame = frame + 1
   if frame % 90 ~= 0 then

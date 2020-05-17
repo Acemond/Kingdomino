@@ -93,7 +93,7 @@ function Kingdom:countBuildingsPoints(territories)
     for col_number, square in pairs(column) do
       if square.building ~= nil and square.building.type == "character" then
         points = points + self:countCharacterPoints(square.building, row_number, col_number)
-      elseif square.building ~= nil then
+      elseif square.building ~= nil and square.building.type ~= giant.type and square.building.type ~= queen.type then
         points = points + self:countBuildingPoints(square.building, territories)
       end
     end
@@ -197,8 +197,8 @@ function Kingdom:countQuestsPoints(territories)
       points = points + self:checkTheLostCornerQuest()
     elseif guid == quests.the_bleak_king then
       points = points + self:checkTheBleakKingQuest(territories)
-      --elseif guid == quests.la_folie_des_grandeurs then
-      --  points = points + self:checkLaFolieDesGrandeursQuest()
+    elseif guid == quests.la_folie_des_grandeurs then
+      points = points + self:checkLaFolieDesGrandeursQuest()
     else
       error("Quest not yet implemented!")
     end
@@ -221,7 +221,7 @@ end
 function Kingdom:checkTheBleakKingQuest(territories)
   local points = 0
   for _, territory in pairs(territories) do
-    if territory.size == 5
+    if territory.size > 4
         and territory.crowns == 0
         and table.contains({ terrain_types.forest, terrain_types.fields, terrain_types.prairies, terrain_types.lakes }, territory.type) then
       points = points + 10
@@ -231,24 +231,137 @@ function Kingdom:checkTheBleakKingQuest(territories)
 end
 
 function Kingdom:checkLaFolieDesGrandeursQuest()
-  for row, content in pairs(self.map) do
-    for col, square in pairs(content) do
-      if square.terrain and (square.terrain.crowns > 0 or (square.building and square.building.crowns > 0)) then
-        checkLaFolieDesGrandeursOnSquare(row, col, 0)
+  --https://boardgamegeek.com/thread/2040636/tic-tac-toe-bonus-challenge-tile-clarification
+  local points = 0
+
+  for row, _ in pairs(self.map) do
+    for col = 1, self.size, 1 do
+      if self:checkLaFolieDesGrandeursHorizontally(row, col) then
+        points = points + 10
+        col = col + 1
       end
     end
   end
+
+  for col, _ in pairs(self.map) do
+    for row = 1, self.size, 1 do
+      if self:checkLaFolieDesGrandeursVertically(row, col) then
+        points = points + 10
+        row = row + 1
+      end
+    end
+  end
+
+  --[[
+    Checking:
+    0 0 X X X X X
+    0 X X X X X 0
+    1 1 1 1 1 0 0
+    1 1 1 1 0 0 0
+    1 1 1 0 0 0 0
+    1 1 0 0 0 0 0
+    1 0 0 0 0 0 0
+  ]]
+  for row = 1, self.size - 2, 1 do
+    for col = 1, self.size - 1 - row, 1 do
+      if self:checkLaFolieDesGrandeursDiagonally(col + row - 1, col) then
+        log("[1] 10 pts at: " .. row .. ", " .. col)
+        points = points + 10
+        col = col + 1
+      end
+    end
+  end
+
+  --[[
+    Checking:
+    0 0 0 0 0 0 0
+    0 0 0 0 0 0 X
+    0 0 0 0 0 X X
+    0 0 0 0 1 X X
+    0 0 0 1 1 X X
+    0 0 1 1 1 X 0
+    0 1 1 1 1 0 0
+  ]]
+  for col = 2, self.size - 2, 1 do
+    for row = 1, self.size - col - 1, 1 do
+      if self:checkLaFolieDesGrandeursDiagonally(row, row + col - 1) then
+        log("[2] 10 pts at: " .. row .. ", " .. col)
+        points = points + 10
+        row = row + 1
+      end
+    end
+  end
+
+  --[[
+    Checking:
+    1 0 0 0 0 0 0
+    1 1 0 0 0 0 0
+    1 1 1 0 0 0 0
+    1 1 1 1 0 0 0
+    1 1 1 1 1 0 0
+    0 X X X X X 0
+    0 0 X X X X X
+  ]]
+  for row = self.size, 3, -1 do
+    for col = 1, row - 2, 1 do
+      if self:checkLaFolieDesGrandeursDiagonallyDown(row - (col - 1), col) then
+        log("[3] 10 pts at: " .. row .. ", " .. col)
+        points = points + 10
+        col = col + 1
+      end
+    end
+  end
+
+  --[[
+    Checking:
+    0 1 1 1 1 0 0
+    0 0 1 1 1 X 0
+    0 0 0 1 1 X X
+    0 0 0 0 1 X X
+    0 0 0 0 0 X X
+    0 0 0 0 0 0 X
+    0 0 0 0 0 0 0
+  ]]
+  for col = 2, self.size - 2, 1 do
+    for row = self.size, col + 2, -1 do
+      if self:checkLaFolieDesGrandeursDiagonallyDown(row, col + (self.size - row)) then
+        log("[4] 10 pts at: " .. row .. ", " .. col)
+        points = points + 10
+        row = row + 1
+      end
+    end
+  end
+
+  return points
 end
 
-function checkLaFolieDesGrandeursOnSquare(row, col, current_count)
-  if not map[row] or not map[row][col] or not map[row][col].terrain then
-    return current_count
-  end
-  local square = self.map[row][col]
-  if square.terrain.crowns > 0 or (square.building and square.building.crowns > 0) then
-    current_count = current_count + 1
-    return checkLaFolieDesGrandeursOnSquare(row, col, current_count + 1)
-  end
+function Kingdom:squareHasCrowns(row, col)
+  return self.map[row] and self.map[row][col] and self.map[row][col].terrain and self.map[row][col].terrain.crowns
+      and self.map[row][col].terrain.crowns > 0
+end
+
+function Kingdom:checkLaFolieDesGrandeursHorizontally(row, col)
+  return self:squareHasCrowns(row, col)
+      and self:squareHasCrowns(row + 1, col)
+      and self:squareHasCrowns(row + 2, col)
+end
+
+function Kingdom:checkLaFolieDesGrandeursVertically(row, col)
+  return self:squareHasCrowns(row, col)
+      and self:squareHasCrowns(row, col + 1)
+      and self:squareHasCrowns(row, col + 2)
+end
+
+function Kingdom:checkLaFolieDesGrandeursDiagonally(row, col)
+  return self:squareHasCrowns(row, col)
+      and self:squareHasCrowns(row + 1, col + 1)
+      and self:squareHasCrowns(row + 2, col + 2)
+end
+
+function Kingdom:checkLaFolieDesGrandeursDiagonallyDown(row, col)
+  return self:squareHasCrowns(row, col)
+      and self:squareHasCrowns(row - 1, col + 1)
+      and self:squareHasCrowns(row - 2, col + 2)
 end
 
 function Kingdom:checkTheLostCornerQuest()

@@ -3,6 +3,7 @@
 require("util/table")
 require("util/domino")
 require("constants/guids")
+require("constants/players")
 
 local kingdom_guids = Guids.player_pieces[color]
 

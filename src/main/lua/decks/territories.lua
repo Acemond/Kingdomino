@@ -22,6 +22,7 @@ squares = {
   forest_2 = { type = terrain_types.forest, crowns = 2 },
   lake_0 = { type = terrain_types.lake, crowns = 0 },
   lake_1 = { type = terrain_types.lake, crowns = 1 },
+  lake_2 = { type = terrain_types.lake, crowns = 2 },
   marsh_0 = { type = terrain_types.marsh, crowns = 0 },
   marsh_1 = { type = terrain_types.marsh, crowns = 1 },
   marsh_2 = { type = terrain_types.marsh, crowns = 2 },

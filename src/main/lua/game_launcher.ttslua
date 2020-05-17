@@ -266,7 +266,11 @@ function setNextTurnPosition(button)
 end
 
 function dealDefaultQuests()
-  return dealQuests(default_quests_guid)
+  return dealQuests({
+    "e9ea3f",
+    "89dae0"
+  })
+  --return dealQuests(default_quests_guid)
 end
 
 function dealRandomQuests()
