@@ -43,7 +43,7 @@ function onSave()
 end
 
 -- FIXME: optimize this shit that is called player_count times per frame!
-local frame = 0
+local frame = table.indexOf(PlayerConstants.playable_color, color)
 function onUpdate()
   if Global.get("game") and locked_kingdom ~= button_state_locked then
     updateLockButtons()
