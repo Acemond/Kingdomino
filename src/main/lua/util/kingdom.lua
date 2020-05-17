@@ -84,7 +84,7 @@ function Kingdom:getScore()
   return self:countCrownsPoints(territories)
       + self:countBuildingsPoints(territories)
       + self:countCoinsPoints()
-      + self:countQuestsPoints()
+      + self:countQuestsPoints(territories)
 end
 
 function Kingdom:countBuildingsPoints(territories)
@@ -141,14 +141,64 @@ function Kingdom:countCoinsPoints()
   return (self.coins - self.coins % 3) / 3
 end
 
-function Kingdom:countQuestsPoints()
+local quests = {
+  harmony = "7f87c8",
+  middle_kingdom = "ddd8f4",
+  local_business_prairies = "76e6c0",
+  local_business_fields = "714d68",
+  local_business_lakes = "5ce5dd",
+  local_business_mountains = "03130c",
+  local_business_forests = "2dff57",
+  local_business_marsh = "8cf132",
+  the_four_corners_prairies = "bd5cc2",
+  the_four_corners_fields = "e9d955",
+  the_four_corners_lakes = "78f5db",
+  the_four_corners_mountains = "cb497b",
+  the_four_corners_forests = "e448b6",
+  the_four_corners_marsh = "9d32aa",
+  the_lost_corner = "fceb99",
+  the_bleak_king = "e9ea3f",
+  la_folie_des_grandeurs = "89dae0",
+}
+
+function Kingdom:countQuestsPoints(territories)
   local points = 0
   local quests_guids = Global.get("game").quests
   for _, guid in pairs(quests_guids) do
-    if guid == "7f87c8" then
+    if guid == quests.harmony then
       points = points + self:checkHarmonyQuest()
-    elseif guid == "ddd8f4" then
+    elseif guid == quests.middle_kingdom then
       points = points + self:checkMiddleKingdomQuest()
+    elseif guid == quests.local_business_prairies then
+      points = points + self:checkLocalBusinessQuest(terrain_types.prairies)
+    elseif guid == quests.local_business_fields then
+      points = points + self:checkLocalBusinessQuest(terrain_types.fields)
+    elseif guid == quests.local_business_lakes then
+      points = points + self:checkLocalBusinessQuest(terrain_types.lakes)
+    elseif guid == quests.local_business_mountains then
+      points = points + self:checkLocalBusinessQuest(terrain_types.mountain)
+    elseif guid == quests.local_business_forests then
+      points = points + self:checkLocalBusinessQuest(terrain_types.forest)
+    elseif guid == quests.local_business_marsh then
+      points = points + self:checkLocalBusinessQuest(terrain_types.marsh)
+    elseif guid == quests.the_four_corners_prairies then
+      points = points + self:checkTheFourCornersQuest(terrain_types.prairies)
+    elseif guid == quests.the_four_corners_fields then
+      points = points + self:checkTheFourCornersQuest(terrain_types.fields)
+    elseif guid == quests.the_four_corners_lakes then
+      points = points + self:checkTheFourCornersQuest(terrain_types.lakes)
+    elseif guid == quests.the_four_corners_mountains then
+      points = points + self:checkTheFourCornersQuest(terrain_types.mountain)
+    elseif guid == quests.the_four_corners_forests then
+      points = points + self:checkTheFourCornersQuest(terrain_types.forest)
+    elseif guid == quests.the_four_corners_marsh then
+      points = points + self:checkTheFourCornersQuest(terrain_types.marsh)
+    elseif guid == quests.the_lost_corner then
+      points = points + self:checkTheLostCornerQuest()
+    elseif guid == quests.the_bleak_king then
+      points = points + self:checkTheBleakKingQuest(territories)
+      --elseif guid == quests.la_folie_des_grandeurs then
+      --  points = points + self:checkLaFolieDesGrandeursQuest()
     else
       error("Quest not yet implemented!")
     end
@@ -161,11 +211,55 @@ function Kingdom:checkMiddleKingdomQuest()
   if self.map[middle_square]
       and self.map[middle_square][middle_square]
       and self.map[middle_square][middle_square].terrain
-      and self.map[middle_square][middle_square].terrain.type == terrain_type.castle then
+      and self.map[middle_square][middle_square].terrain.type == terrain_types.castle then
     return 10
   else
     return 0
   end
+end
+
+function Kingdom:checkTheBleakKingQuest(territories)
+  local points = 0
+  for _, territory in pairs(territories) do
+    if territory.size == 5
+        and territory.crowns == 0
+        and table.contains({ terrain_types.forest, terrain_types.fields, terrain_types.prairies, terrain_types.lakes }, territory.type) then
+      points = points + 10
+    end
+  end
+  return points
+end
+
+function Kingdom:checkLaFolieDesGrandeursQuest()
+  for row, content in pairs(self.map) do
+    for col, square in pairs(content) do
+      if square.terrain and (square.terrain.crowns > 0 or (square.building and square.building.crowns > 0)) then
+        checkLaFolieDesGrandeursOnSquare(row, col, 0)
+      end
+    end
+  end
+end
+
+function checkLaFolieDesGrandeursOnSquare(row, col, current_count)
+  if not map[row] or not map[row][col] or not map[row][col].terrain then
+    return current_count
+  end
+  local square = self.map[row][col]
+  if square.terrain.crowns > 0 or (square.building and square.building.crowns > 0) then
+    current_count = current_count + 1
+    return checkLaFolieDesGrandeursOnSquare(row, col, current_count + 1)
+  end
+end
+
+function Kingdom:checkTheLostCornerQuest()
+  for i = 1, self.size, self.size - 1 do
+    for j = 1, self.size, self.size - 1 do
+      if self.map[i][j] and self.map[i][j].terrain and self.map[i][j].terrain.type == terrain_types.castle then
+        return 20
+      end
+    end
+  end
+  return 0
 end
 
 function Kingdom:checkHarmonyQuest()
@@ -177,6 +271,37 @@ function Kingdom:checkHarmonyQuest()
     end
   end
   return 5
+end
+
+function Kingdom:checkLocalBusinessQuest(terrain_type)
+  local points = 0
+  for row, content in pairs(self.map) do
+    for col, square in pairs(content) do
+      if square.terrain and square.terrain.type == terrain_types.castle then
+        for i = row - 1, row + 1, 1 do
+          for j = col - 1, col + 1, 1 do
+            if self.map[i] and self.map[i][j] and self.map[i][j].terrain
+                and self.map[i][j].terrain.type == terrain_type then
+              points = points + 5
+            end
+          end
+        end
+      end
+    end
+  end
+  return points
+end
+
+function Kingdom:checkTheFourCornersQuest(terrain_type)
+  local points = 0
+  for i = 1, self.size, self.size - 1 do
+    for j = 1, self.size, self.size - 1 do
+      if self.map[i][j] and self.map[i][j].terrain and self.map[i][j].terrain.type == terrain_type then
+        points = points + 5
+      end
+    end
+  end
+  return points
 end
 
 function getVariablePoints(variable, square)

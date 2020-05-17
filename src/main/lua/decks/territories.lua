@@ -1,4 +1,4 @@
-terrain_type = {
+terrain_types = {
   castle = "castle",
   prairies = "prairies",
   fields = "fields",
@@ -10,26 +10,26 @@ terrain_type = {
 }
 
 squares = {
-  castle = { type = terrain_type.castle, crowns = 0 },
-  prairies_0 = { type = terrain_type.prairies, crowns = 0 },
-  prairies_1 = { type = terrain_type.prairies, crowns = 1 },
-  prairies_2 = { type = terrain_type.prairies, crowns = 2 },
-  fields_0 = { type = terrain_type.fields, crowns = 0 },
-  fields_1 = { type = terrain_type.fields, crowns = 1 },
-  fields_2 = { type = terrain_type.fields, crowns = 2 },
-  forest_0 = { type = terrain_type.forest, crowns = 0 },
-  forest_1 = { type = terrain_type.forest, crowns = 1 },
-  forest_2 = { type = terrain_type.forest, crowns = 2 },
-  lake_0 = { type = terrain_type.lake, crowns = 0 },
-  lake_1 = { type = terrain_type.lake, crowns = 1 },
-  marsh_0 = { type = terrain_type.marsh, crowns = 0 },
-  marsh_1 = { type = terrain_type.marsh, crowns = 1 },
-  marsh_2 = { type = terrain_type.marsh, crowns = 2 },
-  mountain_0 = { type = terrain_type.mountain, crowns = 0 },
-  mountain_1 = { type = terrain_type.mountain, crowns = 1 },
-  mountain_2 = { type = terrain_type.mountain, crowns = 2 },
-  mountain_3 = { type = terrain_type.mountain, crowns = 3 },
-  town = { type = terrain_type.town, crowns = 0 },
+  castle = { type = terrain_types.castle, crowns = 0 },
+  prairies_0 = { type = terrain_types.prairies, crowns = 0 },
+  prairies_1 = { type = terrain_types.prairies, crowns = 1 },
+  prairies_2 = { type = terrain_types.prairies, crowns = 2 },
+  fields_0 = { type = terrain_types.fields, crowns = 0 },
+  fields_1 = { type = terrain_types.fields, crowns = 1 },
+  fields_2 = { type = terrain_types.fields, crowns = 2 },
+  forest_0 = { type = terrain_types.forest, crowns = 0 },
+  forest_1 = { type = terrain_types.forest, crowns = 1 },
+  forest_2 = { type = terrain_types.forest, crowns = 2 },
+  lake_0 = { type = terrain_types.lake, crowns = 0 },
+  lake_1 = { type = terrain_types.lake, crowns = 1 },
+  marsh_0 = { type = terrain_types.marsh, crowns = 0 },
+  marsh_1 = { type = terrain_types.marsh, crowns = 1 },
+  marsh_2 = { type = terrain_types.marsh, crowns = 2 },
+  mountain_0 = { type = terrain_types.mountain, crowns = 0 },
+  mountain_1 = { type = terrain_types.mountain, crowns = 1 },
+  mountain_2 = { type = terrain_types.mountain, crowns = 2 },
+  mountain_3 = { type = terrain_types.mountain, crowns = 3 },
+  town = { type = terrain_types.town, crowns = 0 },
 }
 
 resources = {
@@ -86,20 +86,20 @@ buildings = {
   ["3a9776"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = "knight", amount = 1 } },
   ["81427c"] = { type = "building", base_points = 2, crowns = 0 },
   ["9728da"] = { type = "building", base_points = 2, crowns = 0 },
-  ["60be38"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.forest, amount = 2 } },
-  ["c42be4"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.forest, amount = 2 } },
-  ["5cf294"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.mountain, amount = 2 } },
-  ["5f8667"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.mountain, amount = 2 } },
-  ["2a33d7"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.marsh, amount = 2 } },
-  ["733e96"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.lake, amount = 2 } },
-  ["4770ba"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.lake, amount = 2 } },
-  ["199581"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.town, amount = 2 } },
-  ["5a17db"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.town, amount = 2 } },
-  ["0598a2"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.marsh, amount = 2 } },
-  ["36774f"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.fields, amount = 2 } },
-  ["f4b32f"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.fields, amount = 2 } },
-  ["aae8a1"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.prairies, amount = 2 } },
-  ["d9eca3"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_type.prairies, amount = 2 } },
+  ["60be38"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.forest, amount = 2 } },
+  ["c42be4"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.forest, amount = 2 } },
+  ["5cf294"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.mountain, amount = 2 } },
+  ["5f8667"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.mountain, amount = 2 } },
+  ["2a33d7"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.marsh, amount = 2 } },
+  ["733e96"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.lake, amount = 2 } },
+  ["4770ba"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.lake, amount = 2 } },
+  ["199581"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.town, amount = 2 } },
+  ["5a17db"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.town, amount = 2 } },
+  ["0598a2"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.marsh, amount = 2 } },
+  ["36774f"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.fields, amount = 2 } },
+  ["f4b32f"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.fields, amount = 2 } },
+  ["aae8a1"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.prairies, amount = 2 } },
+  ["d9eca3"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = terrain_types.prairies, amount = 2 } },
   ["ce08fa"] = { type = "building", base_points = 0, crowns = 0, variable = { condition = "tower", amount = 1 } },
 }
 
@@ -283,7 +283,7 @@ function initializeCountedArray(kingdom)
     end
 
     for col_number, square in pairs(column) do
-      counted_squares[row][col_number] = square.type == terrain_type.castle
+      counted_squares[row][col_number] = square.type == terrain_types.castle
     end
   end
 
