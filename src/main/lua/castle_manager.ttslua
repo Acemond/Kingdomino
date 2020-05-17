@@ -75,6 +75,11 @@ function onLoad(save_state)
   else
     current_walls_size = 5
   end
+  -- FIXME: waiting frame after another for Global var set cascade...
+  -- ... ugh
+  Wait.frames(function ()
+    getWallsSize()
+  end, 1)
 end
 
 function onSave()
