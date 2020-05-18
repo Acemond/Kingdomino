@@ -30,8 +30,8 @@ end
 
 function onObjectDrop(_, object)
   if table.contains(Guids.dominoes.kingdomino, object.guid)
-      or table.contains(Guids.dominoes.kingdomino, object.guid)
-      or table.contains(Guids.dominoes.kingdomino, object.guid) then
+      or table.contains(Guids.dominoes.queendomino, object.guid)
+      or table.contains(Guids.dominoes.age_of_giants, object.guid) then
     local orientation = DominoUtils.getOrientation(object.getRotation().y)
     if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
       object.setPosition({
