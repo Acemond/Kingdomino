@@ -28,18 +28,18 @@ function Kingdom:addDomino(tile)
 end
 
 function Kingdom:addBuilding(tile)
-  addBuildingToMap(self.map, getBuildingObject(tile), self:getTileLine(tile), self:getTileColumn(tile))
+  addBuildingToMap(self.map, getBuildingObject(tile), self:getBuildingLine(tile), self:getBuildingColumn(tile))
 end
 
 function Kingdom:addGiant(tile)
-  local line, column = self:getTileLine(tile), self:getTileColumn(tile)
+  local line, column = self:getBuildingLine(tile), self:getBuildingColumn(tile)
   if self.map[line] and self.map[column] then
-    self.map[line][column].giant = true
+    self.map[line][column].giant_count = (self.map[line][column].giant_count or 0) + 1
   end
 end
 
 function Kingdom:addQueen(tile)
-  local line, column = self:getTileLine(tile), self:getTileColumn(tile)
+  local line, column = self:getBuildingLine(tile), self:getBuildingColumn(tile)
   if self.map[line] and self.map[column] then
     self.map[line][column].queen = true
   end
@@ -475,6 +475,22 @@ function Kingdom:countCrownsPoints(territories)
     points = points + territory.size * territory.crowns
   end
   return points
+end
+
+function Kingdom:getBuildingLine(tile)
+  local zone = getObjectFromGUID(Guids.player_pieces[self.color].kingdom_zone)
+  local local_position = zone.positionToLocal(tile.getPosition()).z
+
+  local position_to_center = math.floor(local_position * zone.getScale().x / 2 + 0.5)
+  return position_to_center + (self.size - 1) / 2 + 1
+end
+
+function Kingdom:getBuildingColumn(tile)
+  local zone = getObjectFromGUID(Guids.player_pieces[self.color].kingdom_zone)
+  local local_position = zone.positionToLocal(tile.getPosition()).x
+
+  local position_to_center = math.floor(local_position * zone.getScale().x / 2 + 0.5)
+  return position_to_center + (self.size - 1) / 2 + 1
 end
 
 function Kingdom:getTileLine(tile)
