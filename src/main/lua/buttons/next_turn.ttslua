@@ -140,7 +140,7 @@ function nextTurn()
   end
 
   turn = turn + 1
-  removedUnpickedTiles()
+  removeUnpickedTiles()
 
   for _, manager in pairs(game.buildings) do
     getObjectFromGUID(manager).call("dealBuildings")
@@ -183,23 +183,33 @@ function setupPing()
   end
 end
 
-function removedUnpickedTiles()
+function removeUnpickedTiles()
   for _, zoneGuid in pairs(tileCheckZones) do
     local zone = getObjectFromGUID(zoneGuid)
-    if zone ~= nil and #zone.getObjects() == 3 then
-      trashTile(zone)
+
+    if zone then
+      local game_objects = {}
+      for _, object in pairs(zone.getObjects()) do
+        if not table.contains(DominoBoardConstants.right_boards_guids, object.guid) and object.guid ~= tableGuid then
+          table.insert(game_objects, object)
+        end
+      end
+
+      if #game_objects == 1 then
+        trashDomino(game_objects)
+      end
     end
   end
 end
 
-function trashTile(zone)
-  for _, object in pairs(zone.getObjects()) do
+function trashDomino(game_objects)
+  for _, object in pairs(game_objects) do
     local unpickedTilesBag = getObjectFromGUID(unpickedTilesBagGuid)
     if not table.contains(DominoBoardConstants.right_boards_guids, object.guid) and object.guid ~= tableGuid then
       if unpickedTilesBag then
         getObjectFromGUID(unpickedTilesBagGuid).putObject(object)
       else
-        destroyObject(object)
+        object.destroy()
       end
     end
   end
@@ -259,6 +269,10 @@ function checkTileZone(zone)
   end
   if kingCount > 0 and tileCount == 0 then
     broadcastToAll("Place your king on a domino", { r = 1, g = 0, b = 0 })
+    error()
+  end
+  if kingCount > 1 then
+    broadcastToAll("There can only be one king per domino", { r = 1, g = 0, b = 0 })
     error()
   end
   return kingCount
