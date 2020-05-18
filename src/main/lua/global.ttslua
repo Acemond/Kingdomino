@@ -1,3 +1,7 @@
+require("util/domino")
+require("util/table")
+require("constants/guids")
+
 local player_manager_guid = "31971b"
 local player_manager = {}
 local game_launcher_guid = "bb8090"
@@ -22,6 +26,34 @@ end
 
 function onSave()
   return JSON.encode({ new_game = false })
+end
+
+function onObjectDrop(_, object)
+  if table.contains(Guids.dominoes.kingdomino, object.guid)
+      or table.contains(Guids.dominoes.kingdomino, object.guid)
+      or table.contains(Guids.dominoes.kingdomino, object.guid) then
+    local orientation = DominoUtils.getOrientation(object.getRotation().y)
+    if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
+      object.setPosition({
+        math.floor(object.getPosition().x / 2 + 0.5) * 2,
+        object.getPosition().y,
+        (math.floor(object.getPosition().z / 2 + 1) * 2) - 1,
+      })
+    else
+      object.setPosition({
+        (math.floor(object.getPosition().x / 2 + 1) * 2) - 1,
+        object.getPosition().y,
+        math.floor(object.getPosition().z / 2 + 0.5) * 2,
+      })
+    end
+    object.setRotation({
+      math.floor((object.getRotation().x + 90) * (1 / 180)) / (1 / 180),
+      object.getRotation().y,
+      math.floor((object.getRotation().z + 90) * (1 / 180)) / (1 / 180)
+    })
+    object.setVelocity({ 0, 0, 0 })
+    object.setAngularVelocity({ 0, 0, 0 })
+  end
 end
 
 function displayWelcomeMessage()
