@@ -253,14 +253,21 @@ function getTerritory(map, row, col, accumulator)
       accumulator.type = kingdom_square.type
       accumulator.size = accumulator.size + 1
 
-      if not map[row][col].giant then
-        accumulator.crowns = accumulator.crowns + kingdom_square.crowns
-        if building and building.crowns then
-          accumulator.crowns = building.crowns
-        end
-        if map[row][col].queen then
-          accumulator.crowns = accumulator.crowns + 1
-        end
+      local square_crowns = 0
+      square_crowns = kingdom_square.crowns
+      if building and building.crowns then
+        square_crowns = square_crowns + building.crowns
+      end
+      if map[row][col].queen then
+        square_crowns = square_crowns + 1
+      end
+      if map[row][col].giant_count then
+        square_crowns = square_crowns - map[row][col].giant_count
+      end
+
+      accumulator.crowns = accumulator.crowns or 0
+      if square_crowns > 0 then
+        accumulator.crowns = accumulator.crowns + square_crowns
       end
 
       accumulator.counted_squares[row][col] = true
