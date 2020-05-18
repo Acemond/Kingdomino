@@ -4,7 +4,7 @@ local left_control_zone_guid = "38ed1c"
 local right_control_zone_guid = "358f4e"
 
 local board_visible_y_position = 1.06
-local board_hidden_y_position = 0
+local board_hidden_y_position = 0.8
 
 local zone_coordinates_modifiers = {
   [3] = { zPos = 4.4, zScale = 8.25 },

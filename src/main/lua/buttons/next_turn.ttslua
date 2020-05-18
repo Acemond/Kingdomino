@@ -1,9 +1,9 @@
 require("util/table")
 require("constants/guids")
+require("constants/domino_board")
 
 local leftZoneGuid = "38ed1c"
 local rightZoneGuid = "358f4e"
-local rightBoardsGuids = { "e5b23a", "7a72d1", "174390", "722967" }
 local tileCheckZones = {
   "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
 }
@@ -195,7 +195,7 @@ end
 function trashTile(zone)
   for _, object in pairs(zone.getObjects()) do
     local unpickedTilesBag = getObjectFromGUID(unpickedTilesBagGuid)
-    if not table.contains(rightBoardsGuids, object.guid) and object.guid ~= tableGuid then
+    if not table.contains(DominoBoardConstants.right_boards_guids, object.guid) and object.guid ~= tableGuid then
       if unpickedTilesBag then
         getObjectFromGUID(unpickedTilesBagGuid).putObject(object)
       else
@@ -248,7 +248,7 @@ function checkTileZone(zone)
   local kingCount = 0
   local tileCount = 0
   for _, object in pairs(zone.getObjects()) do
-    if not table.contains(rightBoardsGuids, object.guid) and object.guid ~= tableGuid then
+    if not table.contains(DominoBoardConstants.right_boards_guids, object.guid) and object.guid ~= tableGuid then
       if table.contains(kingsGuid, object.guid) then
         kingCount = kingCount + 1
       end
@@ -265,16 +265,18 @@ function checkTileZone(zone)
 end
 
 function checkLeftZone()
-  if #getObjectFromGUID(leftZoneGuid).getObjects() > 2 then
-    broadcastToAll("Clear left dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
-    error()
+  for _, object in pairs(getObjectFromGUID(leftZoneGuid).getObjects()) do
+    if not table.contains(DominoBoardConstants.left_boards_guids, object.guid) and object.guid ~= tableGuid then
+      broadcastToAll("Clear left dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
+      error()
+    end
   end
 end
 
 function moveZoneContents()
   local rightZone = getObjectFromGUID(rightZoneGuid)
   for _, obj in ipairs(rightZone.getObjects()) do
-    if not table.contains(rightBoardsGuids, obj.guid) and obj.guid ~= tableGuid then
+    if not table.contains(DominoBoardConstants.right_boards_guids, obj.guid) and obj.guid ~= tableGuid then
       obj.unlock()
       obj.setPositionSmooth({
         obj.getPosition().x - 11,
