@@ -32,28 +32,37 @@ function onObjectDrop(_, object)
   if table.contains(Guids.dominoes.kingdomino, object.guid)
       or table.contains(Guids.dominoes.queendomino, object.guid)
       or table.contains(Guids.dominoes.age_of_giants, object.guid) then
-    local orientation = DominoUtils.getOrientation(object.getRotation().y)
-    if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
-      object.setPosition({
-        math.floor(object.getPosition().x / 2 + 0.5) * 2,
-        object.getPosition().y,
-        (math.floor(object.getPosition().z / 2 + 1) * 2) - 1,
-      })
-    else
-      object.setPosition({
-        (math.floor(object.getPosition().x / 2 + 1) * 2) - 1,
-        object.getPosition().y,
-        math.floor(object.getPosition().z / 2 + 0.5) * 2,
-      })
-    end
-    object.setRotation({
-      math.floor((object.getRotation().x + 90) * (1 / 180)) / (1 / 180),
-      object.getRotation().y,
-      math.floor((object.getRotation().z + 90) * (1 / 180)) / (1 / 180)
-    })
-    object.setVelocity({ 0, 0, 0 })
-    object.setAngularVelocity({ 0, 0, 0 })
+    snapDominoToGrid(object)
   end
+end
+
+function snapDominoToGrid(domino)
+  local orientation = DominoUtils.getOrientation(domino.getRotation().y)
+  if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
+    domino.setPositionSmooth({
+      snapToGrid(domino.getPosition().x, 2),
+      domino.getPosition().y,
+      snapToGrid(domino.getPosition().z, 2, 0.5)
+    }, false, true)
+  else
+    domino.setPositionSmooth({
+      snapToGrid(domino.getPosition().x, 2, 0.5),
+      domino.getPosition().y,
+      snapToGrid(domino.getPosition().z, 2),
+    }, false, true)
+  end
+  domino.setRotationSmooth({
+    snapToGrid(DominoUtils.boundRotation(domino.getRotation().x), 180),
+    snapToGrid(DominoUtils.boundRotation(domino.getRotation().y), 90),
+    snapToGrid(DominoUtils.boundRotation(domino.getRotation().z), 180)
+  }, false, true)
+  domino.setVelocity({ 0, 0, 0 })
+  domino.setAngularVelocity({ 0, 0, 0 })
+end
+
+function snapToGrid(value, grid, offset)
+  offset = offset or 0
+  return (math.floor(value / grid + 0.5 + offset) - offset) * grid
 end
 
 function displayWelcomeMessage()

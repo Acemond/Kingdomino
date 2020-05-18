@@ -9,7 +9,7 @@ DominoUtils.orientations = {
 }
 
 function DominoUtils.getOrientation(raw_rotation)
-  local rotation = boundRotation(raw_rotation)
+  local rotation = DominoUtils.boundRotation(raw_rotation)
 
   if rotation >= -45 and rotation < 45 then
     return DominoUtils.orientations.x_reverse
@@ -22,7 +22,7 @@ function DominoUtils.getOrientation(raw_rotation)
   end
 end
 
-function boundRotation(rotation_value)
+function DominoUtils.boundRotation(rotation_value)
   local result = rotation_value
 
   while result > 180 do
