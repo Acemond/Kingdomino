@@ -1,6 +1,7 @@
 require("util/domino")
 require("util/table")
 require("constants/guids")
+require("constants/domino_board")
 
 local player_manager_guid = "31971b"
 local player_manager = {}
@@ -37,6 +38,9 @@ function onObjectDrop(_, object)
 end
 
 function snapDominoToGrid(domino)
+  if nearbySnapPoint(domino, 1) then
+    return
+  end
   local orientation = DominoUtils.getOrientation(domino.getRotation().y)
   if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
     domino.setPositionSmooth({
@@ -58,6 +62,19 @@ function snapDominoToGrid(domino)
   }, false, true)
   domino.setVelocity({ 0, 0, 0 })
   domino.setAngularVelocity({ 0, 0, 0 })
+end
+
+function nearbySnapPoint(domino, distance)
+  local board = getObjectFromGUID(DominoBoardConstants.left_boards[Global.getVar("board_size")].guid)
+  for _, snap_point in pairs(board.getSnapPoints()) do
+    local snap_x = snap_point.position.x + board.getPosition().x
+    local snap_z = snap_point.position.z + board.getPosition().z
+    if math.abs(snap_x - domino.getPosition().x) <= distance
+        and math.abs(snap_z - domino.getPosition().z) <= distance then
+      return true
+    end
+  end
+  return false
 end
 
 function snapToGrid(value, grid, offset)

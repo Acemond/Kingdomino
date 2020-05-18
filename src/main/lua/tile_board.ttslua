@@ -1,22 +1,10 @@
+require("constants/domino_board")
+
 local left_control_zone_guid = "38ed1c"
 local right_control_zone_guid = "358f4e"
 
 local board_visible_y_position = 1.06
 local board_hidden_y_position = 0
-
-local right_boards_infos = {
-  [3] = { guid = "e5b23a", position = { 5.50, 1.06, 4.4 } },
-  [4] = { guid = "7a72d1", position = { 5.50, 1.06, 3.22 } },
-  [5] = { guid = "174390", position = { 5.50, 1.06, 1.96 } },
-  [8] = { guid = "722967", position = { 5.50, 1.06, -1.66 } }
-}
-
-local left_boards_infos = {
-  [3] = { guid = "ae485e", position = { -5.50, 1.06, 4.4 } },
-  [4] = { guid = "bd95f5", position = { -5.50, 1.06, 3.22 } },
-  [5] = { guid = "8c018b", position = { -5.50, 1.06, 1.96 } },
-  [8] = { guid = "a391ea", position = { -5.50, 1.06, -1.66 } }
-}
 
 local zone_coordinates_modifiers = {
   [3] = { zPos = 4.4, zScale = 8.25 },
@@ -52,7 +40,7 @@ end
 function updateTileBoards(board_size)
   setBoardYPosition(board_size, board_visible_y_position)
 
-  for size, _ in pairs(right_boards_infos) do
+  for size, _ in pairs(DominoBoardConstants.right_boards) do
     if size ~= board_size then
       setBoardYPosition(size, board_hidden_y_position)
     end
@@ -61,8 +49,8 @@ function updateTileBoards(board_size)
 end
 
 function setBoardYPosition(board_size, y_position)
-  local leftBoard = getObjectFromGUID(left_boards_infos[board_size].guid)
-  local rightBoard = getObjectFromGUID(right_boards_infos[board_size].guid)
+  local leftBoard = getObjectFromGUID(DominoBoardConstants.left_boards[board_size].guid)
+  local rightBoard = getObjectFromGUID(DominoBoardConstants.right_boards[board_size].guid)
 
   leftBoard.setPositionSmooth({ leftBoard.getPosition().x, y_position, leftBoard.getPosition().z }, false, true)
   rightBoard.setPositionSmooth({ rightBoard.getPosition().x, y_position, rightBoard.getPosition().z }, false, true)
