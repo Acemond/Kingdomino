@@ -16,3 +16,10 @@ DominoBoardConstants.left_boards = {
   [5] = { guid = DominoBoardConstants.left_boards_guids[3], position = { -5.50, 1.06, 1.96 } },
   [8] = { guid = DominoBoardConstants.left_boards_guids[4], position = { -5.50, 1.06, -1.66 } }
 }
+
+DominoBoardConstants.snap_points_z_positions = {
+  [3] = { -1.49, 0, 1.49 },
+  [4] = { -1.93, -0.64, 0.65, 1.95 },
+  [5] = { -2.32, -1.16, 0, 1.16, 2.32 },
+  [8] = { -3.25, -2.32, -1.39, -0.47, 0.46, 1.39, 2.32, 3.25 }
+}

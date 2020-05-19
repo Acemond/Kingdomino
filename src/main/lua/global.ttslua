@@ -30,17 +30,15 @@ function onSave()
 end
 
 function onObjectDrop(_, object)
-  if table.contains(Guids.dominoes.kingdomino, object.guid)
+  if (table.contains(Guids.dominoes.kingdomino, object.guid)
       or table.contains(Guids.dominoes.queendomino, object.guid)
-      or table.contains(Guids.dominoes.age_of_giants, object.guid) then
+      or table.contains(Guids.dominoes.age_of_giants, object.guid))
+      and not nearbySnapPoint(object, 1) then
     snapDominoToGrid(object)
   end
 end
 
 function snapDominoToGrid(domino)
-  if nearbySnapPoint(domino, 1) then
-    return
-  end
   local orientation = DominoUtils.getOrientation(domino.getRotation().y)
   if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
     domino.setPositionSmooth({
@@ -67,8 +65,8 @@ end
 function nearbySnapPoint(domino, distance)
   local board = getObjectFromGUID(DominoBoardConstants.left_boards[Global.getVar("board_size")].guid)
   for _, snap_point in pairs(board.getSnapPoints()) do
-    local snap_x = snap_point.position.x + board.getPosition().x
-    local snap_z = snap_point.position.z + board.getPosition().z
+    local snap_x = snap_point.position.x * board.getScale().x + board.getPosition().x
+    local snap_z = snap_point.position.z * board.getScale().z + board.getPosition().z
     if math.abs(snap_x - domino.getPosition().x) <= distance
         and math.abs(snap_z - domino.getPosition().z) <= distance then
       return true

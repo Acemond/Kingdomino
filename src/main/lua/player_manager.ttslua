@@ -1,5 +1,6 @@
 require("constants/guids")
 require("constants/players")
+require("util/table")
 
 local seated_players = {
   White = false,
@@ -179,7 +180,9 @@ end
 function seatColoredPlayer()
   for _, player in pairs(Player.getPlayers()) do
     if not local_players_enabled and player.color ~= spectator_color and player.color ~= game_master_color then
-      if not seated_players[player.color] and player.seated then
+      if table.contains(PlayerConstants.playable_color, player.color)
+          and not seated_players[player.color]
+          and player.seated then
         doAddPlayer(player.color, player.color)
       end
     end
@@ -199,7 +202,11 @@ end
 function onPlayerConnect(person)
   if not local_players_enabled and not seated_players[person.color]
       and person.color ~= spectator_color and person.color ~= game_master_color then
-    doAddPlayer(person.color, person.color)
+    if table.contains(PlayerConstants.playable_color, person.color) then
+      doAddPlayer(person.color, person.color)
+    else
+      removePlayerColor(person.color)
+    end
   end
 end
 

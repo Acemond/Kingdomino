@@ -1,16 +1,6 @@
 require("util/table")
 require("constants/guids")
-
-local targetDealingPositions = {
-  { 5.49, 1.83, 6.87 },
-  { 5.50, 1.83, 4.4 },
-  { 5.49, 1.83, 1.94 },
-  { 5.47, 1.83, -0.52 },
-  { 5.49, 1.83, -2.85 },
-  { 5.49, 1.83, -5.26 },
-  { 5.49, 1.83, -7.67 },
-  { 5.49, 1.83, -10.09 }
-}
+require("constants/domino_board")
 
 function dealTile(tileGuid, position)
   local guid = tileGuid
@@ -47,11 +37,17 @@ function getTilesTargetPosition()
     return table.indexOf(Guids.dominoes.queendomino, a) < table.indexOf(Guids.dominoes.queendomino, b)
   end)
 
-  local result = {}
+  local position = {}
   for i, guid in ipairs(guids) do
-    result[guid] = targetDealingPositions[i]
+    local board_size = Global.getTable("game").settings.tile_deal_count
+    local right_board = getObjectFromGUID(DominoBoardConstants.right_boards[board_size].guid)
+    position[guid] = {
+      0 + right_board.getPosition().x,
+      1.8,
+      DominoBoardConstants.snap_points_z_positions[board_size][i] * right_board.getScale().z + right_board.getPosition().z
+    }
   end
-  return result
+  return position
 end
 
 function getObjectsGuids()

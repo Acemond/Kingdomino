@@ -291,12 +291,20 @@ function moveZoneContents()
   local rightZone = getObjectFromGUID(rightZoneGuid)
   for _, obj in ipairs(rightZone.getObjects()) do
     if not table.contains(DominoBoardConstants.right_boards_guids, obj.guid) and obj.guid ~= tableGuid then
-      obj.unlock()
-      obj.setPositionSmooth({
-        obj.getPosition().x - 11,
-        obj.getPosition().y + 1.5,
-        obj.getPosition().z
-      }, false)
+      if table.contains(kingsGuid, obj.guid) then
+        obj.setPositionSmooth({
+          obj.getPosition().x - 7.5,
+          obj.getPosition().y + 1.5,
+          obj.getPosition().z
+        })
+      else
+        obj.unlock()
+        obj.setPositionSmooth({
+          obj.getPosition().x - 11,
+          obj.getPosition().y + 1.5,
+          obj.getPosition().z
+        })
+      end
     end
   end
 end

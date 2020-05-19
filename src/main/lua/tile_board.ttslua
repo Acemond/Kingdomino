@@ -39,13 +39,33 @@ end
 
 function updateTileBoards(board_size)
   setBoardYPosition(board_size, board_visible_y_position)
+  enableBoardSnapPoints(board_size)
 
   for size, _ in pairs(DominoBoardConstants.right_boards) do
     if size ~= board_size then
       setBoardYPosition(size, board_hidden_y_position)
+      disableBoardSnapPoints(size)
     end
   end
   resizeControlZones(board_size)
+end
+
+function enableBoardSnapPoints(board_size)
+  local snap_points = {}
+  for _, z in pairs(DominoBoardConstants.snap_points_z_positions[board_size]) do
+    table.insert(snap_points, {
+      position = { 0, 0.1, z },
+      rotation = { 0, 0, 0 },
+      rotation_snap = true
+    })
+  end
+  getObjectFromGUID(DominoBoardConstants.right_boards[board_size].guid).setSnapPoints(snap_points)
+  getObjectFromGUID(DominoBoardConstants.left_boards[board_size].guid).setSnapPoints(snap_points)
+end
+
+function disableBoardSnapPoints(board_size)
+  getObjectFromGUID(DominoBoardConstants.right_boards[board_size].guid).setSnapPoints({})
+  getObjectFromGUID(DominoBoardConstants.left_boards[board_size].guid).setSnapPoints({})
 end
 
 function setBoardYPosition(board_size, y_position)

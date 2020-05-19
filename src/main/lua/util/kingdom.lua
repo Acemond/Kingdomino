@@ -279,7 +279,6 @@ function Kingdom:checkLaFolieDesGrandeursQuest()
   for row = 1, self.size - 2, 1 do
     for col = 1, self.size - 1 - row, 1 do
       if self:checkLaFolieDesGrandeursDiagonally(col + row - 1, col) then
-        log("[1] 10 pts at: " .. row .. ", " .. col)
         points = points + 10
         col = col + 1
       end
@@ -299,7 +298,6 @@ function Kingdom:checkLaFolieDesGrandeursQuest()
   for col = 2, self.size - 2, 1 do
     for row = 1, self.size - col - 1, 1 do
       if self:checkLaFolieDesGrandeursDiagonally(row, row + col - 1) then
-        log("[2] 10 pts at: " .. row .. ", " .. col)
         points = points + 10
         row = row + 1
       end
@@ -319,7 +317,6 @@ function Kingdom:checkLaFolieDesGrandeursQuest()
   for row = self.size, 3, -1 do
     for col = 1, row - 2, 1 do
       if self:checkLaFolieDesGrandeursDiagonallyDown(row - (col - 1), col) then
-        log("[3] 10 pts at: " .. row .. ", " .. col)
         points = points + 10
         col = col + 1
       end
@@ -339,7 +336,6 @@ function Kingdom:checkLaFolieDesGrandeursQuest()
   for col = 2, self.size - 2, 1 do
     for row = self.size, col + 2, -1 do
       if self:checkLaFolieDesGrandeursDiagonallyDown(row, col + (self.size - row)) then
-        log("[4] 10 pts at: " .. row .. ", " .. col)
         points = points + 10
         row = row + 1
       end
