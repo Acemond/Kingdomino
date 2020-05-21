@@ -57,11 +57,12 @@ function onObjectDrop(_, object)
       dropped_dominoes[object.guid] = nil
     end)
 
+    local kingdom = getDominoKingdom(object)
     if Global.getTable("deck_enabled")
         and Global.getTable("deck_enabled").the_court
-        and isDominoInKingdom(object) then
+        and kingdom ~= nil then
       local add_resources_function = function()
-        addTheCourtResources(object)
+        addTheCourtResources(object, kingdom)
       end
       Wait.condition(add_resources_function, function()
         return object.getPosition().y < 0.97
@@ -125,16 +126,14 @@ function getPlayersObjects()
   return all_objects
 end
 
-function isDominoInKingdom(domino)
+function getDominoKingdom(domino)
   for _, pieces in pairs(Guids.player_pieces) do
     local zone = getObjectFromGUID(pieces.kingdom_zone)
 
     if table.contains(zone.getObjects(), domino) then
-      return true
+      return zone
     end
   end
-
-  return false
 end
 
 function popResourceToken(token)
@@ -161,7 +160,7 @@ function scaleToken(token, target_scale)
   end, 1)
 end
 
-function addTheCourtResources(domino)
+function addTheCourtResources(domino, kingdom)
   if dealt_resources[domino.guid] then
     return
   end
@@ -169,30 +168,24 @@ function addTheCourtResources(domino)
 
   local squares = getDominoContent(domino)
   if squares[1].crowns == 0 then
-    local position = domino.positionToWorld({
-      (1 / 1.8), 0, 0
-    })
-    local resource_type = getResourceType(squares[1].type)
-    if resource_type then
-      getObjectFromGUID(Guids.deck_objects.the_court[resource_type]).takeObject({
-        position = { position.x, 0.6, position.z },
-        smooth = false,
-        callback_function = popResourceToken
-      })
-    end
+    local position = domino.positionToWorld({ (1 / 1.8), 0, 0 })
+    spawnResourceToken(squares[1].type, position, kingdom)
   end
   if squares[2].crowns == 0 then
-    local position = domino.positionToWorld({
-      -(1 / 1.8), 0, 0
+    local position = domino.positionToWorld({ -(1 / 1.8), 0, 0 })
+    spawnResourceToken(squares[2].type, position, kingdom)
+  end
+end
+
+function spawnResourceToken(terrain_type, position, kingdom)
+  local resource_type = getResourceType(terrain_type)
+  if resource_type then
+    getObjectFromGUID(Guids.deck_objects.the_court[resource_type]).takeObject({
+      position = { position.x, 0.6, position.z },
+      rotation = { 0, 180 + kingdom.getRotation().y, 0 },
+      smooth = false,
+      callback_function = popResourceToken
     })
-    local resource_type = getResourceType(squares[2].type)
-    if resource_type then
-      getObjectFromGUID(Guids.deck_objects.the_court[resource_type]).takeObject({
-        position = { position.x, 0.6, position.z },
-        smooth = false,
-        callback_function = popResourceToken
-      })
-    end
   end
 end
 
