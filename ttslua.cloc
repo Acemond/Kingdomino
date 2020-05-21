@@ -1,0 +1,26 @@
+Lua-Test
+    filter remove_between_general --[=====[ ]=====]
+    filter remove_between_general --[====[ ]====]
+    filter remove_between_general --[===[ ]===]
+    filter remove_between_general --[==[ ]==]
+    filter remove_between_general --[=[ ]=]
+    filter remove_between_general --[[ ]]
+    filter remove_matches ^\s*\-\-
+    extension test.lua
+    script_exe lua
+    3rd_gen_scale 4.00
+    end_of_line_continuation \\$
+
+TTS-Lua
+    filter remove_between_general --[=====[ ]=====]
+    filter remove_between_general --[====[ ]====]
+    filter remove_between_general --[===[ ]===]
+    filter remove_between_general --[==[ ]==]
+    filter remove_between_general --[=[ ]=]
+    filter remove_between_general --[[ ]]
+    filter remove_matches ^\s*\-\-
+    extension ttslua
+    script_exe lua
+    3rd_gen_scale 4.00
+    end_of_line_continuation \\$
+
