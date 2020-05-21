@@ -233,6 +233,37 @@ Guids.dominoes = {
   }
 }
 
+Guids.deck_objects = {
+  kingdomino = {
+    deck = "b972db"
+  },
+  queendomino = {
+    deck = "b12f86",
+    buildings = "04de04",
+    building_board = "a066dc",
+    right_building_board = "a77d62",
+    coin1_bag = "38e164",
+    coin3_bag = "8468e9",
+    coin9_bag = "4638c0",
+    knight_bag = "fe4062",
+    tower_bag = "45152b",
+    queen = "401270",
+    dragon = "447c40"
+  },
+  age_of_giants = {
+    deck = "d36a20",
+    giants_bag = "da9688"
+  },
+  the_court = {
+    buildings = "e0b7ee",
+    building_board = "d19b4c",
+    wheat_bag = "68a4e4",
+    sheep_bag = "98f12a",
+    wood_bag = "443d34",
+    fish_bag = "3725a9"
+  }
+}
+
 Guids.tile_check_zone = {
-  "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
+  "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c", "778b3f", "ae470a"
 }

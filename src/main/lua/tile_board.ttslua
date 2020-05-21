@@ -8,10 +8,11 @@ local board_visible_y_position = 1.06
 local board_hidden_y_position = 0.8
 
 local zone_coordinates_modifiers = {
-  [3] = { zPos = 4.4, zScale = 8.25 },
-  [4] = { zPos = 3.22, zScale = 10.5 },
-  [5] = { zPos = 1.96, zScale = 13.5 },
-  [8] = { zPos = -1.66, zScale = 20.3 }
+  [3] = { zPos = DominoBoardConstants.right_boards[3].position.z, zScale = 8.25 },
+  [4] = { zPos = DominoBoardConstants.right_boards[4].position.z, zScale = 10.5 },
+  [5] = { zPos = DominoBoardConstants.right_boards[5].position.z, zScale = 13.5 },
+  [8] = { zPos = DominoBoardConstants.right_boards[8].position.z, zScale = 20.3 },
+  [10] = { zPos = DominoBoardConstants.right_boards[10].position.z, zScale = 25.3 },
 }
 
 local current_board_size = 4
@@ -108,12 +109,7 @@ function getBoardSize()
   end
 
   if decks.age_of_giants then
-    size = size + 1
-  end
-
-  -- FIXME: Quickfix until other board sizes gets added
-  if size ~= 3 and size ~= 4 and size ~= 5 and size ~= 8 then
-    return 4
+    size = size + math.floor(size / 4)
   end
 
   return size

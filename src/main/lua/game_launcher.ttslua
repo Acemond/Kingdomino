@@ -2,10 +2,6 @@ require("util/table")
 require("constants/guids")
 require("constants/players")
 
-local tile_check_zones = {
-  "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
-}
-
 local start_button_guid = "af7bb2"
 
 local kings_bag_guid = "11eb0a"
@@ -14,6 +10,11 @@ local game_table_guid = "0f8757"
 local game_table = {}
 local castle_manager_guid = "9bb39a"
 local castle_manager = {}
+
+local deck_priority = {
+  [Guids.deck_objects.queendomino.deck] = 1,
+  [Guids.deck_objects.kingdomino.deck] = 2
+}
 
 local quests_deck_guid = "fd8a62"
 local game_objects_guid = {
@@ -55,8 +56,8 @@ local castle_y = 1.16
 
 local decks_positions = {
   [3] = {
-    { { 0.00, 1.24, -18.00 } },
-    { { -3.00, 1.24, -18.00 }, { 3.00, 1.24, -18.00 } }
+    { { 0.00, 1.24, -17.00 } },
+    { { -3.00, 1.24, -17.00 }, { 3.00, 1.24, -17.00 } }
   },
   [4] = {
     { { 0.00, 1.24, -19.00 } },
@@ -69,6 +70,10 @@ local decks_positions = {
   [8] = {
     { { 0.00, 1.24, -27.00 } },
     { { -3.00, 1.24, -27.00 }, { 3.00, 1.24, -27.00 } }
+  },
+  [10] = {
+    { { 0.00, 1.24, -31.00 } },
+    { { -3.00, 1.24, -31.00 }, { 3.00, 1.24, -31.00 } }
   }
 }
 
@@ -89,6 +94,10 @@ local quests_positions = {
     { -3.00, 1.03, -24.00 },
     { 3.00, 1.03, -24.00 }
   },
+  [10] = {
+    { -3.00, 1.03, -28.00 },
+    { 3.00, 1.03, -28.00 }
+  },
 }
 
 local next_turn_position = {
@@ -96,6 +105,7 @@ local next_turn_position = {
   [4] = { -0.03, 1.05, -6.00 },
   [5] = { -0.03, 1.05, -8.00 },
   [8] = { -0.03, 1.05, -15.00 },
+  [10] = { -0.03, 1.05, -19.00 }
 }
 
 local default_quests_guid = { "7f87c8", "ddd8f4" }
@@ -219,8 +229,8 @@ function launchGame(new_game_settings)
 end
 
 function removeCheckZones()
-  for i = #tile_check_zones, game_settings.tile_deal_count + 1, -1 do
-    getObjectFromGUID(tile_check_zones[i]).destroy()
+  for i = #Guids.tile_check_zone, game_settings.tile_deal_count + 1, -1 do
+    getObjectFromGUID(Guids.tile_check_zone[i]).destroy()
   end
 end
 
@@ -328,7 +338,11 @@ function prepareMainDecks()
   local positions = getMainDecksPosition(decks)
   readyDecks(decks, positions)
 
-  return table.collectValues(decks)
+  local sorted_decks = table.collectValues(decks)
+  table.sort(sorted_decks, function (deck_1, deck_2)
+    return deck_priority[deck_1.guid] < deck_priority[deck_2.guid]
+  end)
+  return sorted_decks
 end
 
 function getBuildingsManagers()

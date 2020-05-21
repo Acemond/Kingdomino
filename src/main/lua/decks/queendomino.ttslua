@@ -46,11 +46,7 @@ end
 function getObjectsGuids()
   local tiles = self.getObjects()
   local guids = {}
-  local tilesDealtPerTurn = 4
-  if Global.getTable("game").settings.tile_deal_count == 8 then
-    tilesDealtPerTurn = 8
-  end
-  for i = 1, tilesDealtPerTurn, 1 do
+  for i = 1, math.floor(Global.getTable("game").settings.tile_deal_count / 4) * 4, 1 do
     guids[i] = tiles[i].guid
   end
   return guids

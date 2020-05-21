@@ -22,17 +22,12 @@ function validate(game_settings)
           or (decks.queendomino and decks.kingdomino)) then
     broadcastToAll("You need to enable Age of Giants or both Kingdomino and Queendomino to play with 5 players", error_color)
     return false
-  elseif player_count == 5 and decks.age_of_giants
-      and decks.queendomino
-      and decks.kingdomino then
-    broadcastToAll("Royal Wedding not yet implemented for Age of Giants with 5 players", error_color)
-    return false
   elseif player_count > 5 and not decks.queendomino and decks.kingdomino then
     broadcastToAll("You need to enable both Kingdomino and Queendomino to play with "
         .. tostring(player_count) .. " players", error_color)
     return false
-  elseif player_count > 5 and decks.age_of_giants then
-    broadcastToAll("Age of Giants is for 5 players or less", error_color)
+  elseif player_count > 5 and decks.age_of_giants and not decks.queendomino then
+    broadcastToAll("Enable Queendomino to play Age of Giants with more than 5 players", error_color)
     return false
   end
   return true
