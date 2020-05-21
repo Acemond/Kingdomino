@@ -43,10 +43,20 @@ function onSave()
   })
 end
 
+local dropped_dominoes = {}
 function onObjectDrop(_, object)
   if (table.contains(Guids.dominoes.kingdomino, object.guid)
       or table.contains(Guids.dominoes.queendomino, object.guid)
       or table.contains(Guids.dominoes.age_of_giants, object.guid)) then
+    dropped_dominoes[object.guid] = true
+    Wait.condition(function()
+      dropped_dominoes[object.guid] = nil
+    end, function()
+      return object.getPosition().y < 1.24
+    end, 180, function()
+      dropped_dominoes[object.guid] = nil
+    end)
+
     if Global.getTable("deck_enabled")
         and Global.getTable("deck_enabled").the_court
         and isDominoInKingdom(object) then
@@ -62,6 +72,12 @@ end
 
 function updateHeldDominoesSnapPoint()
   local held_objects = getPlayersObjects()
+  for guid, dropped in pairs(dropped_dominoes) do
+    if dropped then
+      table.insert(held_objects, getObjectFromGUID(guid))
+    end
+  end
+
   local snap_points = {}
   for _, object in pairs(held_objects) do
     if table.contains(Guids.dominoes.kingdomino, object.guid)
