@@ -257,10 +257,10 @@ Guids.deck_objects = {
   the_court = {
     buildings = "e0b7ee",
     building_board = "d19b4c",
-    wheat_bag = "68a4e4",
-    sheep_bag = "98f12a",
-    wood_bag = "443d34",
-    fish_bag = "3725a9"
+    Wheat = "68a4e4",
+    Sheep = "98f12a",
+    Wood = "443d34",
+    Fish = "3725a9",
   }
 }
 

@@ -2,6 +2,7 @@ require("util/domino")
 require("util/table")
 require("constants/guids")
 require("constants/domino_board")
+require("decks/territories")
 
 local player_manager_guid = "31971b"
 local player_manager = {}
@@ -14,8 +15,12 @@ local variant_manager = {}
 local configuration_validator_guid = "2a0d3f"
 local configuration_validator = {}
 
+local dealt_resources = {}
+
 function onLoad(save_state)
-  if save_state == "" then
+  if save_state ~= "" then
+    dealt_resources = JSON.decode(save_state).dealt_resources
+  else
     displayWelcomeMessage()
   end
   player_manager = getObjectFromGUID(player_manager_guid)
@@ -26,7 +31,10 @@ function onLoad(save_state)
 end
 
 function onSave()
-  return JSON.encode({ new_game = false })
+  return JSON.encode({
+    new_game = false,
+    dealt_resources = dealt_resources
+  })
 end
 
 function onObjectDrop(_, object)
@@ -35,6 +43,87 @@ function onObjectDrop(_, object)
       or table.contains(Guids.dominoes.age_of_giants, object.guid))
       and not nearbySnapPoint(object, 1) then
     snapDominoToGrid(object)
+    if Global.getTable("deck_enabled")
+        and Global.getTable("deck_enabled").the_court
+        and isDominoInKingdom(object) then
+      local add_resources_function = function()
+        addTheCourtResources(object)
+      end
+      Wait.condition(add_resources_function, function()
+        return object.getPosition().y < 1.24
+      end, 180, add_resources_function)
+    end
+  end
+end
+
+function isDominoInKingdom(domino)
+  for _, pieces in pairs(Guids.player_pieces) do
+    local zone = getObjectFromGUID(pieces.kingdom_zone)
+
+    if table.contains(zone.getObjects(), domino) then
+      return true
+    end
+  end
+
+  return false
+end
+
+function popResourceToken(token)
+  local target_scale = token.getScale().x
+  token.setScale({ 0.05, token.getScale().y, 0.05 })
+  token.setPositionSmooth({
+    token.getPosition().x,
+    1.3,
+    token.getPosition().z
+  }, false, true)
+  scaleToken(token, target_scale)
+end
+
+function scaleToken(token, target_scale)
+  Wait.frames(function()
+    if token.getScale().x < target_scale then
+      if token.getScale().x * 1.16 < target_scale then
+        token.scale(1.16)
+        scaleToken(token, target_scale)
+      else
+        token.setScale({ target_scale, target_scale, target_scale })
+      end
+    end
+  end, 1)
+end
+
+function addTheCourtResources(domino)
+  if dealt_resources[domino.guid] then
+    return
+  end
+  dealt_resources[domino.guid] = true
+
+  local squares = getDominoContent(domino)
+  if squares[1].crowns == 0 then
+    local position = domino.positionToWorld({
+      (1 / 1.8), 0, 0
+    })
+    local resource_type = getResourceType(squares[1].type)
+    if resource_type then
+      getObjectFromGUID(Guids.deck_objects.the_court[resource_type]).takeObject({
+        position = { position.x, 0.6, position.z },
+        smooth = false,
+        callback_function = popResourceToken
+      })
+    end
+  end
+  if squares[2].crowns == 0 then
+    local position = domino.positionToWorld({
+      -(1 / 1.8), 0, 0
+    })
+    local resource_type = getResourceType(squares[2].type)
+    if resource_type then
+      getObjectFromGUID(Guids.deck_objects.the_court[resource_type]).takeObject({
+        position = { position.x, 0.6, position.z },
+        smooth = false,
+        callback_function = popResourceToken
+      })
+    end
   end
 end
 
