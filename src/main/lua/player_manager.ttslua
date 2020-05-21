@@ -125,6 +125,9 @@ function setPlayerCount(target_player_count)
   while getPlayerCount() < target_player_count do
     addNextPlayer()
   end
+  while getPlayerCount() > target_player_count do
+    removeNextPlayer()
+  end
 end
 
 function addNextPlayer()
@@ -139,6 +142,17 @@ function addNextPlayer()
         addLocalPlayer(color)
         return
       end
+    end
+  end
+end
+
+function removeNextPlayer()
+  for i = #PlayerConstants.playable_color, 1, -1 do
+    local color = PlayerConstants.playable_color[i]
+
+    if seated_players[color] then
+      removePlayer(color)
+      return
     end
   end
 end

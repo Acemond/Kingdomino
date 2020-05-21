@@ -111,9 +111,6 @@ local buttons_to_remove = {
 }
 
 local objects_to_lock = {
-  kingdomino_deck = "b972db",
-  queendomino_deck = "b12f86",
-  queendomino_buildings = "04de04",
   queendomino_building_board = "a066dc",
   queendomino_right_building_board = "a77d62",
   queendomino_coin1_bag = "38e164",
