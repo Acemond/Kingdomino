@@ -32,6 +32,7 @@ function onLoad(save_state)
 end
 
 function onUpdate()
+  updateHeldDominoesSnapPoint()
   SnapPointsManager.setGlobalSnapPoints()
 end
 
@@ -57,6 +58,53 @@ function onObjectDrop(_, object)
       end, 180, add_resources_function)
     end
   end
+end
+
+function updateHeldDominoesSnapPoint()
+  local held_objects = getPlayersObjects()
+  local snap_points = {}
+  for _, object in pairs(held_objects) do
+    if table.contains(Guids.dominoes.kingdomino, object.guid)
+        or table.contains(Guids.dominoes.queendomino, object.guid)
+        or table.contains(Guids.dominoes.age_of_giants, object.guid)
+        and not nearbySnapPoint(object, 1.2) then
+      table.insert(snap_points, getSnapPointPosition(object))
+    end
+  end
+
+  Global.call("setHeldObjectsSnapPoint", snap_points)
+end
+
+function getSnapPointPosition(domino)
+  local orientation = DominoUtils.getOrientation(domino.getRotation().y)
+  if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
+    return {
+      snapToGrid(domino.getPosition().x, 2),
+      snapToGrid(domino.getPosition().z, 2, 0.5)
+    }
+  else
+    return {
+      snapToGrid(domino.getPosition().x, 2, 0.5),
+      snapToGrid(domino.getPosition().z, 2),
+    }
+  end
+end
+
+function snapToGrid(value, grid, offset)
+  offset = offset or 0
+  return (math.floor(value / grid + 0.5 + offset) - offset) * grid
+end
+
+function getPlayersObjects()
+  local all_objects = {}
+  for _, player in pairs(Player.getPlayers()) do
+    if player.getHoldingObjects() ~= nil then
+      for _, object in pairs(player.getHoldingObjects()) do
+        table.insert(all_objects, object)
+      end
+    end
+  end
+  return all_objects
 end
 
 function isDominoInKingdom(domino)
