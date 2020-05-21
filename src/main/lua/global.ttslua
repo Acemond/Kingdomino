@@ -52,7 +52,7 @@ function onObjectDrop(_, object)
     Wait.condition(function()
       dropped_dominoes[object.guid] = nil
     end, function()
-      return object.getPosition().y < 1.24
+      return object.getPosition().y < 0.97
     end, 60, function()
       dropped_dominoes[object.guid] = nil
     end)
@@ -64,7 +64,7 @@ function onObjectDrop(_, object)
         addTheCourtResources(object)
       end
       Wait.condition(add_resources_function, function()
-        return object.getPosition().y < 1.24
+        return object.getPosition().y < 0.97
       end, 180, add_resources_function)
     end
   end
