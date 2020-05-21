@@ -3,6 +3,7 @@ require("util/table")
 require("constants/guids")
 require("constants/domino_board")
 require("decks/territories")
+require("snap_points")
 
 local player_manager_guid = "31971b"
 local player_manager = {}
@@ -30,6 +31,10 @@ function onLoad(save_state)
   variant_manager = getObjectFromGUID(variant_manager_guid)
 end
 
+function onUpdate()
+  SnapPointsManager.setGlobalSnapPoints()
+end
+
 function onSave()
   return JSON.encode({
     new_game = false,
@@ -40,9 +45,7 @@ end
 function onObjectDrop(_, object)
   if (table.contains(Guids.dominoes.kingdomino, object.guid)
       or table.contains(Guids.dominoes.queendomino, object.guid)
-      or table.contains(Guids.dominoes.age_of_giants, object.guid))
-      and not nearbySnapPoint(object, 1) then
-    snapDominoToGrid(object)
+      or table.contains(Guids.dominoes.age_of_giants, object.guid)) then
     if Global.getTable("deck_enabled")
         and Global.getTable("deck_enabled").the_court
         and isDominoInKingdom(object) then

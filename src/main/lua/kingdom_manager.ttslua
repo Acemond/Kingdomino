@@ -51,6 +51,7 @@ function onUpdate()
   if pending_movement or locked_kingdom or not Global.getVar("kingdom_size") then
     return
   end
+  updateSnapPoints()
 
   frame = frame + 1
   if frame % 15 ~= 0 then
@@ -94,6 +95,41 @@ function onUpdate()
   if not table.equal(shift, { x = 0, z = 0 }) then
     launchAnimation(objects_to_move, current_position)
   end
+end
+
+function updateSnapPoints()
+  local held_objects = getPlayersObjects()
+  local snap_points = {}
+  for _, object in pairs(held_objects) do
+    if (table.contains(Guids.dominoes.kingdomino, object.guid)
+        or table.contains(Guids.dominoes.queendomino, object.guid)
+        or table.contains(Guids.dominoes.age_of_giants, object.guid))
+        and table.contains(getObjectFromGUID(kingdom_guids.kingdom_zone).getObjects(), object) then
+      table.insert(snap_points, getSnapPointPosition(object))
+    end
+  end
+
+  Global.call("setKingdomSnapPoint", { kingdom_color = color, snap_points = snap_points })
+end
+
+function getSnapPointPosition(domino)
+  local orientation = DominoUtils.getOrientation(domino.getRotation().y)
+  if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
+    return {
+      snapToGrid(domino.getPosition().x, 2),
+      snapToGrid(domino.getPosition().z, 2, 0.5)
+    }
+  else
+    return {
+      snapToGrid(domino.getPosition().x, 2, 0.5),
+      snapToGrid(domino.getPosition().z, 2),
+    }
+  end
+end
+
+function snapToGrid(value, grid, offset)
+  offset = offset or 0
+  return (math.floor(value / grid + 0.5 + offset) - offset) * grid
 end
 
 function getShiftKingdom(kingdom_dominos, domino, axis)

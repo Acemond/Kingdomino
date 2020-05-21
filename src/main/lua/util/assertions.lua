@@ -5,7 +5,7 @@ function assertEquals(actual, expected)
     return assertTableEquals(actual, expected)
   end
 
-  assert(actual == expected, "Assertion failed: got [" .. actual .. "], expected [" .. expected .. "]")
+  assert(actual == expected, "Assertion failed: got [" .. tostring(actual) .. "], expected [" .. tostring(expected) .. "]")
 end
 
 function assertTableEquals(actual, expected)

@@ -1,6 +1,6 @@
 function table.contains(tbl, value)
   for _, table_value in pairs(tbl) do
-    if table_value == value then
+    if table.equal(table_value, value) then
       return true
     end
   end
@@ -54,6 +54,9 @@ function table.containsOne(tbl, other)
 end
 
 function table.equal(tbl, other)
+  if type(tbl) ~= "table" then
+    return tbl == other
+  end
   for key, value in pairs(tbl) do
     if type(value) == "table" then
       if not table.equal(value, other[key]) then
