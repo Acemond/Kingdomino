@@ -53,7 +53,7 @@ function onObjectDrop(_, object)
       dropped_dominoes[object.guid] = nil
     end, function()
       return object.getPosition().y < 1.24
-    end, 180, function()
+    end, 60, function()
       dropped_dominoes[object.guid] = nil
     end)
 
