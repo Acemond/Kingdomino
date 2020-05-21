@@ -16,15 +16,7 @@ end
 function SnapPointsManager.setGlobalSnapPoints()
   if not table.containsOnly(displayed_snap_points, held_objects_snap_points) then
     displayed_snap_points = held_objects_snap_points
-    local snap_parameters = {}
-    for _, snap in pairs(displayed_snap_points) do
-      table.insert(snap_parameters, {
-        position = {
-          x = snap[1], y = 0.96, z = snap[2]
-        }
-      })
-    end
-    Global.setSnapPoints(snap_parameters)
+    Global.setSnapPoints(displayed_snap_points)
   end
 end
 

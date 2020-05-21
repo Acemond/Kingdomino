@@ -68,7 +68,7 @@ function updateHeldDominoesSnapPoint()
         or table.contains(Guids.dominoes.queendomino, object.guid)
         or table.contains(Guids.dominoes.age_of_giants, object.guid)
         and not nearbySnapPoint(object, 1.2) then
-      table.insert(snap_points, getSnapPointPosition(object))
+      table.insert(snap_points, { position = getSnapPointPosition(object) })
     end
   end
 
@@ -79,13 +79,15 @@ function getSnapPointPosition(domino)
   local orientation = DominoUtils.getOrientation(domino.getRotation().y)
   if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
     return {
-      snapToGrid(domino.getPosition().x, 2),
-      snapToGrid(domino.getPosition().z, 2, 0.5)
+      x = snapToGrid(domino.getPosition().x, 2),
+      y = 0.96,
+      z = snapToGrid(domino.getPosition().z, 2, 0.5)
     }
   else
     return {
-      snapToGrid(domino.getPosition().x, 2, 0.5),
-      snapToGrid(domino.getPosition().z, 2),
+      x = snapToGrid(domino.getPosition().x, 2, 0.5),
+      y = 0.96,
+      z = snapToGrid(domino.getPosition().z, 2)
     }
   end
 end
@@ -176,30 +178,6 @@ function addTheCourtResources(domino)
       })
     end
   end
-end
-
-function snapDominoToGrid(domino)
-  local orientation = DominoUtils.getOrientation(domino.getRotation().y)
-  if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
-    domino.setPositionSmooth({
-      snapToGrid(domino.getPosition().x, 2),
-      domino.getPosition().y,
-      snapToGrid(domino.getPosition().z, 2, 0.5)
-    }, false, true)
-  else
-    domino.setPositionSmooth({
-      snapToGrid(domino.getPosition().x, 2, 0.5),
-      domino.getPosition().y,
-      snapToGrid(domino.getPosition().z, 2),
-    }, false, true)
-  end
-  domino.setRotationSmooth({
-    snapToGrid(DominoUtils.boundRotation(domino.getRotation().x), 180),
-    snapToGrid(DominoUtils.boundRotation(domino.getRotation().y), 90),
-    snapToGrid(DominoUtils.boundRotation(domino.getRotation().z), 180)
-  }, false, true)
-  domino.setVelocity({ 0, 0, 0 })
-  domino.setAngularVelocity({ 0, 0, 0 })
 end
 
 function nearbySnapPoint(domino, distance)
