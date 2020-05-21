@@ -1,13 +1,17 @@
-local buildingZones = { "e03e9a", "72e2ec", "d91132" }
+local buildingZones = { "d91132", "72e2ec", "e03e9a" }
 
 local deck_guid = "e0b7ee"
 local deck_position = { -3.67, 1.19, 15.50 }
 
 function dealBuildings()
+  local i = 1
   for _, zoneGuid in pairs(buildingZones) do
     local zone = getObjectFromGUID(zoneGuid)
     if not buildingPresent(zone) then
-      dealBuilding(zone)
+      Wait.frames(function()
+        dealBuilding(zone)
+      end, i * 10)
+      i = i + 1
     end
   end
 end

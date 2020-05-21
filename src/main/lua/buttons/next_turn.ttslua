@@ -4,9 +4,6 @@ require("constants/domino_board")
 
 local leftZoneGuid = "38ed1c"
 local rightZoneGuid = "358f4e"
-local tileCheckZones = {
-  "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
-}
 local unpickedTilesBagGuid = "32278a"
 local turn = 0
 local tableGuid = "0f8757"
@@ -184,7 +181,7 @@ function setupPing()
 end
 
 function removeUnpickedTiles()
-  for _, zoneGuid in pairs(tileCheckZones) do
+  for _, zoneGuid in pairs(Guids.tile_check_zone) do
     local zone = getObjectFromGUID(zoneGuid)
 
     if zone then
@@ -236,7 +233,7 @@ function checkRightZone()
     broadcastToAll("Pick dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
     error()
   end
-  for _, zoneGuid in pairs(tileCheckZones) do
+  for _, zoneGuid in pairs(Guids.tile_check_zone) do
     local zone = getObjectFromGUID(zoneGuid)
     if zone ~= nil then
       checkTileZone(zone)

@@ -232,3 +232,7 @@ Guids.dominoes = {
     [54] = "c469c2"
   }
 }
+
+Guids.tile_check_zone = {
+  "8fd451", "7e8397", "d0b593", "f25b1c", "234056", "e05d05", "094ef7", "568e1c"
+}

@@ -19,7 +19,9 @@ function dealBuildings()
     if not buildingPresent(zones[i]) then
       local sourceIndex = getNextDealtBuilding(zones, i, #zones)
       if not sourceIndex then
-        dealBuilding(zones[i])
+        Wait.frames(function()
+          dealBuilding(zones[i])
+        end, i * 10)
       else
         moveBuilding(zones[sourceIndex], zones[i])
       end

@@ -26,28 +26,21 @@ function dealTile(tileGuid, position)
 end
 
 function dealTiles()
-  for guid, position in pairs(getTilesTargetPosition()) do
-    dealTile(guid, position)
+  for index, guid in pairs(getSortedTilesValue()) do
+    local domino_zone = getObjectFromGUID(Guids.tile_check_zone[index])
+
+    Wait.frames(function()
+      dealTile(guid, domino_zone.getPosition())
+    end, index * 10)
   end
 end
 
-function getTilesTargetPosition()
+function getSortedTilesValue()
   local guids = getObjectsGuids()
   table.sort(guids, function(a, b)
     return table.indexOf(Guids.dominoes.queendomino, a) < table.indexOf(Guids.dominoes.queendomino, b)
   end)
-
-  local position = {}
-  for i, guid in ipairs(guids) do
-    local board_size = Global.getTable("game").settings.tile_deal_count
-    local right_board = getObjectFromGUID(DominoBoardConstants.right_boards[board_size].guid)
-    position[guid] = {
-      0 + right_board.getPosition().x,
-      1.8,
-      DominoBoardConstants.snap_points_z_positions[board_size][i] * right_board.getScale().z + right_board.getPosition().z
-    }
-  end
-  return position
+  return guids
 end
 
 function getObjectsGuids()

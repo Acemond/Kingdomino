@@ -1,4 +1,5 @@
 require("constants/domino_board")
+require("constants/guids")
 
 local left_control_zone_guid = "38ed1c"
 local right_control_zone_guid = "358f4e"
@@ -10,7 +11,7 @@ local zone_coordinates_modifiers = {
   [3] = { zPos = 4.4, zScale = 8.25 },
   [4] = { zPos = 3.22, zScale = 10.5 },
   [5] = { zPos = 1.96, zScale = 13.5 },
-  [8] = { zPos = -1.66, zScale = 20 }
+  [8] = { zPos = -1.66, zScale = 20.3 }
 }
 
 local current_board_size = 4
@@ -52,13 +53,16 @@ end
 
 function enableBoardSnapPoints(board_size)
   local snap_points = {}
-  for _, z in pairs(DominoBoardConstants.snap_points_z_positions[board_size]) do
+  local board = getObjectFromGUID(DominoBoardConstants.left_boards[board_size].guid)
+  for i = 1, board_size, 1 do
+    local position = board.positionToLocal(getObjectFromGUID(Guids.tile_check_zone[i]).getPosition())
     table.insert(snap_points, {
-      position = { 0, 0.1, z },
+      position = { 0, 0.1, position.z },
       rotation = { 0, 0, 0 },
       rotation_snap = true
     })
   end
+
   getObjectFromGUID(DominoBoardConstants.right_boards[board_size].guid).setSnapPoints(snap_points)
   getObjectFromGUID(DominoBoardConstants.left_boards[board_size].guid).setSnapPoints(snap_points)
 end
@@ -72,8 +76,10 @@ function setBoardYPosition(board_size, y_position)
   local leftBoard = getObjectFromGUID(DominoBoardConstants.left_boards[board_size].guid)
   local rightBoard = getObjectFromGUID(DominoBoardConstants.right_boards[board_size].guid)
 
-  leftBoard.setPositionSmooth({ leftBoard.getPosition().x, y_position, leftBoard.getPosition().z }, false, true)
-  rightBoard.setPositionSmooth({ rightBoard.getPosition().x, y_position, rightBoard.getPosition().z }, false, true)
+  local left_board_position = DominoBoardConstants.left_boards[board_size].position
+  local right_board_position = DominoBoardConstants.right_boards[board_size].position
+  leftBoard.setPositionSmooth({ left_board_position.x, y_position, left_board_position.z }, false, true)
+  rightBoard.setPositionSmooth({ right_board_position.x, y_position, right_board_position.z }, false, true)
 end
 
 function resizeControlZones(slots)
