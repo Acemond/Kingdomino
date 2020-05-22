@@ -116,7 +116,7 @@ function showButtonIfExists(guid)
   end
 
   local target_y = 0.95 + object.getBounds().size.y / 2 + object.getBounds().offset.y
-  object.setPositionSmooth({ object.getPosition().x, target_y, object.getPosition().z }, false, true)
+  object.setPosition({ object.getPosition().x, target_y, object.getPosition().z })
   object.editButton({ index = 0, scale = { 1, 1, 1 } })
 end
 
