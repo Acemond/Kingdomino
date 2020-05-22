@@ -450,7 +450,8 @@ function movePlayerPieces(color, target_position)
 
   local hand_offset = (Global.get("kingdom_size") + 5) / kingdom_zone.getScale().x
   local hand_transform = Player[color].getHandTransform()
-  hand_transform.position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset })
+  hand_transform.position.x = kingdom_zone.positionToWorld({ 0, 0, -hand_offset }).x
+  hand_transform.position.z = kingdom_zone.positionToWorld({ 0, 0, -hand_offset }).z
   Wait.condition(function()
     Player[color].setHandTransform(hand_transform)
     if game_settings.decks.queendomino then

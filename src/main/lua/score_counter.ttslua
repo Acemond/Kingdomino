@@ -58,7 +58,11 @@ end
 
 function createButton(kingdom_size, color)
   local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
-  local button_position = kingdom.positionToWorld({ 0, 0, -2 * (kingdom_size / 2 + 1) / kingdom.getScale().x })
+  local button_position = kingdom.positionToWorld({
+    (kingdom_size - 1) / kingdom.getScale().x,
+    0,
+    -2 * (kingdom_size / 2 + 1) / kingdom.getScale().z
+  })
 
   local function_name = "compute_score_" .. color
   self.setVar(function_name, function()
@@ -70,8 +74,8 @@ function createButton(kingdom_size, color)
     function_owner = self,
     label = "0",
     tooltip = "",
-    position = { 1, 0.1, 0 },
-    font_size = 400,
+    position = { 0.9, 0.1, 0.05 },
+    font_size = 350,
     color = { 0, 0, 0, 0 },
     font_color = { 1, 1, 1, 100 },
     width = 800,
