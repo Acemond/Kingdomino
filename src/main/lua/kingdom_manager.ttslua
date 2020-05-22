@@ -139,27 +139,27 @@ end
 
 function tryShift(direction)
   local shift = { x = 0, z = 0 }
-  local _, kingdom_dominoes, objects_to_move = getKingdomObjects()
+  local _, kingdom_objects = getKingdomObjects()
   if direction == directions.left then
-    local min_kingdom, max_kingdom = getMinPos(kingdom_dominoes, "x"), getMaxPos(kingdom_dominoes, "x")
+    local min_kingdom, max_kingdom = getMinPos(kingdom_objects, "x"), getMaxPos(kingdom_objects, "x")
     shift.x = getSingleShift(min_kingdom, max_kingdom, -1)
     if getSingleShift(min_kingdom, max_kingdom, -2) == 0 then
       blocked_directions[direction] = true
     end
   elseif direction == directions.right then
-    local min_kingdom, max_kingdom = getMinPos(kingdom_dominoes, "x"), getMaxPos(kingdom_dominoes, "x")
+    local min_kingdom, max_kingdom = getMinPos(kingdom_objects, "x"), getMaxPos(kingdom_objects, "x")
     shift.x = getSingleShift(min_kingdom, max_kingdom, 1)
     if getSingleShift(min_kingdom, max_kingdom, 2) == 0 then
       blocked_directions[direction] = true
     end
   elseif direction == directions.up then
-    local min_kingdom, max_kingdom = getMinPos(kingdom_dominoes, "z"), getMaxPos(kingdom_dominoes, "z")
+    local min_kingdom, max_kingdom = getMinPos(kingdom_objects, "z"), getMaxPos(kingdom_objects, "z")
     shift.z = getSingleShift(min_kingdom, max_kingdom, 1)
     if getSingleShift(min_kingdom, max_kingdom, 2) == 0 then
       blocked_directions[direction] = true
     end
   elseif direction == directions.down then
-    local min_kingdom, max_kingdom = getMinPos(kingdom_dominoes, "z"), getMaxPos(kingdom_dominoes, "z")
+    local min_kingdom, max_kingdom = getMinPos(kingdom_objects, "z"), getMaxPos(kingdom_objects, "z")
     shift.z = getSingleShift(min_kingdom, max_kingdom, -1)
     if getSingleShift(min_kingdom, max_kingdom, -1) == 0 then
       blocked_directions[direction] = true
@@ -171,7 +171,7 @@ function tryShift(direction)
     z = current_position.z + shift.z,
   }
   if not table.equal(shift, { x = 0, z = 0 }) then
-    launchAnimation(objects_to_move, current_position)
+    launchAnimation(kingdom_objects, current_position)
   end
 end
 
