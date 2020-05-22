@@ -48,13 +48,14 @@ function onObjectDrop(_, object)
   if (table.contains(Guids.dominoes.kingdomino, object.guid)
       or table.contains(Guids.dominoes.queendomino, object.guid)
       or table.contains(Guids.dominoes.age_of_giants, object.guid)) then
-    dropped_dominoes[object.guid] = true
+    local guid = object.guid
+    dropped_dominoes[guid] = true
     Wait.condition(function()
-      dropped_dominoes[object.guid] = nil
+      dropped_dominoes[guid] = nil
     end, function()
-      return object.getPosition().y < 0.97
+      return object == nil or not object.getPosition() or object.getPosition().y < 0.97
     end, 60, function()
-      dropped_dominoes[object.guid] = nil
+      dropped_dominoes[guid] = nil
     end)
 
     local kingdom = getDominoKingdom(object)
@@ -62,10 +63,12 @@ function onObjectDrop(_, object)
         and Global.getTable("deck_enabled").the_court
         and kingdom ~= nil then
       local add_resources_function = function()
-        addTheCourtResources(object, kingdom)
+        if object ~= nil then
+          addTheCourtResources(object, kingdom)
+        end
       end
       Wait.condition(add_resources_function, function()
-        return object.getPosition().y < 0.97
+        return object == nil or object.getPosition().y < 0.97
       end, 180, add_resources_function)
     end
   end
