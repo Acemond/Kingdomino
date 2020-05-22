@@ -59,8 +59,10 @@ end
 
 function dealDominoes()
   local game = Global.getTable("game")
+  self.interactable = false
 
-  for index, guid in pairs(getSortedDominoesValue()) do
+  local dominoes = getSortedDominoesValue()
+  for index, guid in pairs(dominoes) do
     local domino_zone = getObjectFromGUID(Guids.tile_check_zone[index])
 
     if game.settings.decks.age_of_giants
@@ -89,6 +91,10 @@ function dealDominoes()
       end, index * 10)
     end
   end
+
+  Wait.frames(function()
+    self.interactable = true
+  end, (#dominoes + 1) * 10)
 end
 
 function getSortedDominoesValue()

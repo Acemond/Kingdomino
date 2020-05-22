@@ -129,9 +129,10 @@ function getAutoShiftKingdomValue(kingdom_boundaries, domino, axis)
   local domino_local_position = zone.positionToLocal(domino.getPosition())
 
   if domino_local_position[axis] > (1 / zone.getScale()[axis]) * (kingdom_size - 1) then
-    return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, -getdominoesize(domino, axis))
+    table.log({ min = kingdom_boundaries[axis].min, max = kingdom_boundaries[axis].max, space = -getDominoSize(domino, axis) })
+    return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, -getDominoSize(domino, axis))
   elseif domino_local_position[axis] < -(1 / zone.getScale()[axis]) * (kingdom_size - 1) then
-    return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, getdominoesize(domino, axis))
+    return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, getDominoSize(domino, axis))
   else
     return 0
   end
@@ -214,10 +215,11 @@ function getKingdomObjects()
   local held_objects_guid = getHeldObjectsGuid()
   local held_dominoes, kingdom_objects = {}, {}
   for _, object in pairs(zone.getObjects()) do
-    if object.guid ~= table_guid
-        and not table.contains(held_objects_guid, object.guid) then
+    if object.guid ~= table_guid then
       if table.contains(held_objects_guid, object.guid) then
-        table.insert(held_dominoes, object)
+        if DominoUtils.isDomino(object) then
+          table.insert(held_dominoes, object)
+        end
       else
         table.insert(kingdom_objects, object)
       end
@@ -354,7 +356,7 @@ function getDominoMaxOffset(orientation)
   end
 end
 
-function getdominoesize(domino, axis)
+function getDominoSize(domino, axis)
   local rotation_y = domino.getRotation().y
   if (rotation_y > -45 and rotation_y < 45) or (rotation_y > 135 and rotation_y < 225) or (rotation_y > 315) then
     if axis == "x" then

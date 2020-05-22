@@ -35,13 +35,20 @@ function dealDomino(domino_guid, position)
 end
 
 function dealDominoes()
-  for index, guid in pairs(getSortedDominoesValue()) do
+  self.interactable = false
+
+  local dominoes = getSortedDominoesValue()
+  for index, guid in pairs(dominoes) do
     local domino_zone = getObjectFromGUID(Guids.tile_check_zone[index])
 
     Wait.frames(function()
       dealDomino(guid, domino_zone.getPosition())
     end, index * 10)
   end
+
+  Wait.frames(function()
+    self.interactable = true
+  end, (#dominoes + 1) * 10)
 end
 
 function getSortedDominoesValue()
