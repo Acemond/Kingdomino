@@ -63,21 +63,26 @@ function dealDominoes()
   for index, guid in pairs(getSortedDominoesValue()) do
     local domino_zone = getObjectFromGUID(Guids.tile_check_zone[index])
 
-    if game.settings.decks.age_of_giants then
-      if game.settings.player_count == 3 and (index == 2 or index == 4) then
-        Wait.frames(function()
-          trashDomino(guid, domino_zone.getPosition())
-        end, index * 10)
-      elseif game.settings.decks.age_of_giants
-          and (game.settings.player_count == 2 or game.settings.player_count == 4) and index == 3 then
-        Wait.frames(function()
-          trashDomino(guid, domino_zone.getPosition())
-        end, index * 10)
-      else
-        Wait.frames(function()
-          dealDomino(guid, domino_zone.getPosition())
-        end, index * 10)
-      end
+    if game.settings.decks.age_of_giants
+        and game.settings.player_count == 3 and (index == 2 or index == 4) then
+      Wait.frames(function()
+        trashDomino(guid, domino_zone.getPosition())
+      end, index * 10)
+    elseif game.settings.decks.age_of_giants
+        and (game.settings.player_count == 2 or game.settings.player_count == 4) and index == 3 then
+      Wait.frames(function()
+        trashDomino(guid, domino_zone.getPosition())
+      end, index * 10)
+    elseif game.settings.decks.age_of_giants and game.settings.decks.queendomino
+        and game.settings.player_count == 5 and table.contains({ 2, 4, 5, 7, 9 }, index) then
+      Wait.frames(function()
+        trashDomino(guid, domino_zone.getPosition())
+      end, index * 10)
+    elseif game.settings.decks.age_of_giants
+        and game.settings.player_count == 6 and table.contains({ 3, 5, 6, 8 }, index) then
+      Wait.frames(function()
+        trashDomino(guid, domino_zone.getPosition())
+      end, index * 10)
     else
       Wait.frames(function()
         dealDomino(guid, domino_zone.getPosition())

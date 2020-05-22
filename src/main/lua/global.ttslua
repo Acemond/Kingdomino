@@ -246,7 +246,7 @@ end
 
 function resolveForPlayerCount(target_player_count)
   local game_settings = getGameSettings()
-  if target_player_count > 4 then
+  if target_player_count > 5 then
     deck_manager.call("setDeckEnabled", { deck_name = "kingdomino", is_enabled = true })
     deck_manager.call("setDeckEnabled", { deck_name = "queendomino", is_enabled = true })
   end
