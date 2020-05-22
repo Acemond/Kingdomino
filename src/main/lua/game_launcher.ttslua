@@ -252,7 +252,16 @@ function firstTurn(decks, building_guids, quests)
     quests = quests
   }
   Global.setTable("game", new_game)
+  Wait.frames(enableKingdomMoveButtons, 60)
   next_turn_button.call("firstTurn", new_game)
+end
+
+function enableKingdomMoveButtons()
+  for color, playing in pairs(game_settings.seated_players) do
+    if playing then
+      getObjectFromGUID(Guids.player_pieces[color].castle_tile).call("activateMoveButtons")
+    end
+  end
 end
 
 function getCastles()

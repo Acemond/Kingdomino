@@ -1,3 +1,5 @@
+require("constants/guids")
+
 DominoUtils = {}
 DominoUtils.__index = DominoUtils
 
@@ -33,4 +35,10 @@ function DominoUtils.boundRotation(rotation_value)
   end
 
   return result
+end
+
+function DominoUtils.isDomino(object)
+  return table.contains(Guids.dominoes.kingdomino, object.guid)
+      or table.contains(Guids.dominoes.queendomino, object.guid)
+      or table.contains(Guids.dominoes.age_of_giants, object.guid)
 end
