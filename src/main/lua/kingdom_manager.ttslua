@@ -129,7 +129,6 @@ function getAutoShiftKingdomValue(kingdom_boundaries, domino, axis)
   local domino_local_position = zone.positionToLocal(domino.getPosition())
 
   if domino_local_position[axis] > (1 / zone.getScale()[axis]) * (kingdom_size - 1) then
-    table.log({ min = kingdom_boundaries[axis].min, max = kingdom_boundaries[axis].max, space = -getDominoSize(domino, axis) })
     return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, -getDominoSize(domino, axis))
   elseif domino_local_position[axis] < -(1 / zone.getScale()[axis]) * (kingdom_size - 1) then
     return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, getDominoSize(domino, axis))
