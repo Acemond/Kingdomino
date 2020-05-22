@@ -78,13 +78,15 @@ function onSave()
 end
 
 -- FIXME: optimize this shit that is called player_count times per frame!
-local frame = table.indexOf(PlayerConstants.playable_color, color)
+local frame = table.indexOf(PlayerConstants.playable_color, color) * 2
 function onUpdate()
   if Global.get("game") then
     if locked_kingdom ~= button_state_locked then
+      log("UPDATING LOCKS")
       updateLockButtons()
     end
     if not table.equal(blocked_direction_buttons, blocked_directions) then
+      log("UPDATING MOVE")
       updateMoveButtons()
     end
   end
@@ -99,9 +101,11 @@ function onUpdate()
     frame = 0
   end
 
-  local held_dominoes, kingdom_dominoes, objects_to_move = getKingdomObjects()
+  local held_dominoes, objects_to_move = getKingdomObjects()
+  local kingdom_boundaries = getKingdomBoundaries(objects_to_move)
+
   if move_buttons_activated then
-    updateBlockedDirections(objects_to_move)
+    updateBlockedDirections(kingdom_boundaries)
   end
 
   kingdom_size = Global.getVar("kingdom_size")
@@ -109,8 +113,8 @@ function onUpdate()
   if not locked_kingdom then
     local shift = { x = 0, z = 0 }
     for _, domino in pairs(held_dominoes) do
-      shift.x = getAutoShiftKingdomValue(kingdom_dominoes, domino, "x")
-      shift.z = getAutoShiftKingdomValue(kingdom_dominoes, domino, "z")
+      shift.x = getAutoShiftKingdomValue(kingdom_boundaries, domino, "x")
+      shift.z = getAutoShiftKingdomValue(kingdom_boundaries, domino, "z")
     end
 
     current_position = {
@@ -123,18 +127,17 @@ function onUpdate()
   end
 end
 
-function getAutoShiftKingdomValue(kingdom_dominoes, domino, axis)
+function getAutoShiftKingdomValue(kingdom_boundaries, domino, axis)
   local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
-  local min_kingdom, max_kingdom = getMinPos(kingdom_dominoes, axis), getMaxPos(kingdom_dominoes, axis)
-  local domino_local_position = getObjectFromGUID(kingdom_guids.kingdom_zone).positionToLocal(domino.getPosition())
+  local domino_local_position = zone.positionToLocal(domino.getPosition())
 
   if domino_local_position[axis] > (1 / zone.getScale()[axis]) * (kingdom_size - 1) then
-    return getPossibleShift(min_kingdom, max_kingdom, -getdominoesize(domino, axis))
+    return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, -getdominoesize(domino, axis))
   elseif domino_local_position[axis] < -(1 / zone.getScale()[axis]) * (kingdom_size - 1) then
-    return getPossibleShift(min_kingdom, max_kingdom, getdominoesize(domino, axis))
+    return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, getdominoesize(domino, axis))
+  else
+    return 0
   end
-
-  return 0
 end
 
 function tryShift(direction)
@@ -175,26 +178,23 @@ function tryShift(direction)
   end
 end
 
-function updateBlockedDirections(kingdom_objects)
-  local min_kingdom_x, max_kingdom_x = getMinPos(kingdom_objects, "x"), getMaxPos(kingdom_objects, "x")
-  local min_kingdom_z, max_kingdom_z = getMinPos(kingdom_objects, "z"), getMaxPos(kingdom_objects, "z")
-
+function updateBlockedDirections(kingdom_boundaries)
   blocked_directions = {
     left = false,
     right = false,
     up = false,
     down = false
   }
-  if getSingleShift(min_kingdom_x, max_kingdom_x, -1) == 0 then
+  if getSingleShift(kingdom_boundaries.x.max, kingdom_boundaries.x.min, -1) == 0 then
     blocked_directions.left = true
   end
-  if getSingleShift(min_kingdom_x, max_kingdom_x, 1) == 0 then
+  if getSingleShift(kingdom_boundaries.x.max, kingdom_boundaries.x.min, 1) == 0 then
     blocked_directions.right = true
   end
-  if getSingleShift(min_kingdom_z, max_kingdom_z, -1) == 0 then
+  if getSingleShift(kingdom_boundaries.z.min, kingdom_boundaries.z.max, -1) == 0 then
     blocked_directions.down = true
   end
-  if getSingleShift(min_kingdom_z, max_kingdom_z, 1) == 0 then
+  if getSingleShift(kingdom_boundaries.z.min, kingdom_boundaries.z.max, 1) == 0 then
     blocked_directions.up = true
   end
 end
@@ -215,24 +215,20 @@ end
 function getKingdomObjects()
   local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
   local held_objects = getPlayersObjects()
-  local held_dominoes, kingdom_dominoes, objects_to_move = {}, {}, {}
+  local held_dominoes, kingdom_objects = {}, {}
   for _, object in pairs(zone.getObjects()) do
-    if DominoUtils.isDomino(object) or object.guid == kingdom_guids.castle_tile then
-      if table.contains(held_objects, object) then
-        table.insert(held_dominoes, object)
-      else
-        table.insert(kingdom_dominoes, object)
-      end
-    end
-
     if object.guid ~= table_guid
         and not table.contains(Guids.walls_guids[5], object.guid)
         and not table.contains(Guids.walls_guids[7], object.guid)
         and not table.contains(held_objects, object) then
-      table.insert(objects_to_move, object)
+      if table.contains(held_objects, object) then
+        table.insert(held_dominoes, object)
+      else
+        table.insert(kingdom_objects, object)
+      end
     end
   end
-  return held_dominoes, kingdom_dominoes, objects_to_move
+  return held_dominoes, kingdom_objects
 end
 
 function getSingleShift(min_kingdom, max_kingdom, space_needed)
@@ -305,6 +301,19 @@ function getMaxPos(objects, axis)
   else
     return max
   end
+end
+
+function getKingdomBoundaries(objects)
+  return {
+    x = {
+      min = getMinPos(objects, "x"),
+      max = getMaxPos(objects, "x")
+    },
+    z = {
+      min = getMinPos(objects, "z"),
+      max = getMaxPos(objects, "z")
+    }
+  }
 end
 
 function getMinPos(objects, axis)

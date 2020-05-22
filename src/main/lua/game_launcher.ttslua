@@ -252,7 +252,7 @@ function firstTurn(decks, building_guids, quests)
     quests = quests
   }
   Global.setTable("game", new_game)
-  Wait.frames(enableKingdomMoveButtons, 60)
+  enableKingdomMoveButtons()
   next_turn_button.call("firstTurn", new_game)
 end
 
