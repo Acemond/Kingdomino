@@ -11,7 +11,20 @@ local kingdom_size = 5
 
 local table_guid = "0f8757"
 
-local pending_movement
+local move_buttons_activated = false
+local blocked_directions = {
+  left = false,
+  right = false,
+  up = false,
+  down = false
+}
+local blocked_direction_buttons = {
+  left = false,
+  right = false,
+  up = false,
+  down = false
+}
+
 local current_position = {
   x = 0,
   z = 0
@@ -19,18 +32,32 @@ local current_position = {
 local locked_kingdom = false
 local button_state_locked = true
 
-local lock_y_position = 1.05
+local visible_y_position = 1.05
 local hidden_y_position = 0.5
+
+local move_animation
+
+local directions = {
+  left = "left",
+  right = "right",
+  up = "up",
+  down = "down"
+}
 
 function onLoad(save_state)
   if save_state ~= "" then
-    kingdom_size = JSON.decode(save_state).kingdom_size
-    current_position = JSON.decode(save_state).current_position
-    locked_kingdom = JSON.decode(save_state).locked_kingdom
-    button_state_locked = JSON.decode(save_state).button_state_locked
+    local save = JSON.decode(save_state)
+    kingdom_size = save.kingdom_size
+    current_position = save.current_position
+    locked_kingdom = save.locked_kingdom
+    button_state_locked = save.button_state_locked
+    blocked_directions = save.blocked_directions
+    blocked_direction_buttons = save.blocked_direction_buttons
+    move_buttons_activated = save.move_buttons_activated
   end
   createLockButtons()
   createUnlockButtons()
+  createMoveButtons()
 end
 
 function onSave()
@@ -39,16 +66,28 @@ function onSave()
     current_position = current_position,
     locked_kingdom = locked_kingdom,
     button_state_locked = not locked_kingdom, -- forces update of buttons on load
+    blocked_directions = blocked_directions,
+    move_buttons_activated = move_buttons_activated,
+    blocked_direction_buttons = { -- forces update of buttons on load
+      left = not blocked_directions.left,
+      right = not blocked_directions.right,
+      up = not blocked_directions.up,
+      down = not blocked_directions.down
+    }
   })
 end
 
--- FIXME: optimize this shit that is called player_count times per frame!
-local frame = table.indexOf(PlayerConstants.playable_color, color)
+local frame = table.indexOf(PlayerConstants.playable_color, color) * 2
 function onUpdate()
-  if Global.get("game") and locked_kingdom ~= button_state_locked then
-    updateLockButtons()
+  if Global.get("game") then
+    if locked_kingdom ~= button_state_locked then
+      updateLockButtons()
+    end
+    if not table.equal(blocked_direction_buttons, blocked_directions) then
+      updateMoveButtons()
+    end
   end
-  if pending_movement or locked_kingdom or not Global.getVar("kingdom_size") then
+  if not Global.getVar("kingdom_size") then
     return
   end
 
@@ -59,32 +98,72 @@ function onUpdate()
     frame = 0
   end
 
-  kingdom_size = Global.getVar("kingdom_size")
+  local held_dominoes, objects_to_move = getKingdomObjects()
+  local kingdom_boundaries = getKingdomBoundaries(objects_to_move)
 
-  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
-  local held_objects = getPlayersObjects()
-  local held_dominos, kingdom_dominos, objects_to_move = {}, {}, {}
-  for _, object in pairs(zone.getObjects()) do
-    if table.contains(Guids.dominoes.kingdomino, object.guid)
-        or table.contains(Guids.dominoes.queendomino, object.guid)
-        or table.contains(Guids.dominoes.age_of_giants, object.guid)
-        or object.guid == kingdom_guids.castle_tile then
-      if table.contains(held_objects, object) then
-        table.insert(held_dominos, object)
-      else
-        table.insert(kingdom_dominos, object)
-      end
-    end
-
-    if object.guid ~= table_guid and not table.contains(held_objects, object) then
-      table.insert(objects_to_move, object)
-    end
+  if move_buttons_activated then
+    updateBlockedDirections(kingdom_boundaries)
   end
 
+  kingdom_size = Global.getVar("kingdom_size")
+
+  if not locked_kingdom then
+    local shift = { x = 0, z = 0 }
+    for _, domino in pairs(held_dominoes) do
+      shift.x = getAutoShiftKingdomValue(kingdom_boundaries, domino, "x")
+      shift.z = getAutoShiftKingdomValue(kingdom_boundaries, domino, "z")
+    end
+
+    current_position = {
+      x = current_position.x + shift.x,
+      z = current_position.z + shift.z,
+    }
+    if not table.equal(shift, { x = 0, z = 0 }) then
+      launchAnimation(objects_to_move, current_position)
+    end
+  end
+end
+
+function getAutoShiftKingdomValue(kingdom_boundaries, domino, axis)
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
+  local domino_local_position = zone.positionToLocal(domino.getPosition())
+
+  if domino_local_position[axis] > (1 / zone.getScale()[axis]) * (kingdom_size - 1) then
+    return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, -getDominoSize(domino, axis))
+  elseif domino_local_position[axis] < -(1 / zone.getScale()[axis]) * (kingdom_size - 1) then
+    return getPossibleShift(kingdom_boundaries[axis].min, kingdom_boundaries[axis].max, getDominoSize(domino, axis))
+  else
+    return 0
+  end
+end
+
+function tryShift(direction)
   local shift = { x = 0, z = 0 }
-  for _, domino in pairs(held_dominos) do
-    shift.x = getShiftKingdom(kingdom_dominos, domino, "x")
-    shift.z = getShiftKingdom(kingdom_dominos, domino, "z")
+  local _, kingdom_objects = getKingdomObjects()
+  if direction == directions.left then
+    local min_kingdom, max_kingdom = getMinPos(kingdom_objects, "x"), getMaxPos(kingdom_objects, "x")
+    shift.x = getSingleShift(min_kingdom, max_kingdom, -1)
+    if getSingleShift(min_kingdom, max_kingdom, -2) == 0 then
+      blocked_directions[direction] = true
+    end
+  elseif direction == directions.right then
+    local min_kingdom, max_kingdom = getMinPos(kingdom_objects, "x"), getMaxPos(kingdom_objects, "x")
+    shift.x = getSingleShift(min_kingdom, max_kingdom, 1)
+    if getSingleShift(min_kingdom, max_kingdom, 2) == 0 then
+      blocked_directions[direction] = true
+    end
+  elseif direction == directions.up then
+    local min_kingdom, max_kingdom = getMinPos(kingdom_objects, "z"), getMaxPos(kingdom_objects, "z")
+    shift.z = getSingleShift(min_kingdom, max_kingdom, 1)
+    if getSingleShift(min_kingdom, max_kingdom, 2) == 0 then
+      blocked_directions[direction] = true
+    end
+  elseif direction == directions.down then
+    local min_kingdom, max_kingdom = getMinPos(kingdom_objects, "z"), getMaxPos(kingdom_objects, "z")
+    shift.z = getSingleShift(min_kingdom, max_kingdom, -1)
+    if getSingleShift(min_kingdom, max_kingdom, -1) == 0 then
+      blocked_directions[direction] = true
+    end
   end
 
   current_position = {
@@ -92,22 +171,77 @@ function onUpdate()
     z = current_position.z + shift.z,
   }
   if not table.equal(shift, { x = 0, z = 0 }) then
-    launchAnimation(objects_to_move, current_position)
+    launchAnimation(kingdom_objects, current_position)
   end
 end
 
-function getShiftKingdom(kingdom_dominos, domino, axis)
-  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
-  local min_kingdom, max_kingdom = getMinPos(kingdom_dominos, axis), getMaxPos(kingdom_dominos, axis)
-  local domino_local_position = getObjectFromGUID(kingdom_guids.kingdom_zone).positionToLocal(domino.getPosition())
-
-  if domino_local_position[axis] > (1 / zone.getScale()[axis]) * (kingdom_size - 1) then
-    return getPossibleShift(min_kingdom, max_kingdom, -getDominoSize(domino, axis))
-  elseif domino_local_position[axis] < -(1 / zone.getScale()[axis]) * (kingdom_size - 1) then
-    return getPossibleShift(min_kingdom, max_kingdom, getDominoSize(domino, axis))
+function updateBlockedDirections(kingdom_boundaries)
+  blocked_directions = {
+    left = false,
+    right = false,
+    up = false,
+    down = false
+  }
+  if getSingleShift(kingdom_boundaries.x.min, kingdom_boundaries.x.max, -1) == 0 then
+    blocked_directions.left = true
   end
+  if getSingleShift(kingdom_boundaries.x.min, kingdom_boundaries.x.max, 1) == 0 then
+    blocked_directions.right = true
+  end
+  if getSingleShift(kingdom_boundaries.z.min, kingdom_boundaries.z.max, -1) == 0 then
+    blocked_directions.down = true
+  end
+  if getSingleShift(kingdom_boundaries.z.min, kingdom_boundaries.z.max, 1) == 0 then
+    blocked_directions.up = true
+  end
+end
 
-  return 0
+function updateMoveButtons()
+  for direction, blocked in pairs(blocked_directions) do
+    if blocked_direction_buttons[direction] ~= blocked then
+      blocked_direction_buttons[direction] = blocked
+      if blocked then
+        disableButton(getObjectFromGUID(Guids.player_pieces[color][direction]))
+      else
+        enableButton(getObjectFromGUID(Guids.player_pieces[color][direction]))
+      end
+    end
+  end
+end
+
+function getKingdomObjects()
+  local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
+  local held_objects_guid = getHeldObjectsGuid()
+  local held_dominoes, kingdom_objects = {}, {}
+  for _, object in pairs(zone.getObjects()) do
+    if object.guid ~= table_guid then
+      if table.contains(held_objects_guid, object.guid) then
+        if DominoUtils.isDomino(object) then
+          table.insert(held_dominoes, object)
+        end
+      else
+        table.insert(kingdom_objects, object)
+      end
+    end
+  end
+  return held_dominoes, kingdom_objects
+end
+
+function getSingleShift(min_kingdom, max_kingdom, space_needed)
+  local kingdom_limit = (kingdom_size - 1) / 2
+  if space_needed < 0 then
+    if math.abs(-kingdom_limit - min_kingdom) >= math.abs(space_needed) then
+      return space_needed
+    else
+      return 0
+    end
+  else
+    if kingdom_limit - max_kingdom >= space_needed then
+      return space_needed
+    else
+      return 0
+    end
+  end
 end
 
 function getPossibleShift(min_kingdom, max_kingdom, space_needed)
@@ -140,10 +274,33 @@ function getPossibleShift(min_kingdom, max_kingdom, space_needed)
 end
 
 function launchAnimation(objects, new_position)
-  -- Waiting 1 frame for tile snap to grid
-  pending_movement = Wait.frames(function()
-    moveKingdom(objects, new_position)
-  end, 1)
+  moveKingdom(objects, new_position)
+end
+
+function getKingdomBoundaries(objects)
+  return {
+    x = {
+      min = getMinPos(objects, "x"),
+      max = getMaxPos(objects, "x")
+    },
+    z = {
+      min = getMinPos(objects, "z"),
+      max = getMaxPos(objects, "z")
+    }
+  }
+end
+
+function getKingdomBoundaries(objects)
+  return {
+    x = {
+      min = getMinPos(objects, "x"),
+      max = getMaxPos(objects, "x")
+    },
+    z = {
+      min = getMinPos(objects, "z"),
+      max = getMaxPos(objects, "z")
+    }
+  }
 end
 
 function getMaxPos(objects, axis)
@@ -152,7 +309,7 @@ function getMaxPos(objects, axis)
   local max
   for _, object in pairs(objects) do
     local local_position = math.floor(zone.positionToLocal(object.getPosition())[axis] * zone.getScale().x + 0.5) / 2
-    if object.guid ~= kingdom_guids.castle_tile then
+    if DominoUtils.isDomino(object) then
       local orientation = DominoUtils.getOrientation(object.getRotation().y - zone.getRotation().y)
       local_position = local_position + getDominoMaxOffset(orientation)[axis]
     end
@@ -174,7 +331,7 @@ function getMinPos(objects, axis)
   local min
   for _, object in pairs(objects) do
     local local_position = math.floor(zone.positionToLocal(object.getPosition())[axis] * zone.getScale().x + 0.5) / 2
-    if object.guid ~= kingdom_guids.castle_tile then
+    if DominoUtils.isDomino(object) then
       local orientation = DominoUtils.getOrientation(object.getRotation().y - zone.getRotation().y)
       local_position = local_position + getDominoMinOffset(orientation)[axis]
     end
@@ -223,12 +380,12 @@ function getDominoMinOffset(orientation)
   end
 end
 
-function getPlayersObjects()
+function getHeldObjectsGuid()
   local all_objects = {}
   for _, player in pairs(Player.getPlayers()) do
     if player.getHoldingObjects() ~= nil then
       for _, object in pairs(player.getHoldingObjects()) do
-        table.insert(all_objects, object)
+        table.insert(all_objects, object.guid)
       end
     end
   end
@@ -257,12 +414,14 @@ function moveKingdom(kingdom_objects, new_position)
     object.setPositionSmooth(zone.positionToWorld(object_target_position), false, true)
   end
 
-  pending_movement = Wait.condition(function()
-    pending_movement = nil
+  local target_position = zone.positionToWorld(target_local_position)
+  move_animation = Wait.condition(function()
+    move_animation = nil
   end, function()
-    return math.abs(tile.getPosition().x - zone.positionToWorld(target_local_position).x) < 0.01
-        and math.abs(tile.getPosition().y - zone.positionToWorld(target_local_position).y) < 0.01
-        and math.abs(tile.getPosition().z - zone.positionToWorld(target_local_position).z) < 0.01
+    return math.abs(target_position.x - tile.getPosition().x) < 0.01
+        and math.abs(target_position.z - tile.getPosition().z) < 0.01
+  end, 360, function()
+    move_animation = nil
   end)
 end
 
@@ -306,40 +465,109 @@ function updateLockButtons()
   local unlock_button = getObjectFromGUID(Guids.player_pieces[color].unlock_kingdom)
   local lock_button = getObjectFromGUID(Guids.player_pieces[color].lock_kingdom)
 
+  local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local x_offset = -kingdom_size / kingdom.getScale().x
+  local z_offset = -2 * (kingdom_size / 2 + 1) / kingdom.getScale().z
+
   if locked_kingdom then
     button_state_locked = true
-    hideButton(lock_button)
+    hideButton(lock_button, x_offset, z_offset)
     Wait.condition(function()
-      showButton(unlock_button)
+      showButton(unlock_button, x_offset, z_offset)
     end, function()
       return lock_button.getPosition().y < 0.9
     end)
   else
     button_state_locked = false
-    hideButton(unlock_button)
+    hideButton(unlock_button, x_offset, z_offset)
     Wait.condition(function()
-      showButton(lock_button)
+      showButton(lock_button, x_offset, z_offset)
     end, function()
       return unlock_button.getPosition().y < 0.9
     end)
   end
 end
 
-function showButton(button)
-  local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
-  local x_offset = -kingdom_size / kingdom.getScale().x
-  local z_offset = -2 * (kingdom_size / 2 + 1) / kingdom.getScale().z
-  local lock_position = kingdom.positionToWorld({ x_offset, 0, z_offset })
-  button.editButton({ index = 0, scale = { 1, 1, 1 } })
-  button.setPosition({ lock_position.x, 0.86, lock_position.z, })
-  button.setPositionSmooth({ lock_position.x, lock_y_position, lock_position.z, }, false, true)
+function createMoveButtons()
+  local left_button = getObjectFromGUID(Guids.player_pieces[color].left)
+  local right_button = getObjectFromGUID(Guids.player_pieces[color].right)
+  local up_button = getObjectFromGUID(Guids.player_pieces[color].up)
+  local down_button = getObjectFromGUID(Guids.player_pieces[color].down)
+
+  createMoveButton(left_button, directions.left)
+  createMoveButton(right_button, directions.right)
+  createMoveButton(up_button, directions.up)
+  createMoveButton(down_button, directions.down)
 end
 
-function hideButton(button)
+function activateMoveButtons()
+  move_buttons_activated = true
+  local left_button = getObjectFromGUID(Guids.player_pieces[color].left)
+  local right_button = getObjectFromGUID(Guids.player_pieces[color].right)
+  local up_button = getObjectFromGUID(Guids.player_pieces[color].up)
+  local down_button = getObjectFromGUID(Guids.player_pieces[color].down)
+
   local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
-  local x_offset = -kingdom_size / kingdom.getScale().x
-  local z_offset = -2 * (kingdom_size / 2 + 1) / kingdom.getScale().z
-  local lock_position = kingdom.positionToWorld({ x_offset, 0, z_offset })
+  local offset_value = (kingdom_size + 1.5) / kingdom.getScale().x
+
+  showButton(left_button, -offset_value, 0)
+  showButton(right_button, offset_value, 0)
+  showButton(up_button, 0, offset_value)
+  showButton(down_button, 0, -offset_value)
+end
+
+function createMoveButton(button, direction)
+  local function_name = "move_kingdom_" .. direction
+  self.setVar(function_name, function()
+    toggleEffect(direction)
+    tryShift(direction)
+  end)
+  button.createButton({
+    click_function = function_name,
+    function_owner = self,
+    label = "",
+    tooltip = "Click to move kingdom " .. direction .. ".",
+    position = { 0, 0.05, 0 },
+    scale = { 0, 0, 0 },
+    color = { 0, 0, 0, 0 },
+    width = 800,
+    height = 600,
+  })
+end
+
+function toggleEffect(direction)
+  local button = getObjectFromGUID(Guids.player_pieces[color][direction])
+  button.setPositionSmooth({ button.getPosition().x, 0.86, button.getPosition().z, }, false, true)
+  Wait.condition(function()
+    if not blocked_directions[direction] and not blocked_direction_buttons[direction] then
+      button.setPositionSmooth({ button.getPosition().x, visible_y_position, button.getPosition().z, }, false, true)
+    end
+  end, function()
+    return move_animation == nil
+  end)
+end
+
+function showButton(button, x_offset, z_offset)
+  local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local button_position = kingdom.positionToWorld({ x_offset, 0, z_offset })
+  button.editButton({ index = 0, scale = { 1, 1, 1 } })
+  button.setPosition({ button_position.x, 0.86, button_position.z, })
+  button.setPositionSmooth({ button_position.x, visible_y_position, button_position.z, }, false, true)
+end
+
+function hideButton(button, x_offset, z_offset)
+  local kingdom = getObjectFromGUID(Guids.player_pieces[color].kingdom_zone)
+  local button_position = kingdom.positionToWorld({ x_offset, 0, z_offset })
   button.editButton({ index = 0, scale = { 0, 0, 0 } })
-  button.setPositionSmooth({ lock_position.x, hidden_y_position, lock_position.z, }, false, true)
+  button.setPositionSmooth({ button_position.x, hidden_y_position, button_position.z, }, false, true)
+end
+
+function disableButton(button)
+  button.editButton({ index = 0, scale = { 0, 0, 0 } })
+  button.setPositionSmooth({ button.getPosition().x, 0.86, button.getPosition().z, }, false, true)
+end
+
+function enableButton(button)
+  button.editButton({ index = 0, scale = { 1, 1, 1 } })
+  button.setPositionSmooth({ button.getPosition().x, visible_y_position, button.getPosition().z, }, false, true)
 end

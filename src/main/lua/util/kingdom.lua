@@ -430,7 +430,7 @@ end
 function getVariablePoints(variable, square)
   if variable.condition == "crowns" and square.terrain then
     local building_crowns = 0
-    if square.building and square.building.crowns > 0 then
+    if square.building ~= nil and square.building.crowns ~= nil and square.building.crowns > 0 then
       building_crowns = building_crowns + square.building.crowns
     end
     return (square.terrain.crowns + building_crowns) * variable.amount

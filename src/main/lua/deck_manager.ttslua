@@ -134,8 +134,10 @@ function showObjectIfExists(guid)
   if object == nil then
     return
   end
-  object.setPosition({ object.getPosition().x, 3, object.getPosition().z })
+
   object.unlock()
+  local target_y = 0.95 + object.getBounds().size.y / 2 + object.getBounds().offset.y
+  object.setPositionSmooth({ object.getPosition().x, target_y, object.getPosition().z }, false, true)
 end
 
 function hideObjectIfExists(guid)
@@ -143,13 +145,10 @@ function hideObjectIfExists(guid)
   if object == nil then
     return
   end
+
   object.lock()
-  object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
-  if object.getButtons() then
-    for _, button in pairs(object.getButtons()) do
-      object.editButton({ index = button.index, scale = { 0, 0, 0 } })
-    end
-  end
+  local target_y = 0 - object.getBounds().size.y / 2 + object.getBounds().offset.y
+  object.setPositionSmooth({ object.getPosition().x, target_y, object.getPosition().z }, false, true)
 end
 
 function updateDeckVisible()

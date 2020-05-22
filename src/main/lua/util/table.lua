@@ -7,6 +7,14 @@ function table.contains(tbl, value)
   return false
 end
 
+function table.map(tbl, map_function)
+  local new_table = {}
+  for key, tbl_value in pairs(tbl) do
+    new_table[key] = map_function(tbl_value)
+  end
+  return new_table
+end
+
 function table.size(tbl)
   local size = 0
   for _, _ in pairs(tbl) do
@@ -55,11 +63,7 @@ end
 
 function table.equal(tbl, other)
   for key, value in pairs(tbl) do
-    if type(value) == "table" then
-      if not table.equal(value, other[key]) then
-        return false
-      end
-    elseif other[key] ~= value then
+    if other[key] ~= value then
       return false
     end
   end

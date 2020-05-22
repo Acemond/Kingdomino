@@ -154,7 +154,7 @@ function nextTurn()
   local deck = getObjectFromGUID(game.decks[(turn - 1) % #game.decks + 1])
   if deck ~= nil then
     deck.shuffle()
-    deck.call("dealTiles")
+    deck.call("dealDominoes")
   else
     last_turn = true
     disableCastles()
@@ -172,10 +172,10 @@ function setupPing()
       Wait.condition(function()
         broadcastToAll("Game over!", { r = 1, g = 1, b = 1 })
       end, function()
-        return #getObjectFromGUID(leftZoneGuid).getObjects() - getKingCount(leftZoneGuid) < 3
+        return getZoneGameObjectCount(getObjectFromGUID(leftZoneGuid), kingsGuid) < 1
       end)
     end, function()
-      return #getObjectFromGUID(leftZoneGuid).getObjects() > 2
+      return getZoneGameObjectCount(getObjectFromGUID(leftZoneGuid)) > 0
     end)
   end
 end
@@ -276,12 +276,21 @@ function checkTileZone(zone)
 end
 
 function checkLeftZone()
-  for _, object in pairs(getObjectFromGUID(leftZoneGuid).getObjects()) do
-    if not table.contains(DominoBoardConstants.left_boards_guids, object.guid) and object.guid ~= tableGuid then
-      broadcastToAll("Clear left dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
-      error()
+  if getZoneGameObjectCount(getObjectFromGUID(leftZoneGuid)) > 0 then
+    broadcastToAll("Clear left dominos before clicking Next Turn", { r = 1, g = 0, b = 0 })
+    error()
+  end
+end
+
+function getZoneGameObjectCount(zone, objects_to_ignore)
+  local count = 0
+  for _, object in pairs(zone.getObjects()) do
+    if not table.contains(DominoBoardConstants.left_boards_guids, object.guid)
+        and object.guid ~= tableGuid and not (objects_to_ignore and table.contains(objects_to_ignore, object.guid)) then
+      count = count + 1
     end
   end
+  return count
 end
 
 function moveZoneContents()

@@ -2,40 +2,56 @@ require("util/table")
 require("constants/guids")
 require("constants/domino_board")
 
-function dealTile(tileGuid, position)
-  local guid = tileGuid
-  if #self.getObjects() == 0 then
-    guid = nil
+function dealDomino(domino_guid, position)
+  local callback_function = function(obj)
+    obj.flip()
+    Wait.condition(function()
+      obj.lock()
+    end, function()
+      return obj.getPosition().y < 1.24
+    end, 180, function()
+      obj.lock()
+    end)
   end
 
-  self.takeObject({
-    guid = guid,
-    position = position,
-    rotation = { 0, 180, 180 },
-    callback_function = function(obj)
-      obj.flip()
-      Wait.condition(function()
-        obj.lock()
-      end, function()
-        return obj.getPosition().y < 1.24
-      end, 180, function()
-        obj.lock()
-      end)
-    end
-  })
+  if self == nil or #self.getObjects() == 0 then
+    local obj = getObjectFromGUID(domino_guid)
+    obj.setPositionSmooth(position)
+    Wait.condition(function()
+      callback_function(obj)
+    end, function()
+      return math.abs(position.x - obj.getPosition().x) < 0.01
+          and math.abs(position.y - obj.getPosition().y) < 0.01
+          and math.abs(position.z - obj.getPosition().z) < 0.01
+    end)
+  else
+    self.takeObject({
+      guid = domino_guid,
+      position = position,
+      rotation = { 0, 180, 180 },
+      callback_function = callback_function
+    })
+  end
 end
 
-function dealTiles()
-  for index, guid in pairs(getSortedTilesValue()) do
+function dealDominoes()
+  self.interactable = false
+
+  local dominoes = getSortedDominoesValue()
+  for index, guid in pairs(dominoes) do
     local domino_zone = getObjectFromGUID(Guids.tile_check_zone[index])
 
     Wait.frames(function()
-      dealTile(guid, domino_zone.getPosition())
+      dealDomino(guid, domino_zone.getPosition())
     end, index * 10)
   end
+
+  Wait.frames(function()
+    self.interactable = true
+  end, (#dominoes + 1) * 10)
 end
 
-function getSortedTilesValue()
+function getSortedDominoesValue()
   local guids = getObjectsGuids()
   table.sort(guids, function(a, b)
     return table.indexOf(Guids.dominoes.queendomino, a) < table.indexOf(Guids.dominoes.queendomino, b)

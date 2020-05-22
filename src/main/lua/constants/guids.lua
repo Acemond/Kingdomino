@@ -19,7 +19,11 @@ Guids.player_pieces = {
     unlock_kingdom = "174baf",
     add_player = "8d17b0",
     remove_player = "fa1b7c",
-    score = "fb3aef"
+    score = "fb3aef",
+    left = "930bfd",
+    right = "c42b3a",
+    up = "bdcd6e",
+    down = "f7ecfc"
   },
   Purple = {
     kingdom_zone = "54b528",
@@ -32,7 +36,11 @@ Guids.player_pieces = {
     unlock_kingdom = "bb6a8f",
     add_player = "1b4b1a",
     remove_player = "1bbcb3",
-    score = "a0c171"
+    score = "a0c171",
+    left = "0aeb33",
+    right = "bbd180",
+    up = "6e634c",
+    down = "898c80"
   },
   Red = {
     kingdom_zone = "f1bc94",
@@ -45,7 +53,11 @@ Guids.player_pieces = {
     unlock_kingdom = "8ea950",
     add_player = "a1ef12",
     remove_player = "dfeee5",
-    score = "5f029e"
+    score = "5f029e",
+    left = "a60174",
+    right = "2284ad",
+    up = "b7ed5b",
+    down = "10eb8f"
   },
   White = {
     kingdom_zone = "57d93f",
@@ -58,7 +70,11 @@ Guids.player_pieces = {
     unlock_kingdom = "78c148",
     add_player = "f60fe5",
     remove_player = "74e8b0",
-    score = "6d61c5"
+    score = "6d61c5",
+    left = "75497b",
+    right = "5ab6ce",
+    up = "672025",
+    down = "16b5f1"
   },
   Green = {
     kingdom_zone = "e491d2",
@@ -71,7 +87,11 @@ Guids.player_pieces = {
     unlock_kingdom = "4d9e38",
     add_player = "fbeaba",
     remove_player = "8fedd0",
-    score = "43b47b"
+    score = "43b47b",
+    left = "c34f25",
+    right = "6c0fdf",
+    up = "ed1972",
+    down = "3af1e7"
   },
   Pink = {
     kingdom_zone = "921b32",
@@ -84,7 +104,11 @@ Guids.player_pieces = {
     unlock_kingdom = "f26133",
     add_player = "6987e6",
     remove_player = "668a0a",
-    score = "e9f7d0"
+    score = "e9f7d0",
+    left = "97a9e5",
+    right = "4071a5",
+    up = "6eaf33",
+    down = "1b567d"
   }
 }
 
@@ -116,6 +140,8 @@ Guids.walls_guids = {
   }
 }
 
+-- FIXME: not reliable because of deck cloning for XL games.
+-- TODO: remove
 Guids.dominoes = {
   kingdomino = {
     "65c7b4",
@@ -257,10 +283,10 @@ Guids.deck_objects = {
   the_court = {
     buildings = "e0b7ee",
     building_board = "d19b4c",
-    wheat_bag = "68a4e4",
-    sheep_bag = "98f12a",
-    wood_bag = "443d34",
-    fish_bag = "3725a9"
+    Wheat = "68a4e4",
+    Sheep = "98f12a",
+    Wood = "443d34",
+    Fish = "3725a9",
   }
 }
 

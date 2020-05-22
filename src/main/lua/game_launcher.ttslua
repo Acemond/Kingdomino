@@ -218,6 +218,7 @@ function launchGame(new_game_settings)
 
   removeCheckZones()
   destroyUnusedPieces()
+  destroyUnusedWalls()
   game_table.call("prepareTableForGame")
   Wait.frames(moveKingdoms, 15)
 
@@ -252,7 +253,16 @@ function firstTurn(decks, building_guids, quests)
     quests = quests
   }
   Global.setTable("game", new_game)
+  enableKingdomMoveButtons()
   next_turn_button.call("firstTurn", new_game)
+end
+
+function enableKingdomMoveButtons()
+  for color, playing in pairs(game_settings.seated_players) do
+    if playing then
+      getObjectFromGUID(Guids.player_pieces[color].castle_tile).call("activateMoveButtons")
+    end
+  end
 end
 
 function getCastles()
@@ -318,6 +328,33 @@ function destroyUnusedPieces()
       for _, guid in pairs(game_objects_guid[mode]) do
         destroyObjectIfExists(guid)
       end
+    end
+  end
+  for color, objects in pairs(Guids.player_pieces) do
+    if not game_settings.seated_players[color] then
+      destroyObjectIfExists(objects.kingdom_zone)
+      destroyObjectIfExists(objects.flag)
+      destroyObjectIfExists(objects.lock_kingdom)
+      destroyObjectIfExists(objects.unlock_kingdom)
+      destroyObjectIfExists(objects.score)
+      destroyObjectIfExists(objects.left)
+      destroyObjectIfExists(objects.right)
+      destroyObjectIfExists(objects.up)
+      destroyObjectIfExists(objects.down)
+    end
+  end
+end
+
+function destroyUnusedWalls()
+  local kingdom_size = Global.get("kingdom_size")
+  for size, walls in pairs(Guids.walls_guids) do
+    for color, wall in pairs(walls) do
+      if not game_settings.seated_players[color] then
+        destroyObjectIfExists(wall)
+      end
+    end
+    if size ~= kingdom_size then
+      destroyObjectsIfExists(walls)
     end
   end
 end
@@ -450,7 +487,8 @@ function movePlayerPieces(color, target_position)
 
   local hand_offset = (Global.get("kingdom_size") + 5) / kingdom_zone.getScale().x
   local hand_transform = Player[color].getHandTransform()
-  hand_transform.position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset })
+  hand_transform.position.x = kingdom_zone.positionToWorld({ 0, 0, -hand_offset }).x
+  hand_transform.position.z = kingdom_zone.positionToWorld({ 0, 0, -hand_offset }).z
   Wait.condition(function()
     Player[color].setHandTransform(hand_transform)
     if game_settings.decks.queendomino then

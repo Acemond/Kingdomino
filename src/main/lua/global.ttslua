@@ -2,6 +2,8 @@ require("util/domino")
 require("util/table")
 require("constants/guids")
 require("constants/domino_board")
+require("decks/territories")
+require("snap_points")
 
 local player_manager_guid = "31971b"
 local player_manager = {}
@@ -14,8 +16,12 @@ local variant_manager = {}
 local configuration_validator_guid = "2a0d3f"
 local configuration_validator = {}
 
+local dealt_resources = {}
+
 function onLoad(save_state)
-  if save_state == "" then
+  if save_state ~= "" then
+    dealt_resources = JSON.decode(save_state).dealt_resources
+  else
     displayWelcomeMessage()
   end
   player_manager = getObjectFromGUID(player_manager_guid)
@@ -25,45 +31,174 @@ function onLoad(save_state)
   variant_manager = getObjectFromGUID(variant_manager_guid)
 end
 
-function onSave()
-  return JSON.encode({ new_game = false })
+function onUpdate()
+  updateHeldDominoesSnapPoint()
+  SnapPointsManager.setGlobalSnapPoints()
 end
 
+function onSave()
+  return JSON.encode({
+    new_game = false,
+    dealt_resources = dealt_resources
+  })
+end
+
+local dropped_dominoes = {}
 function onObjectDrop(_, object)
-  if (table.contains(Guids.dominoes.kingdomino, object.guid)
-      or table.contains(Guids.dominoes.queendomino, object.guid)
-      or table.contains(Guids.dominoes.age_of_giants, object.guid))
-      and not nearbySnapPoint(object, 1) then
-    snapDominoToGrid(object)
+  if DominoUtils.isDomino(object) then
+    local guid = object.guid
+    dropped_dominoes[guid] = true
+    Wait.condition(function()
+      dropped_dominoes[guid] = nil
+    end, function()
+      return object == nil or not object.getPosition() or object.getPosition().y < 0.97
+    end, 60, function()
+      dropped_dominoes[guid] = nil
+    end)
+
+    local kingdom = getDominoKingdom(object)
+    if Global.getTable("deck_enabled")
+        and Global.getTable("deck_enabled").the_court
+        and kingdom ~= nil then
+      local add_resources_function = function()
+        if object ~= nil then
+          addTheCourtResources(object, kingdom)
+        end
+      end
+      Wait.condition(add_resources_function, function()
+        return object == nil or object.getPosition().y < 0.97
+      end, 180, add_resources_function)
+    end
   end
 end
 
-function snapDominoToGrid(domino)
+function updateHeldDominoesSnapPoint()
+  local held_objects = getHeldObjects()
+  for guid, dropped in pairs(dropped_dominoes) do
+    if dropped then
+      table.insert(held_objects, getObjectFromGUID(guid))
+    end
+  end
+
+  local snap_points = {}
+  for _, object in pairs(held_objects) do
+    if DominoUtils.isDomino(object) and not nearbySnapPoint(object, 1.2) then
+      table.insert(snap_points, { position = getSnapPointPosition(object) })
+    end
+  end
+
+  Global.call("setHeldObjectsSnapPoint", snap_points)
+end
+
+function getSnapPointPosition(domino)
   local orientation = DominoUtils.getOrientation(domino.getRotation().y)
   if orientation == DominoUtils.orientations.x or orientation == DominoUtils.orientations.x_reverse then
-    domino.setPositionSmooth({
-      snapToGrid(domino.getPosition().x, 2),
-      domino.getPosition().y,
-      snapToGrid(domino.getPosition().z, 2, 0.5)
-    }, false, true)
+    return {
+      x = snapToGrid(domino.getPosition().x, 2),
+      y = 0.96,
+      z = snapToGrid(domino.getPosition().z, 2, 0.5)
+    }
   else
-    domino.setPositionSmooth({
-      snapToGrid(domino.getPosition().x, 2, 0.5),
-      domino.getPosition().y,
-      snapToGrid(domino.getPosition().z, 2),
-    }, false, true)
+    return {
+      x = snapToGrid(domino.getPosition().x, 2, 0.5),
+      y = 0.96,
+      z = snapToGrid(domino.getPosition().z, 2)
+    }
   end
-  domino.setRotationSmooth({
-    snapToGrid(DominoUtils.boundRotation(domino.getRotation().x), 180),
-    snapToGrid(DominoUtils.boundRotation(domino.getRotation().y), 90),
-    snapToGrid(DominoUtils.boundRotation(domino.getRotation().z), 180)
+end
+
+function snapToGrid(value, grid, offset)
+  offset = offset or 0
+  return (math.floor(value / grid + 0.5 + offset) - offset) * grid
+end
+
+function getHeldObjects()
+  local all_objects = {}
+  for _, player in pairs(Player.getPlayers()) do
+    if player.getHoldingObjects() ~= nil then
+      for _, object in pairs(player.getHoldingObjects()) do
+        table.insert(all_objects, object)
+      end
+    end
+  end
+  return all_objects
+end
+
+function getDominoKingdom(domino)
+  local get_guid_function = function(obj)
+    return obj.guid
+  end
+
+  for _, pieces in pairs(Guids.player_pieces) do
+    local zone = getObjectFromGUID(pieces.kingdom_zone)
+    if zone ~= nil and table.contains(table.map(zone.getObjects(), get_guid_function), domino.guid) then
+      return zone
+    end
+  end
+end
+
+function popResourceToken(token)
+  local target_scale = token.getScale().x
+  token.setScale({ 0.05, token.getScale().y, 0.05 })
+  token.setPositionSmooth({
+    token.getPosition().x,
+    1.3,
+    token.getPosition().z
   }, false, true)
-  domino.setVelocity({ 0, 0, 0 })
-  domino.setAngularVelocity({ 0, 0, 0 })
+  scaleToken(token, target_scale)
+end
+
+function scaleToken(token, target_scale)
+  Wait.frames(function()
+    if token.getScale().x < target_scale then
+      if token.getScale().x * 1.16 < target_scale then
+        token.scale(1.16)
+        scaleToken(token, target_scale)
+      else
+        token.setScale({ target_scale, target_scale, target_scale })
+      end
+    end
+  end, 1)
+end
+
+function addTheCourtResources(domino, kingdom)
+  if dealt_resources[domino.guid] then
+    return
+  end
+  dealt_resources[domino.guid] = true
+
+  local squares = getDominoContent(domino)
+  if squares[1].crowns == 0 then
+    local position = domino.positionToWorld({ (1 / 1.8), 0, 0 })
+    spawnResourceToken(squares[1].type, position, kingdom)
+  end
+  if squares[2].crowns == 0 then
+    local position = domino.positionToWorld({ -(1 / 1.8), 0, 0 })
+    spawnResourceToken(squares[2].type, position, kingdom)
+  end
+end
+
+function spawnResourceToken(terrain_type, position, kingdom)
+  local resource_type = getResourceType(terrain_type)
+  if resource_type then
+    getObjectFromGUID(Guids.deck_objects.the_court[resource_type]).takeObject({
+      position = { position.x, 0.6, position.z },
+      rotation = { 0, 180 + kingdom.getRotation().y, 0 },
+      smooth = false,
+      callback_function = popResourceToken
+    })
+  end
 end
 
 function nearbySnapPoint(domino, distance)
-  local board = getObjectFromGUID(DominoBoardConstants.left_boards[Global.getVar("board_size")].guid)
+  local board_size
+  if Global.getVar("board_size") ~= nil then
+    board_size = Global.getVar("board_size")
+  else
+    board_size = Global.getTable("game").settings.tile_deal_count
+  end
+
+  local board = getObjectFromGUID(DominoBoardConstants.left_boards[board_size].guid)
   for _, snap_point in pairs(board.getSnapPoints()) do
     local snap_x = snap_point.position.x * board.getScale().x + board.getPosition().x
     local snap_z = snap_point.position.z * board.getScale().z + board.getPosition().z
@@ -116,7 +251,7 @@ end
 
 function resolveForPlayerCount(target_player_count)
   local game_settings = getGameSettings()
-  if target_player_count > 4 then
+  if target_player_count > 5 then
     deck_manager.call("setDeckEnabled", { deck_name = "kingdomino", is_enabled = true })
     deck_manager.call("setDeckEnabled", { deck_name = "queendomino", is_enabled = true })
   end

@@ -34,10 +34,10 @@ squares = {
 }
 
 resources = {
-  Wheat = { type = "wheat", base_points = 0, warrior = false },
-  Wood = { type = "wood", base_points = 0, warrior = false },
-  Fish = { type = "fish", base_points = 0, warrior = false },
-  Sheep = { type = "sheep", base_points = 0, warrior = false },
+  Wheat = { type = "wheat", base_points = 0, warrior = false, terrain = terrain_types.fields },
+  Wood = { type = "wood", base_points = 0, warrior = false, terrain = terrain_types.forest },
+  Fish = { type = "fish", base_points = 0, warrior = false, terrain = terrain_types.lake },
+  Sheep = { type = "sheep", base_points = 0, warrior = false, terrain = terrain_types.prairies },
 }
 
 giant = { name = "Giant" }
@@ -222,17 +222,14 @@ local dominoes = {
 }
 
 function getDominoContent(object)
-  local domino_index = table.indexOf(Guids.dominoes.kingdomino, object.guid)
-  if domino_index ~= nil then
-    return dominoes.kingdomino[domino_index]
-  end
-  domino_index = table.indexOf(Guids.dominoes.queendomino, object.guid)
-  if domino_index ~= nil then
-    return dominoes.queendomino[domino_index]
-  end
-  domino_index = table.indexOf(Guids.dominoes.age_of_giants, object.guid)
-  if domino_index ~= nil then
-    return dominoes.age_of_giants[domino_index]
+  return dominoes[DominoUtils.getDominoDeck(object)][DominoUtils.getDominoValue(object)]
+end
+
+function getResourceType(terrain_type)
+  for resource_name, resource in pairs(resources) do
+    if terrain_type == resource.terrain then
+      return resource_name
+    end
   end
 end
 

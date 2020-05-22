@@ -27,10 +27,7 @@ local castle_positions = {
   }
 }
 
-local kingdom_zone_scales = {
-  [5] = { 10, 4, 10 },
-  [7] = { 14, 4, 14 }
-}
+local kingdom_zone_scales = { [5] = 10, [7] = 14 }
 
 local castle_y_position = 1.16
 local walls_y_position = 0.95
@@ -162,7 +159,8 @@ function showWalls(seat_color, delay)
     local kingdom_zone = getObjectFromGUID(Guids.player_pieces[seat_color].kingdom_zone)
     local hand_offset = (current_walls_size + 2) / kingdom_zone.getScale().x
     local hand_transform = Player[seat_color].getHandTransform()
-    hand_transform.position = kingdom_zone.positionToWorld({ 0, 0, -hand_offset })
+    hand_transform.position.x = kingdom_zone.positionToWorld({ 0, 0, -hand_offset }).x
+    hand_transform.position.z = kingdom_zone.positionToWorld({ 0, 0, -hand_offset }).z
     Player[seat_color].setHandTransform(hand_transform)
   end, delay)
 
@@ -221,7 +219,12 @@ end
 
 function updateKingdomZones()
   for _, guids in pairs(Guids.player_pieces) do
-    getObjectFromGUID(guids.kingdom_zone).setScale(kingdom_zone_scales[current_walls_size])
+    local zone = getObjectFromGUID(guids.kingdom_zone)
+    zone.setScale({
+      kingdom_zone_scales[current_walls_size],
+      zone.getScale().y,
+      kingdom_zone_scales[current_walls_size]
+    })
   end
 end
 

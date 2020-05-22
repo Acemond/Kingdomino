@@ -81,8 +81,8 @@ function checkInteractions()
       variant_visible[variant_name] = true
       setVariantEnabled { variant_name = variant_name, is_enabled = variant_defaults[variant_name] }
     elseif variant_visible[variant_name] and not (checkDependency(interaction) and checkIncompatibility(interaction)) then
-      hideObjectIfExists(variant_buttons_guids.enable[variant_name])
-      hideObjectIfExists(variant_buttons_guids.disable[variant_name])
+      hideButtonIfExists(variant_buttons_guids.enable[variant_name])
+      hideButtonIfExists(variant_buttons_guids.disable[variant_name])
       variant_visible[variant_name] = false
       setVariantEnabled { variant_name = variant_name, is_enabled = variant_defaults[variant_name] }  -- FIXME: Quickfix
     end
@@ -114,26 +114,21 @@ function showButtonIfExists(guid)
   if object == nil then
     return
   end
-  object.setPosition({ object.getPosition().x, 1.06, object.getPosition().z })
-  if object.getButtons() then
-    for _, button in pairs(object.getButtons()) do
-      object.editButton({ index = button.index, scale = { 1, 1, 1 } })
-    end
-  end
+
+  local target_y = 0.95 + object.getBounds().size.y / 2 + object.getBounds().offset.y
+  object.setPosition({ object.getPosition().x, target_y, object.getPosition().z })
+  object.editButton({ index = 0, scale = { 1, 1, 1 } })
 end
 
-function hideObjectIfExists(guid)
+function hideButtonIfExists(guid)
   local object = getObjectFromGUID(guid)
   if object == nil then
     return
   end
-  object.lock()
-  object.setPositionSmooth({ object.getPosition().x, -2.5, object.getPosition().z })
-  if object.getButtons() then
-    for _, button in pairs(object.getButtons()) do
-      object.editButton({ index = button.index, scale = { 0, 0, 0 } })
-    end
-  end
+
+  local target_y = 0.94 - object.getBounds().size.y / 2 + object.getBounds().offset.y
+  object.setPositionSmooth({ object.getPosition().x, target_y, object.getPosition().z }, false, true)
+  object.editButton({ index = 0, scale = { 0, 0, 0 } })
 end
 
 function updateButtonsState()
