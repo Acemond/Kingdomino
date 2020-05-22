@@ -191,7 +191,14 @@ function spawnResourceToken(terrain_type, position, kingdom)
 end
 
 function nearbySnapPoint(domino, distance)
-  local board = getObjectFromGUID(DominoBoardConstants.left_boards[Global.getVar("board_size")].guid)
+  local board_size
+  if Global.getVar("board_size") ~= nil then
+    board_size = Global.getVar("board_size")
+  else
+    board_size = Global.getTable("game").settings.tile_deal_count
+  end
+
+  local board = getObjectFromGUID(DominoBoardConstants.left_boards[board_size].guid)
   for _, snap_point in pairs(board.getSnapPoints()) do
     local snap_x = snap_point.position.x * board.getScale().x + board.getPosition().x
     local snap_z = snap_point.position.z * board.getScale().z + board.getPosition().z

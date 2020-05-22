@@ -140,6 +140,8 @@ Guids.walls_guids = {
   }
 }
 
+-- FIXME: not reliable because of deck cloning for XL games.
+-- TODO: remove
 Guids.dominoes = {
   kingdomino = {
     "65c7b4",
