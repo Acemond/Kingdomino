@@ -10,6 +10,16 @@ DominoUtils.orientations = {
   z_reverse = "-z",
 }
 
+local deck_names = {
+  kingdomino = "Kingdomino",
+  queendomino = "Queendomino",
+  age_of_giants = "Age of Giants",
+}
+
+function DominoUtils.getDominoName(deck_name, position)
+  return deck_names[deck_name] .. ": " .. position
+end
+
 function DominoUtils.getOrientation(raw_rotation)
   local rotation = DominoUtils.boundRotation(raw_rotation)
 
@@ -38,7 +48,17 @@ function DominoUtils.boundRotation(rotation_value)
 end
 
 function DominoUtils.isDomino(object)
-  return table.contains(Guids.dominoes.kingdomino, object.guid)
-      or table.contains(Guids.dominoes.queendomino, object.guid)
-      or table.contains(Guids.dominoes.age_of_giants, object.guid)
+  return deck_names[DominoUtils.getDominoDeck(object)] ~= nil
+end
+
+function DominoUtils.getDominoDeck(object)
+  for deck_name, _ in string.gmatch(object.getName(), "([%w%s*]+): (-?%d+)") do
+    return table.indexOf(deck_names, deck_name)
+  end
+end
+
+function DominoUtils.getDominoValue(object)
+  for _, v in string.gmatch(object.getName(), "(%w+): (-?%d+)") do
+    return tonumber(v)
+  end
 end
