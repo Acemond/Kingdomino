@@ -182,10 +182,10 @@ function updateBlockedDirections(kingdom_boundaries)
     up = false,
     down = false
   }
-  if getSingleShift(kingdom_boundaries.x.max, kingdom_boundaries.x.min, -1) == 0 then
+  if getSingleShift(kingdom_boundaries.x.min, kingdom_boundaries.x.max, -1) == 0 then
     blocked_directions.left = true
   end
-  if getSingleShift(kingdom_boundaries.x.max, kingdom_boundaries.x.min, 1) == 0 then
+  if getSingleShift(kingdom_boundaries.x.min, kingdom_boundaries.x.max, 1) == 0 then
     blocked_directions.right = true
   end
   if getSingleShift(kingdom_boundaries.z.min, kingdom_boundaries.z.max, -1) == 0 then
