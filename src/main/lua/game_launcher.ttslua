@@ -218,6 +218,7 @@ function launchGame(new_game_settings)
 
   removeCheckZones()
   destroyUnusedPieces()
+  destroyUnusedWalls()
   game_table.call("prepareTableForGame")
   Wait.frames(moveKingdoms, 15)
 
@@ -327,6 +328,33 @@ function destroyUnusedPieces()
       for _, guid in pairs(game_objects_guid[mode]) do
         destroyObjectIfExists(guid)
       end
+    end
+  end
+  for color, objects in pairs(Guids.player_pieces) do
+    if not game_settings.seated_players[color] then
+      destroyObjectIfExists(objects.kingdom_zone)
+      destroyObjectIfExists(objects.flag)
+      destroyObjectIfExists(objects.lock_kingdom)
+      destroyObjectIfExists(objects.unlock_kingdom)
+      destroyObjectIfExists(objects.score)
+      destroyObjectIfExists(objects.left)
+      destroyObjectIfExists(objects.right)
+      destroyObjectIfExists(objects.up)
+      destroyObjectIfExists(objects.down)
+    end
+  end
+end
+
+function destroyUnusedWalls()
+  local kingdom_size = Global.get("kingdom_size")
+  for size, walls in pairs(Guids.walls_guids) do
+    for color, wall in pairs(walls) do
+      if not game_settings.seated_players[color] then
+        destroyObjectIfExists(wall)
+      end
+    end
+    if size ~= kingdom_size then
+      destroyObjectsIfExists(walls)
     end
   end
 end

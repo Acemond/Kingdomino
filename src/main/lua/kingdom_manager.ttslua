@@ -77,16 +77,13 @@ function onSave()
   })
 end
 
--- FIXME: optimize this shit that is called player_count times per frame!
 local frame = table.indexOf(PlayerConstants.playable_color, color) * 2
 function onUpdate()
   if Global.get("game") then
     if locked_kingdom ~= button_state_locked then
-      log("UPDATING LOCKS")
       updateLockButtons()
     end
     if not table.equal(blocked_direction_buttons, blocked_directions) then
-      log("UPDATING MOVE")
       updateMoveButtons()
     end
   end
@@ -214,14 +211,12 @@ end
 
 function getKingdomObjects()
   local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
-  local held_objects = getPlayersObjects()
+  local held_objects_guid = getHeldObjectsGuid()
   local held_dominoes, kingdom_objects = {}, {}
   for _, object in pairs(zone.getObjects()) do
     if object.guid ~= table_guid
-        and not table.contains(Guids.walls_guids[5], object.guid)
-        and not table.contains(Guids.walls_guids[7], object.guid)
-        and not table.contains(held_objects, object) then
-      if table.contains(held_objects, object) then
+        and not table.contains(held_objects_guid, object.guid) then
+      if table.contains(held_objects_guid, object.guid) then
         table.insert(held_dominoes, object)
       else
         table.insert(kingdom_objects, object)
@@ -281,6 +276,32 @@ function launchAnimation(objects, new_position)
   moveKingdom(objects, new_position)
 end
 
+function getKingdomBoundaries(objects)
+  return {
+    x = {
+      min = getMinPos(objects, "x"),
+      max = getMaxPos(objects, "x")
+    },
+    z = {
+      min = getMinPos(objects, "z"),
+      max = getMaxPos(objects, "z")
+    }
+  }
+end
+
+function getKingdomBoundaries(objects)
+  return {
+    x = {
+      min = getMinPos(objects, "x"),
+      max = getMaxPos(objects, "x")
+    },
+    z = {
+      min = getMinPos(objects, "z"),
+      max = getMaxPos(objects, "z")
+    }
+  }
+end
+
 function getMaxPos(objects, axis)
   local zone = getObjectFromGUID(kingdom_guids.kingdom_zone)
 
@@ -301,19 +322,6 @@ function getMaxPos(objects, axis)
   else
     return max
   end
-end
-
-function getKingdomBoundaries(objects)
-  return {
-    x = {
-      min = getMinPos(objects, "x"),
-      max = getMaxPos(objects, "x")
-    },
-    z = {
-      min = getMinPos(objects, "z"),
-      max = getMaxPos(objects, "z")
-    }
-  }
 end
 
 function getMinPos(objects, axis)
@@ -371,12 +379,12 @@ function getDominoMinOffset(orientation)
   end
 end
 
-function getPlayersObjects()
+function getHeldObjectsGuid()
   local all_objects = {}
   for _, player in pairs(Player.getPlayers()) do
     if player.getHoldingObjects() ~= nil then
       for _, object in pairs(player.getHoldingObjects()) do
-        table.insert(all_objects, object)
+        table.insert(all_objects, object.guid)
       end
     end
   end

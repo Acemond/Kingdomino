@@ -45,9 +45,7 @@ end
 
 local dropped_dominoes = {}
 function onObjectDrop(_, object)
-  if (table.contains(Guids.dominoes.kingdomino, object.guid)
-      or table.contains(Guids.dominoes.queendomino, object.guid)
-      or table.contains(Guids.dominoes.age_of_giants, object.guid)) then
+  if DominoUtils.isDomino(object) then
     local guid = object.guid
     dropped_dominoes[guid] = true
     Wait.condition(function()
@@ -75,7 +73,7 @@ function onObjectDrop(_, object)
 end
 
 function updateHeldDominoesSnapPoint()
-  local held_objects = getPlayersObjects()
+  local held_objects = getHeldObjects()
   for guid, dropped in pairs(dropped_dominoes) do
     if dropped then
       table.insert(held_objects, getObjectFromGUID(guid))
@@ -84,10 +82,7 @@ function updateHeldDominoesSnapPoint()
 
   local snap_points = {}
   for _, object in pairs(held_objects) do
-    if table.contains(Guids.dominoes.kingdomino, object.guid)
-        or table.contains(Guids.dominoes.queendomino, object.guid)
-        or table.contains(Guids.dominoes.age_of_giants, object.guid)
-        and not nearbySnapPoint(object, 1.2) then
+    if DominoUtils.isDomino(object) and not nearbySnapPoint(object, 1.2) then
       table.insert(snap_points, { position = getSnapPointPosition(object) })
     end
   end
@@ -117,7 +112,7 @@ function snapToGrid(value, grid, offset)
   return (math.floor(value / grid + 0.5 + offset) - offset) * grid
 end
 
-function getPlayersObjects()
+function getHeldObjects()
   local all_objects = {}
   for _, player in pairs(Player.getPlayers()) do
     if player.getHoldingObjects() ~= nil then
@@ -130,10 +125,13 @@ function getPlayersObjects()
 end
 
 function getDominoKingdom(domino)
+  local get_guid_function = function(obj)
+    return obj.guid
+  end
+
   for _, pieces in pairs(Guids.player_pieces) do
     local zone = getObjectFromGUID(pieces.kingdom_zone)
-
-    if table.contains(zone.getObjects(), domino) then
+    if zone ~= nil and table.contains(table.map(zone.getObjects(), get_guid_function), domino.guid) then
       return zone
     end
   end

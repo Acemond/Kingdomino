@@ -1,10 +1,18 @@
 function table.contains(tbl, value)
   for _, table_value in pairs(tbl) do
-    if table.equal(table_value, value) then
+    if table_value == value then
       return true
     end
   end
   return false
+end
+
+function table.map(tbl, map_function)
+  local new_table = {}
+  for key, tbl_value in pairs(tbl) do
+    new_table[key] = map_function(tbl_value)
+  end
+  return new_table
 end
 
 function table.size(tbl)
@@ -54,15 +62,8 @@ function table.containsOne(tbl, other)
 end
 
 function table.equal(tbl, other)
-  if type(tbl) ~= "table" then
-    return tbl == other
-  end
   for key, value in pairs(tbl) do
-    if type(value) == "table" then
-      if not table.equal(value, other[key]) then
-        return false
-      end
-    elseif other[key] ~= value then
+    if other[key] ~= value then
       return false
     end
   end

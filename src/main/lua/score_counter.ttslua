@@ -1,6 +1,7 @@
 require("util/button")
 require("util/kingdom")
 require("util/table")
+require("util/domino")
 require("constants/guids")
 require("constants/players")
 require("decks/territories")
@@ -18,7 +19,7 @@ function onLoad()
   end, 2)
 end
 
-local frame = 7
+local frame = 0
 function onUpdate()
   frame = frame + 1
   if frame % 90 ~= 0 then
@@ -91,10 +92,8 @@ function computeScore(color)
 
   local kingdom = Kingdom:new(color, kingdom_size)
   for _, object in pairs(kingdom_zone.getObjects()) do
-    if not table.contains(getPlayersObjects(), object) then
-      if (table.contains(Guids.dominoes.kingdomino, object.guid)
-          or table.contains(Guids.dominoes.queendomino, object.guid)
-          or table.contains(Guids.dominoes.age_of_giants, object.guid)) then
+    if not table.contains(getHeldObjectsGuid(), object.guid) then
+      if DominoUtils.isDomino(object) then
         kingdom:addDomino(object)
       end
       if object.guid == Guids.castle_tiles[color] then
@@ -135,12 +134,12 @@ function computeScore(color)
   end
 end
 
-function getPlayersObjects()
+function getHeldObjectsGuid()
   local all_objects = {}
   for _, player in pairs(Player.getPlayers()) do
     if player.getHoldingObjects() ~= nil then
       for _, object in pairs(player.getHoldingObjects()) do
-        table.insert(all_objects, object)
+        table.insert(all_objects, object.guid)
       end
     end
   end

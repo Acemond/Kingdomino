@@ -18,14 +18,6 @@ test({
     assertEquals(table.containsOnly({}, {}), true)
   end,
 
-  ["contains should return true"] = function()
-    assertEquals(table.contains({ position = {} }, {}), true)
-  end,
-
-  ["containsAll should return true"] = function()
-    assertEquals(table.containsOnly({ position = {} }, { position = {} }), true)
-  end,
-
   ["containsAll should return false"] = function()
     assertEquals(table.containsOnly({}, { 1 }), false)
   end
