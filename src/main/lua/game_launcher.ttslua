@@ -404,10 +404,14 @@ function getMainDecks()
     kingdomino_xl_deck.unlock()
     age_of_giants_xl_deck.unlock()
     kingdomino_xl_deck.call("mergeDeck", age_of_giants_xl_deck)
+  else
+    age_of_giants_xl_deck.destroy()
   end
   if game_settings.variants.kingdomino_xl then
     decks.kingdomino_xl = kingdomino_xl_deck
     kingdomino_xl_deck.setPosition(decks.kingdomino.getPosition())
+  else
+    kingdomino_xl_deck.destroy()
   end
 
   return decks
