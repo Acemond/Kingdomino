@@ -57,8 +57,8 @@ function DominoUtils.getDominoDeck(object)
   end
 end
 
-function DominoUtils.getDominoValue(object)
-  for _, v in string.gmatch(object.getName(), "(%w+): (-?%d+)") do
+function DominoUtils.getDominoValueFromName(name)
+  for _, v in string.gmatch(name, "(%w+): (-?%d+)") do
     return tonumber(v)
   end
 end

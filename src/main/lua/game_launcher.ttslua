@@ -13,40 +13,12 @@ local castle_manager = {}
 
 local deck_priority = {
   [Guids.deck_objects.queendomino.deck] = 1,
-  [Guids.deck_objects.kingdomino.deck] = 2
+  [Guids.deck_objects.kingdomino.deck] = 2,
+  [Guids.deck_objects.kingdomino_clone.deck] = 3
 }
 
 local quests_deck_guid = "fd8a62"
-local game_objects_guid = {
-  kingdomino = {
-    deck = "b972db"
-  },
-  queendomino = {
-    deck = "b12f86",
-    buildings = "04de04",
-    building_board = "a066dc",
-    right_building_board = "a77d62",
-    coin1_bag = "38e164",
-    coin3_bag = "8468e9",
-    coin9_bag = "4638c0",
-    knight_bag = "fe4062",
-    tower_bag = "45152b",
-    queen = "401270",
-    dragon = "447c40"
-  },
-  age_of_giants = {
-    deck = "d36a20",
-    giants_bag = "da9688"
-  },
-  the_court = {
-    buildings = "e0b7ee",
-    building_board = "d19b4c",
-    wheat_bag = "68a4e4",
-    sheep_bag = "98f12a",
-    wood_bag = "443d34",
-    fish_bag = "3725a9"
-  }
-}
+
 local deck_size_modifiers = {
   two_players_basic = 0.5,
   three_players_classic = 0.25
@@ -311,9 +283,9 @@ function dealQuests(quest_guids)
 end
 
 function takeCoins(color)
-  local coin1Bag = getObjectFromGUID(game_objects_guid.queendomino.coin1_bag)
-  local coin3Bag = getObjectFromGUID(game_objects_guid.queendomino.coin3_bag)
-  local knightBag = getObjectFromGUID(game_objects_guid.queendomino.knight_bag)
+  local coin1Bag = getObjectFromGUID(Guids.deck_objects.queendomino.coin1_bag)
+  local coin3Bag = getObjectFromGUID(Guids.deck_objects.queendomino.coin3_bag)
+  local knightBag = getObjectFromGUID(Guids.deck_objects.queendomino.knight_bag)
 
   if game_settings.seated_players[color] then
     coin1Bag.deal(1, color)
@@ -325,7 +297,7 @@ end
 function destroyUnusedPieces()
   for mode, enabled in pairs(game_settings.decks) do
     if not enabled then
-      for _, guid in pairs(game_objects_guid[mode]) do
+      for _, guid in pairs(Guids.deck_objects[mode]) do
         destroyObjectIfExists(guid)
       end
     end
@@ -363,8 +335,8 @@ function setupRoyalWedding(decksPositions)
   setupKingdomino(decksPositions[1])
   setupQueendomino(decksPositions[2])
   Global.setTable("decks", {
-    getObjectFromGUID(game_objects_guid.kingdomino.deck),
-    getObjectFromGUID(game_objects_guid.queendomino.deck)
+    getObjectFromGUID(Guids.deck_objects.kingdomino.deck),
+    getObjectFromGUID(Guids.deck_objects.queendomino.deck)
   })
 end
 
@@ -385,8 +357,8 @@ end
 function getBuildingsManagers()
   local building_managers = {}
   for mode, enabled in pairs(game_settings.decks) do
-    if enabled and game_objects_guid[mode].building_board then
-      building_managers[mode] = game_objects_guid[mode].building_board
+    if enabled and Guids.deck_objects[mode].building_board then
+      building_managers[mode] = Guids.deck_objects[mode].building_board
     end
   end
   return building_managers
@@ -418,19 +390,24 @@ end
 function getMainDecks()
   local decks = {}
   for mode, enabled in pairs(game_settings.decks) do
-    if enabled and game_objects_guid[mode].deck then
-      decks[mode] = getObjectFromGUID(game_objects_guid[mode].deck)
+    if enabled and Guids.deck_objects[mode].deck then
+      decks[mode] = getObjectFromGUID(Guids.deck_objects[mode].deck)
     end
   end
 
+  local kingdomino_xl_deck = getObjectFromGUID(Guids.deck_objects.kingdomino_clone.deck)
+  local age_of_giants_xl_deck = getObjectFromGUID(Guids.deck_objects.age_of_giants_clone.deck)
   if game_settings.decks.age_of_giants then
     decks.kingdomino.call("mergeDeck", decks.age_of_giants)
     decks.age_of_giants = nil
+
+    kingdomino_xl_deck.unlock()
+    age_of_giants_xl_deck.unlock()
+    kingdomino_xl_deck.call("mergeDeck", age_of_giants_xl_deck)
   end
   if game_settings.variants.kingdomino_xl then
-    local position = decks.kingdomino.getPosition()
-    position.y = -2.5
-    decks.kingdomino_xl = decks.kingdomino.clone({ position = position })
+    decks.kingdomino_xl = kingdomino_xl_deck
+    kingdomino_xl_deck.setPosition(decks.kingdomino.getPosition())
   end
 
   return decks

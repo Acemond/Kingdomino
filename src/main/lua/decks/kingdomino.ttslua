@@ -1,4 +1,5 @@
 require("util/table")
+require("util/domino")
 require("constants/guids")
 require("constants/domino_board")
 
@@ -10,9 +11,9 @@ function cutDeck(size)
   end
 end
 
-function trashDomino(domino_guid, position)
+function trashDomino(domino, position)
   self.takeObject({
-    guid = domino_guid,
+    guid = domino.guid,
     position = position,
     rotation = { 0, 180, 180 },
     callback_function = moveToTrash
@@ -25,7 +26,7 @@ function moveToTrash(domino)
   trashBag.putObject(domino)
 end
 
-function dealDomino(domino_guid, position)
+function dealDomino(domino, position)
   local callback_function = function(obj)
     obj.flip()
     Wait.condition(function()
@@ -38,18 +39,19 @@ function dealDomino(domino_guid, position)
   end
 
   if self == nil or #self.getObjects() == 0 then
-    local obj = getObjectFromGUID(domino_guid)
-    obj.setPositionSmooth(position)
+    log(domino.guid)
+    local domino_object = getObjectFromGUID(domino.guid)
+    domino_object.setPositionSmooth(position)
     Wait.condition(function()
-      callback_function(obj)
+      callback_function(domino_object)
     end, function()
-      return math.abs(position.x - obj.getPosition().x) < 0.01
-          and math.abs(position.y - obj.getPosition().y) < 0.01
-          and math.abs(position.z - obj.getPosition().z) < 0.01
+      return math.abs(position.x - domino_object.getPosition().x) < 0.01
+          and math.abs(position.y - domino_object.getPosition().y) < 0.01
+          and math.abs(position.z - domino_object.getPosition().z) < 0.01
     end)
   else
     self.takeObject({
-      guid = domino_guid,
+      guid = domino.guid,
       position = position,
       rotation = { 0, 180, 180 },
       callback_function = callback_function
@@ -62,32 +64,32 @@ function dealDominoes()
   self.interactable = false
 
   local dominoes = getSortedDominoesValue()
-  for index, guid in pairs(dominoes) do
+  for index, domino in pairs(dominoes) do
     local domino_zone = getObjectFromGUID(Guids.tile_check_zone[index])
 
     if game.settings.decks.age_of_giants
         and game.settings.player_count == 3 and (index == 2 or index == 4) then
       Wait.frames(function()
-        trashDomino(guid, domino_zone.getPosition())
+        trashDomino(domino, domino_zone.getPosition())
       end, index * 10)
     elseif game.settings.decks.age_of_giants
         and (game.settings.player_count == 2 or game.settings.player_count == 4) and index == 3 then
       Wait.frames(function()
-        trashDomino(guid, domino_zone.getPosition())
+        trashDomino(domino, domino_zone.getPosition())
       end, index * 10)
     elseif game.settings.decks.age_of_giants and game.settings.decks.queendomino
         and game.settings.player_count == 5 and table.contains({ 2, 4, 5, 7, 9 }, index) then
       Wait.frames(function()
-        trashDomino(guid, domino_zone.getPosition())
+        trashDomino(domino, domino_zone.getPosition())
       end, index * 10)
     elseif game.settings.decks.age_of_giants
         and game.settings.player_count == 6 and table.contains({ 3, 5, 6, 8 }, index) then
       Wait.frames(function()
-        trashDomino(guid, domino_zone.getPosition())
+        trashDomino(domino, domino_zone.getPosition())
       end, index * 10)
     else
       Wait.frames(function()
-        dealDomino(guid, domino_zone.getPosition())
+        dealDomino(domino, domino_zone.getPosition())
       end, index * 10)
     end
   end
@@ -98,22 +100,11 @@ function dealDominoes()
 end
 
 function getSortedDominoesValue()
-  local guids = getObjectsGuids()
-  table.sort(guids, function(a, b)
-    local a_index = table.indexOf(Guids.dominoes.kingdomino, a) or table.indexOf(Guids.dominoes.age_of_giants, a)
-    local b_index = table.indexOf(Guids.dominoes.kingdomino, b) or table.indexOf(Guids.dominoes.age_of_giants, b)
-    return a_index < b_index
+  local dominoes = { unpack(self.getObjects(), 1, Global.getTable("game").settings.tile_deal_count) }
+  table.sort(dominoes, function(a, b)
+    return DominoUtils.getDominoValueFromName(a.name) < DominoUtils.getDominoValueFromName(b.name)
   end)
-  return guids
-end
-
-function getObjectsGuids()
-  local tiles = self.getObjects()
-  local guids = {}
-  for i = 1, Global.getTable("game").settings.tile_deal_count, 1 do
-    guids[i] = tiles[i].guid
-  end
-  return guids
+  return dominoes
 end
 
 function mergeDeck(deck)

@@ -222,7 +222,7 @@ local dominoes = {
 }
 
 function getDominoContent(object)
-  return dominoes[DominoUtils.getDominoDeck(object)][DominoUtils.getDominoValue(object)]
+  return dominoes[DominoUtils.getDominoDeck(object)][DominoUtils.getDominoValueFromName(object.getName())]
 end
 
 function getResourceType(terrain_type)
