@@ -26,6 +26,10 @@ function Button:show()
   button.setPositionSmooth({ self.target_position.x, shown_y_position, self.target_position.z }, false, true)
 end
 
+function Button:getLabel()
+  return getObjectFromGUID(self.guid).getButtons()[1].label
+end
+
 function Button:setLabel(label)
   getObjectFromGUID(self.guid).editButton({ index = 0, label = label })
 end

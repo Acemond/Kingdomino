@@ -19,11 +19,28 @@ Rules of the game
 Go to the section that corresponds to the game you picked or refer to the rulebooks on the left of the table.
 
 
-Score Sheets
----------------
+Game Keys
+------------
+There are some shortcuts you can assign by going to Options -> Game Keys.
 
-There are special score sheets with this mod that you will find in the infinite bag on the table map's compass.
 
-Just click the + and - buttons to increment or decrement the values of crowns and territory size.
-Each pair of column correspond to a different territory.
-Everything is added up automatically and your total appears at the bottom of the sheet.
+Kingdom Movement
+-----------------------
+According to the rules, your kingdom should not go above a 5x5 (or 7x7) square.
+In order to have a visual clue of this limitation, your kingdom is surrounded by walls in this mod.
+But in some cases you don't want to castle to remain in the middle of the kingdom.
+
+With this mod, when you approach a domino to the limits of your kingdom, if there is no space for the domino,
+the kingdom will automatically move to make room for it.
+
+You can also move the kingdom manually using the arrows, and if you don't want it to move automatically at all,
+you can click the lock. You will still be able to move it manually with the arrow buttons.
+
+
+Score
+------
+
+Score is computed automatically through the whole duration of the game.
+If you don't want to see the score during the whole game to keep the surprise,
+you can go to Options -> Game Keys and assign a key to hide the score.
+There are also score sheets to calculate manually the score at the bottom right of the table.

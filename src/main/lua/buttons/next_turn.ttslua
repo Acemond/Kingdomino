@@ -171,6 +171,7 @@ function setupPing()
     Wait.condition(function()
       Wait.condition(function()
         broadcastToAll("Game over!", { r = 1, g = 1, b = 1 })
+        getObjectFromGUID(Guids.score_counter).call("gameOver")
       end, function()
         return getZoneGameObjectCount(getObjectFromGUID(leftZoneGuid), kingsGuid) < 1
       end)

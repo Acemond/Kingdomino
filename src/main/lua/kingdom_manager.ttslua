@@ -425,6 +425,10 @@ function moveKingdom(kingdom_objects, new_position)
   end)
 end
 
+function toggleLock()
+  locked_kingdom = not locked_kingdom
+end
+
 function lockKingdom()
   locked_kingdom = true
 end

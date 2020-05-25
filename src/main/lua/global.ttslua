@@ -29,6 +29,13 @@ function onLoad(save_state)
   configuration_validator = getObjectFromGUID(configuration_validator_guid)
   deck_manager = getObjectFromGUID(deck_manager_guid)
   variant_manager = getObjectFromGUID(variant_manager_guid)
+
+  addHotkey("Toggle Ready", toggleReady, false)
+  addHotkey("Move Kingdom ←", moveLeft, false)
+  addHotkey("Move Kingdom ↑", moveUp, false)
+  addHotkey("Move Kingdom →", moveRight, false)
+  addHotkey("Move Kingdom ↓", moveDown, false)
+  addHotkey("Lock/Unlock Kingdom", lockKingdom, false)
 end
 
 function onUpdate()
@@ -256,4 +263,49 @@ function resolveForPlayerCount(target_player_count)
     deck_manager.call("setDeckEnabled", { deck_name = "queendomino", is_enabled = true })
   end
   return game_settings
+end
+
+function toggleReady(player_color)
+  if Guids.player_pieces[player_color] then
+    local castle = getObjectFromGUID(Guids.player_pieces[player_color].castle)
+    if castle ~= nil then
+      castle.call("toggleReady")
+    end
+  end
+end
+
+function moveLeft(player_color)
+  move(player_color, "left")
+end
+
+function moveRight(player_color)
+  move(player_color, "right")
+end
+
+function moveUp(player_color)
+  move(player_color, "up")
+end
+
+function moveDown(player_color)
+  move(player_color, "down")
+end
+
+function lockKingdom(player_color)
+  local kingdom_manager = getPlayerKingdomManager(player_color)
+  if Global.get("game") and kingdom_manager ~= nil then
+    kingdom_manager.call("toggleLock")
+  end
+end
+
+function move(player_color, direction)
+  local kingdom_manager = getPlayerKingdomManager(player_color)
+  if Global.get("game") and kingdom_manager ~= nil then
+    kingdom_manager.call("tryShift", direction)
+  end
+end
+
+function getPlayerKingdomManager(player_color)
+  if Guids.player_pieces[player_color] then
+    return getObjectFromGUID(Guids.player_pieces[player_color].castle_tile)
+  end
 end
