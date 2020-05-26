@@ -36,6 +36,7 @@ function dealDomino(domino, position)
 end
 
 function dealDominoes()
+  self.unlock()
   self.interactable = false
 
   local dominoes = getSortedDominoesValue()
@@ -48,6 +49,7 @@ function dealDominoes()
   end
 
   Wait.frames(function()
+    self.lock()
     self.interactable = true
   end, (#dominoes + 1) * 10)
 end

@@ -61,6 +61,7 @@ end
 
 function dealDominoes()
   local game = Global.getTable("game")
+  self.unlock()
   self.interactable = false
 
   local dominoes = getSortedDominoesValue()
@@ -96,6 +97,7 @@ function dealDominoes()
 
   Wait.frames(function()
     self.interactable = true
+    self.lock()
   end, (#dominoes + 1) * 10)
 end
 

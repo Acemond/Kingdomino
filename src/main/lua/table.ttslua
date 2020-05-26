@@ -136,18 +136,24 @@ local buttons_to_remove = {
 }
 
 local objects_to_lock = {
-  queendomino_building_board = "a066dc",
-  queendomino_right_building_board = "a77d62",
-  queendomino_coin1_bag = "38e164",
-  queendomino_coin3_bag = "8468e9",
-  queendomino_coin9_bag = "4638c0",
-  queendomino_knight_bag = "fe4062",
-  queendomino_tower_bag = "45152b",
-  the_court_building_board = "d19b4c",
-  the_court_wheat_bag = "68a4e4",
-  the_court_sheep_bag = "98f12a",
-  the_court_wood_bag = "443d34",
-  the_court_fish_bag = "3725a9"
+  Guids.deck_objects.kingdomino.deck,
+  Guids.deck_objects.kingdomino_clone.deck,
+  Guids.deck_objects.age_of_giants.deck,
+  Guids.deck_objects.age_of_giants_clone.deck,
+  Guids.deck_objects.queendomino.deck,
+  Guids.deck_objects.queendomino.building_board,
+  Guids.deck_objects.queendomino.right_building_board,
+  Guids.deck_objects.queendomino.coin1_bag,
+  Guids.deck_objects.queendomino.coin3_bag,
+  Guids.deck_objects.queendomino.coin9_bag,
+  Guids.deck_objects.queendomino.knight_bag,
+  Guids.deck_objects.queendomino.tower_bag,
+  Guids.deck_objects.the_court.building_board,
+  Guids.deck_objects.the_court.Wheat,
+  Guids.deck_objects.the_court.Sheep,
+  Guids.deck_objects.the_court.Wood,
+  Guids.deck_objects.the_court.Fish,
+  Guids.deck_objects.age_of_giants.giants_bag
 }
 
 local frozen = true
