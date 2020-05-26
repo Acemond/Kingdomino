@@ -34,7 +34,6 @@ function initialize()
   self.createButton({
     click_function = "toggleReady",
     function_owner = self,
-    label = "",
     position = { 0, 0, 0 },
     color = { 0, 0, 0, 0 },
     width = 1300,

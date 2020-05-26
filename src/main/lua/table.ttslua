@@ -92,7 +92,7 @@ local non_interactable_guids = {
 local temporarily_frozen = {
   Guids.deck_objects.kingdomino.deck, Guids.deck_objects.kingdomino_clone.deck,
   Guids.deck_objects.queendomino.deck, "04de04", "38e164", "8468e9", "4638c0", "fe4062", "45152b", "401270", "447c40", -- queen
-  Guids.deck_objects.age_of_giants.deck, Guids.deck_objects.age_of_giants_clone.deck,
+  Guids.deck_objects.age_of_giants.deck, Guids.deck_objects.age_of_giants_clone.deck, Guids.deck_objects.age_of_giants.giants_bag,
   "e0b7ee", "68a4e4", "98f12a", "443d34", "3725a9"  -- the_court
 }
 

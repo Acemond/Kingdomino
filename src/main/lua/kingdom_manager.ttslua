@@ -441,7 +441,6 @@ function createLockButtons()
   getObjectFromGUID(Guids.player_pieces[color].lock_kingdom).createButton({
     click_function = "lockKingdom",
     function_owner = self,
-    label = "",
     tooltip = "Click to prevent the kingdom from moving away from the edges.",
     position = { 0, 0.05, 0 },
     scale = { 0, 0, 0 },
@@ -455,7 +454,6 @@ function createUnlockButtons()
   getObjectFromGUID(Guids.player_pieces[color].unlock_kingdom).createButton({
     click_function = "unlockKingdom",
     function_owner = self,
-    label = "",
     tooltip = "Click for kingdom to move away from the edges.",
     position = { 0, 0.05, 0 },
     scale = { 0, 0, 0 },
@@ -529,7 +527,6 @@ function createMoveButton(button, direction)
   button.createButton({
     click_function = function_name,
     function_owner = self,
-    label = "",
     tooltip = "Click to move kingdom " .. direction .. ".",
     position = { 0, 0.05, 0 },
     scale = { 0, 0, 0 },

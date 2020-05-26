@@ -9,7 +9,6 @@ function onLoad()
   self.createButton({
     click_function = "onClick",
     function_owner = self,
-    label = "",
     tooltip = "Play with quests from Age of Giants instead of the default ones.",
     position = { 0, 0.05, 0 },
     color = { 0, 0, 0, 0 },
