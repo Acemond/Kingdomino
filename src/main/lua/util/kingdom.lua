@@ -249,21 +249,25 @@ function Kingdom:checkLaFolieDesGrandeursQuest()
   local points = 0
 
   for row, _ in pairs(self.map) do
-    for col = 1, self.size, 1 do
+    local col = 1
+    repeat
       if self:checkLaFolieDesGrandeursHorizontally(row, col) then
         points = points + 10
         col = col + 1
       end
-    end
+      col = col + 1
+    until col > self.size
   end
 
   for col, _ in pairs(self.map) do
-    for row = 1, self.size, 1 do
+    local row = 1
+    repeat
       if self:checkLaFolieDesGrandeursVertically(row, col) then
         points = points + 10
         row = row + 1
       end
-    end
+      row = row + 1
+    until row > self.size
   end
 
   --[[
@@ -277,12 +281,14 @@ function Kingdom:checkLaFolieDesGrandeursQuest()
     1 0 0 0 0 0 0
   ]]
   for row = 1, self.size - 2, 1 do
-    for col = 1, self.size - 1 - row, 1 do
+    local col = 1
+    repeat
       if self:checkLaFolieDesGrandeursDiagonally(col + row - 1, col) then
         points = points + 10
         col = col + 1
       end
-    end
+      col = col + 1
+    until col > self.size - 1 - row
   end
 
   --[[
@@ -296,12 +302,14 @@ function Kingdom:checkLaFolieDesGrandeursQuest()
     0 1 1 1 1 0 0
   ]]
   for col = 2, self.size - 2, 1 do
-    for row = 1, self.size - col - 1, 1 do
+    local row = 1
+    repeat
       if self:checkLaFolieDesGrandeursDiagonally(row, row + col - 1) then
         points = points + 10
         row = row + 1
       end
-    end
+      row = row + 1
+    until row > self.size - col - 1
   end
 
   --[[
@@ -315,12 +323,14 @@ function Kingdom:checkLaFolieDesGrandeursQuest()
     0 0 X X X X X
   ]]
   for row = self.size, 3, -1 do
-    for col = 1, row - 2, 1 do
+    local col = 1
+    repeat
       if self:checkLaFolieDesGrandeursDiagonallyDown(row - (col - 1), col) then
         points = points + 10
         col = col + 1
       end
-    end
+      col = col + 1
+    until col > row - 2
   end
 
   --[[
@@ -334,32 +344,42 @@ function Kingdom:checkLaFolieDesGrandeursQuest()
     0 0 0 0 0 0 0
   ]]
   for col = 2, self.size - 2, 1 do
-    for row = self.size, col + 2, -1 do
+    local row = self.size
+    repeat
       if self:checkLaFolieDesGrandeursDiagonallyDown(row, col + (self.size - row)) then
         points = points + 10
-        row = row + 1
+        row = row - 1
       end
-    end
+      row = row - 1
+    until row < col + 2
   end
 
   return points
 end
 
 function Kingdom:squareHasCrowns(row, col)
-  return self.map[row] and self.map[row][col] and self.map[row][col].terrain and self.map[row][col].terrain.crowns
-      and self.map[row][col].terrain.crowns > 0
+  return self.map[row] and self.map[row][col]
+      and (squareHasBuildingCrowns(self.map[row][col]) or squareHasTerrainCrowns(self.map[row][col]))
+end
+
+function squareHasBuildingCrowns(square)
+  return square.building and square.building.crowns and square.building.crowns > 0
+end
+
+function squareHasTerrainCrowns(square)
+  return square.terrain and square.terrain.crowns and square.terrain.crowns > 0
 end
 
 function Kingdom:checkLaFolieDesGrandeursHorizontally(row, col)
   return self:squareHasCrowns(row, col)
-      and self:squareHasCrowns(row + 1, col)
-      and self:squareHasCrowns(row + 2, col)
+      and self:squareHasCrowns(row, col + 1)
+      and self:squareHasCrowns(row, col + 2)
 end
 
 function Kingdom:checkLaFolieDesGrandeursVertically(row, col)
   return self:squareHasCrowns(row, col)
-      and self:squareHasCrowns(row, col + 1)
-      and self:squareHasCrowns(row, col + 2)
+      and self:squareHasCrowns(row + 1, col)
+      and self:squareHasCrowns(row + 2, col)
 end
 
 function Kingdom:checkLaFolieDesGrandeursDiagonally(row, col)
