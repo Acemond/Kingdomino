@@ -160,13 +160,13 @@ local quests = {
   middle_kingdom = "ddd8f4",
   local_business_prairies = "76e6c0",
   local_business_fields = "714d68",
-  local_business_lakes = "5ce5dd",
+  local_business_lake = "5ce5dd",
   local_business_mountains = "03130c",
   local_business_forests = "2dff57",
   local_business_marsh = "8cf132",
   the_four_corners_prairies = "bd5cc2",
   the_four_corners_fields = "e9d955",
-  the_four_corners_lakes = "78f5db",
+  the_four_corners_lake = "78f5db",
   the_four_corners_mountains = "cb497b",
   the_four_corners_forests = "e448b6",
   the_four_corners_marsh = "9d32aa",
@@ -187,8 +187,8 @@ function Kingdom:countQuestsPoints(territories)
       points = points + self:checkLocalBusinessQuest(terrain_types.prairies)
     elseif guid == quests.local_business_fields then
       points = points + self:checkLocalBusinessQuest(terrain_types.fields)
-    elseif guid == quests.local_business_lakes then
-      points = points + self:checkLocalBusinessQuest(terrain_types.lakes)
+    elseif guid == quests.local_business_lake then
+      points = points + self:checkLocalBusinessQuest(terrain_types.lake)
     elseif guid == quests.local_business_mountains then
       points = points + self:checkLocalBusinessQuest(terrain_types.mountain)
     elseif guid == quests.local_business_forests then
@@ -199,8 +199,8 @@ function Kingdom:countQuestsPoints(territories)
       points = points + self:checkTheFourCornersQuest(terrain_types.prairies)
     elseif guid == quests.the_four_corners_fields then
       points = points + self:checkTheFourCornersQuest(terrain_types.fields)
-    elseif guid == quests.the_four_corners_lakes then
-      points = points + self:checkTheFourCornersQuest(terrain_types.lakes)
+    elseif guid == quests.the_four_corners_lake then
+      points = points + self:checkTheFourCornersQuest(terrain_types.lake)
     elseif guid == quests.the_four_corners_mountains then
       points = points + self:checkTheFourCornersQuest(terrain_types.mountain)
     elseif guid == quests.the_four_corners_forests then
