@@ -237,7 +237,7 @@ function Kingdom:checkTheBleakKingQuest(territories)
   for _, territory in pairs(territories) do
     if territory.size > 4
         and territory.crowns == 0
-        and table.contains({ terrain_types.forest, terrain_types.fields, terrain_types.prairies, terrain_types.lakes }, territory.type) then
+        and table.contains({ terrain_types.forest, terrain_types.fields, terrain_types.prairies, terrain_types.lake }, territory.type) then
       points = points + 10
     end
   end
