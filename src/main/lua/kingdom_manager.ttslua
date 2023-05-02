@@ -1,5 +1,3 @@
---local color = "White"
-
 require("util/table")
 require("util/domino")
 require("constants/guids")
@@ -107,7 +105,8 @@ function onUpdate()
 
   kingdom_size = Global.getVar("kingdom_size")
 
-  if not locked_kingdom then
+  local tile = getObjectFromGUID(kingdom_guids.castle_tile)
+  if not locked_kingdom and not tile.isSmoothMoving() then
     local shift = { x = 0, z = 0 }
     for _, domino in pairs(held_dominoes) do
       shift.x = getAutoShiftKingdomValue(kingdom_boundaries, domino, "x")
