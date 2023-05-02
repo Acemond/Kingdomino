@@ -118,7 +118,7 @@ function onUpdate()
       z = current_position.z + shift.z,
     }
     if not table.equal(shift, { x = 0, z = 0 }) then
-      launchAnimation(objects_to_move, current_position)
+      moveKingdom(objects_to_move, current_position)
     end
   end
 end
@@ -170,7 +170,7 @@ function tryShift(direction)
     z = current_position.z + shift.z,
   }
   if not table.equal(shift, { x = 0, z = 0 }) then
-    launchAnimation(kingdom_objects, current_position)
+    moveKingdom(kingdom_objects, current_position)
   end
 end
 
@@ -270,10 +270,6 @@ function getPossibleShift(min_kingdom, max_kingdom, space_needed)
       return 0
     end
   end
-end
-
-function launchAnimation(objects, new_position)
-  moveKingdom(objects, new_position)
 end
 
 function getKingdomBoundaries(objects)
