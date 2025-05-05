@@ -19,9 +19,7 @@ All configurations are scripted.
 **Playable for 2 to 6 players.**
 
 ## Contact and support
-You can check what I'm working on with my mini-tracker tool: [Trello](https://trello.com/b/2MNPidbB/kingdomino).
-
-If you encounter anything suspicious about the way the mod behaves, please report it in the corresponding Discussions thread or in the comment section, you can also come to [Discord](https://discord.gg/syERF8) to talk about it.
+If you encounter anything suspicious about the way the mod behaves, please report it as an issue in this repository.
 
 ## Credits
 Thanks to **Bruno Cathala** for his amazing games.
